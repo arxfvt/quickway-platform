@@ -11,14 +11,12 @@ import type { User } from '../types/user.types'
 // ─────────────────────────────────────────────────────────────────────────────
 
 async function fetchProfile(userId: string): Promise<User | null> {
-  const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 6000))
-  const query = supabase
+  const { data } = await supabase
     .from('profiles')
     .select('id, email, role, kyc_status, org_id, full_name, phone, address, created_at')
     .eq('id', userId)
     .single()
-    .then(({ data }) => data ?? null)
-  return Promise.race([query, timeout])
+  return data ?? null
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -32,7 +30,7 @@ export default function App() {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
         const profile = await fetchProfile(session.user.id)
-        setUser(profile)
+        if (profile) setUser(profile)
       } else if (import.meta.env.DEV) {
         const saved = sessionStorage.getItem('__dev_user')
         if (saved) setUser(JSON.parse(saved))
@@ -40,14 +38,11 @@ export default function App() {
       setLoading(false)
     }).catch(() => setLoading(false))
 
-    // 2. Subscribe to future auth events (sign in, sign out, token refresh)
+    // 2. Subscribe to future auth events (sign in is handled by useAuth.signIn)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event) => {
         if (event === 'SIGNED_OUT') {
           setUser(null)
-        } else if (event === 'SIGNED_IN' && session?.user) {
-          const profile = await fetchProfile(session.user.id)
-          setUser(profile)
         }
       }
     )

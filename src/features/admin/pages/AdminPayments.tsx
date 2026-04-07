@@ -87,6 +87,18 @@ export default function AdminPayments() {
     const reason = action === 'rejected' ? (rejectionNote || 'Payment reference could not be verified.') : undefined
     try {
       await reviewParticipation(selected.id, action, reason)
+
+      // Send email notification on approval (fire-and-forget)
+      if (action === 'approved' && selectedUser) {
+        supabase.functions.invoke('notify-payment-approved', {
+          body: {
+            email: selectedUser.email,
+            fullName: selectedUser.full_name,
+            auctionTitle: selectedAuction?.title,
+            auctionRef: selectedAuction?.auction_ref,
+          },
+        }).catch(() => {})
+      }
     } catch { /* optimistic update below regardless */ }
 
     setPayments((prev) =>
@@ -126,7 +138,7 @@ export default function AdminPayments() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
         {[
           { label: 'Pending Review', value: pendingCount,   icon: <Clock size={15} className="text-amber" />,         bg: 'bg-amber-light' },
           { label: 'Approved',       value: approvedCount,  icon: <CheckCircle2 size={15} className="text-green-600" />, bg: 'bg-green-50' },
@@ -142,10 +154,10 @@ export default function AdminPayments() {
         ))}
       </div>
 
-      <div className="grid grid-cols-5 gap-5 h-[calc(100vh-310px)] min-h-[480px]">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 h-auto lg:h-[calc(100vh-310px)] min-h-[480px]">
 
         {/* ── LEFT: Payment list ─────────────────────────── */}
-        <div className="col-span-2 flex flex-col bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="lg:col-span-2 flex flex-col bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
           {/* Filter tabs */}
           <div className="flex border-b border-slate-100">
             {(['pending_review', 'approved', 'rejected', 'all'] as const).map((f) => (
@@ -216,7 +228,7 @@ export default function AdminPayments() {
         </div>
 
         {/* ── RIGHT: Detail & actions ─────────────────────── */}
-        <div className="col-span-3 flex flex-col gap-4">
+        <div className="lg:col-span-3 flex flex-col gap-4">
           {selected ? (
             <>
               {/* Payment detail card */}

@@ -16,13 +16,24 @@ export async function placeBid(lotId: string, bidderId: string, amount: number):
 
   if (error) throw error
 
-  // Update lot current_bid if this bid is higher
+  // Update lot current_bid only if this bid is higher
   // (In production, use a Supabase Edge Function or DB trigger for atomicity)
   await supabase
     .from('lots')
     .update({ current_bid: amount })
     .eq('id', lotId)
     .lt('current_bid', amount)
+
+  // Count total bids and always update bid_count
+  const { count } = await supabase
+    .from('bids')
+    .select('*', { count: 'exact', head: true })
+    .eq('lot_id', lotId)
+
+  await supabase
+    .from('lots')
+    .update({ bid_count: count ?? 1 })
+    .eq('id', lotId)
 
   return data as Bid
 }

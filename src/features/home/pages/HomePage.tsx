@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, Gavel, ShieldCheck, Ticket, Radio, ChevronRight, MapPin, Package } from 'lucide-react'
 import { getAuctions } from '../../../services/auctions.service'
 import { getOrganizations } from '../../../services/organizations.service'
+import { supabase } from '../../../lib/supabase'
 import { formatCurrency } from '../../../utils/currency'
 import StatusBadge from '../../../components/auction/StatusBadge'
 import CountdownTimer from '../../../components/auction/CountdownTimer'
@@ -38,10 +39,13 @@ const HOW_IT_WORKS = [
 export default function HomePage() {
   const [auctions, setAuctions] = useState<Auction[]>([])
   const [orgs, setOrgs] = useState<{ id: string; name: string; location: string }[]>([])
+  const [lotsCount, setLotsCount] = useState<number | null>(null)
 
   useEffect(() => {
     getAuctions().then(setAuctions).catch(() => {})
     getOrganizations().then(setOrgs).catch(() => {})
+    supabase.from('lots').select('*', { count: 'exact', head: true }).eq('status', 'open')
+      .then(({ count }) => setLotsCount(count ?? 0)).catch(() => setLotsCount(0))
   }, [])
 
   const liveAuctions = auctions.filter((a) => a.status === 'live').slice(0, 3)
@@ -96,21 +100,30 @@ export default function HomePage() {
       </section>
 
       {/* ── Stats strip ───────────────────────────────────────── */}
-      <section className="bg-white border-b border-slate-100">
-        <div className="max-w-[1200px] mx-auto px-6 py-5 grid grid-cols-2 md:grid-cols-4 gap-6 divide-x divide-slate-100">
-          {[
-            { value: '8', label: 'Active Auctions' },
-            { value: '100+', label: 'Lots Available' },
-            { value: '4', label: 'Partner Orgs' },
-            { value: 'UGX', label: 'Currency' },
-          ].map((s) => (
-            <div key={s.label} className="text-center pl-6 first:pl-0">
-              <p className="text-2xl font-bold text-brand">{s.value}</p>
-              <p className="text-xs text-slate-500 mt-0.5">{s.label}</p>
+      {(() => {
+        const loading = auctions.length === 0 && orgs.length === 0 && lotsCount === null
+        const activeCount = auctions.filter((a) => a.status === 'live' || a.status === 'scheduled').length
+        const stats = [
+          { value: loading ? '—' : String(activeCount), label: 'Active Auctions', loading },
+          { value: loading || lotsCount === null ? '—' : String(lotsCount), label: 'Lots Available', loading: loading || lotsCount === null },
+          { value: loading ? '—' : String(orgs.length), label: 'Partner Orgs', loading },
+          { value: 'UGX', label: 'Currency', loading: false },
+        ]
+        return (
+          <section className="bg-white border-b border-slate-100">
+            <div className="max-w-[1200px] mx-auto px-6 py-5 grid grid-cols-2 md:grid-cols-4 gap-6 divide-x divide-slate-100">
+              {stats.map((s) => (
+                <div key={s.label} className="text-center pl-6 first:pl-0">
+                  <p className={cn('text-2xl font-bold', s.loading ? 'text-slate-200 animate-pulse' : 'text-brand')}>
+                    {s.value}
+                  </p>
+                  <p className="text-xs text-slate-500 mt-0.5">{s.label}</p>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </section>
+          </section>
+        )
+      })()}
 
       {/* ── Live Auctions ─────────────────────────────────────── */}
       {liveAuctions.length > 0 && (

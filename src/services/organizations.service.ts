@@ -54,3 +54,15 @@ export async function updateOrganization(
 
   if (error) throw error
 }
+
+/** Admin: toggle organisation status (active ↔ suspended). */
+export async function updateOrgStatus(id: string, status: 'active' | 'suspended'): Promise<void> {
+  const { error } = await supabase.from('organizations').update({ status }).eq('id', id)
+  if (error) throw error
+}
+
+/** Admin: permanently delete an organisation. */
+export async function deleteOrganization(id: string): Promise<void> {
+  const { error } = await supabase.from('organizations').delete().eq('id', id)
+  if (error) throw error
+}

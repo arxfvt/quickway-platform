@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Gavel, Users, Package, Ticket, ChevronRight, Plus, Radio, Clock, Loader2 } from 'lucide-react'
+import { Gavel, Users, Package, Ticket, ChevronRight, Radio, Clock, Loader2 } from 'lucide-react'
 import { getAuctions } from '../../../services/auctions.service'
 import { getAllParticipations } from '../../../services/participation.service'
 import { formatCurrency } from '../../../utils/currency'
@@ -75,13 +75,6 @@ export default function OrgDashboard() {
           <h1 className="text-xl font-bold text-slate-900">Organisation Dashboard</h1>
           <p className="text-xs text-slate-500 mt-0.5">Overview of your auctions and participants.</p>
         </div>
-        <Link
-          to="/org/auctions/create"
-          className="flex items-center gap-1.5 bg-brand hover:bg-brand-dark text-white text-xs font-semibold px-4 py-2 rounded-xl transition-colors"
-        >
-          <Plus size={13} />
-          New Auction
-        </Link>
       </div>
 
       {/* Stats */}
@@ -111,9 +104,9 @@ export default function OrgDashboard() {
         ))}
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent auctions table — 2/3 */}
-        <div className="col-span-2">
+        <div className="lg:col-span-2">
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm">
             <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
               <h2 className="text-sm font-semibold text-slate-800">My Auctions</h2>
@@ -125,7 +118,6 @@ export default function OrgDashboard() {
               <div className="p-8 text-center text-slate-400">
                 <Gavel size={32} strokeWidth={1} className="mx-auto mb-3 opacity-40" />
                 <p className="text-sm font-medium text-slate-600">No auctions yet</p>
-                <Link to="/org/auctions/create" className="mt-2 inline-block text-xs text-brand hover:underline">Create your first auction →</Link>
               </div>
             ) : (
               <div className="divide-y divide-slate-100">
@@ -203,7 +195,6 @@ export default function OrgDashboard() {
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
             <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Quick Actions</h3>
             {[
-              { to: '/org/auctions/create', label: 'Create Auction', icon: <Plus size={12} /> },
               { to: '/org/auctions',        label: 'Manage Auctions', icon: <Gavel size={12} /> },
               { to: '/org/bidders',         label: 'View Participants', icon: <Users size={12} /> },
             ].map((link) => (

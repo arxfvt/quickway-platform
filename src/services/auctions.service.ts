@@ -93,3 +93,32 @@ export async function createLot(
   if (error) throw error
   return data as Lot
 }
+
+/** Admin: update a lot's fields. */
+export async function updateLot(id: string, payload: Partial<Omit<Lot, 'id'>>): Promise<void> {
+  const { error } = await supabase.from('lots').update(payload).eq('id', id)
+  if (error) throw error
+}
+
+/** Admin: delete a lot. */
+export async function deleteLot(id: string): Promise<void> {
+  const { error } = await supabase.from('lots').delete().eq('id', id)
+  if (error) throw error
+}
+
+/** Upload an image to the auction-images bucket. Returns the public URL. */
+export async function uploadAuctionImage(file: File, path: string): Promise<string> {
+  const { error } = await supabase.storage.from('auction-images').upload(path, file, { upsert: true })
+  if (error) throw error
+  const { data } = supabase.storage.from('auction-images').getPublicUrl(path)
+  return `${data.publicUrl}?t=${Date.now()}`
+}
+
+/** Admin: update auction fields (non-status changes). */
+export async function updateAuction(
+  id: string,
+  payload: Partial<Omit<Auction, 'id' | 'created_at' | 'org_name' | 'org_location'>>
+): Promise<void> {
+  const { error } = await supabase.from('auctions').update(payload).eq('id', id)
+  if (error) throw error
+}

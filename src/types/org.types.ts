@@ -7,6 +7,7 @@ export interface Organization {
   contact_phone: string | null
   location: string | null
   settings: OrgSettings
+  status: 'active' | 'suspended'
   created_at: string
 }
 

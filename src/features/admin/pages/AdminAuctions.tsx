@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Gavel, Radio, Package, Users, Clock, Search, ChevronDown, Plus, Loader2 } from 'lucide-react'
 import { getAuctions } from '../../../services/auctions.service'
 import { getOrganizations } from '../../../services/organizations.service'
+import { getAllParticipations } from '../../../services/participation.service'
 import { formatDate } from '../../../utils/date'
 import { formatCurrency } from '../../../utils/currency'
 import { cn } from '../../../lib/utils'
@@ -34,11 +35,20 @@ export default function AdminAuctions() {
   const [orgFilter, setOrgFilter] = useState('all')
   const [auctions, setAuctions] = useState<Auction[]>([])
   const [orgs, setOrgs] = useState<{ id: string; name: string }[]>([])
+  const [participationMap, setParticipationMap] = useState<Map<string, number>>(new Map())
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    Promise.all([getAuctions(), getOrganizations()])
-      .then(([a, o]) => { setAuctions(a); setOrgs(o) })
+    Promise.all([getAuctions(), getOrganizations(), getAllParticipations()])
+      .then(([a, o, participations]) => {
+        setAuctions(a)
+        setOrgs(o)
+        const map = new Map<string, number>()
+        participations
+          .filter((p) => p.payment_status === 'approved')
+          .forEach((p) => map.set(p.auction_id, (map.get(p.auction_id) ?? 0) + 1))
+        setParticipationMap(map)
+      })
       .catch(() => {})
       .finally(() => setIsLoading(false))
   }, [])
@@ -70,11 +80,11 @@ export default function AdminAuctions() {
           <p className="text-xs text-slate-500 mt-0.5">Global overview of every auction across all organisations.</p>
         </div>
         <Link
-          to="/admin/catalogues/create"
+          to="/admin/auctions/new"
           className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-brand text-white hover:bg-brand-dark transition-colors"
         >
           <Plus size={13} />
-          Create Catalogue
+          New Auction
         </Link>
       </div>
 
@@ -153,7 +163,7 @@ export default function AdminAuctions() {
             <tbody className="divide-y divide-slate-100">
               {filtered.map((a) => {
                 const org = orgs.find((o) => o.id === a.org_id)
-                const approvedBidders = 0
+                const approvedBidders = participationMap.get(a.id) ?? 0
                 return (
                   <tr key={a.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-5 py-3.5">
@@ -199,7 +209,7 @@ export default function AdminAuctions() {
                     </td>
                     <td className="px-5 py-3.5 text-right">
                       <Link
-                        to={`/auctions/${a.id}`}
+                        to={`/admin/auctions/${a.id}`}
                         className="text-[10px] font-medium text-brand hover:underline"
                       >
                         View

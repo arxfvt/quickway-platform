@@ -5,12 +5,10 @@ import {
   ChevronRight, AlertTriangle, Package,
 } from 'lucide-react'
 import { getAuctions } from '../../../services/auctions.service'
-import { getKycDocumentsByStatus } from '../../../services/kyc.service'
-import { getParticipationsByStatus } from '../../../services/participation.service'
+import { getParticipationsByStatus, getAllParticipations } from '../../../services/participation.service'
 import { getUsers } from '../../../services/users.service'
 import { getOrganizations } from '../../../services/organizations.service'
 import type { Auction } from '../../../types/auction.types'
-import type { KycDocument } from '../../../types/kyc.types'
 import type { AuctionParticipation } from '../../../types/participation.types'
 import type { User } from '../../../types/user.types'
 import { formatCurrency } from '../../../utils/currency'
@@ -31,24 +29,28 @@ const STATUS_CHIP: Record<string, string> = {
 
 export default function AdminDashboard() {
   const [auctions, setAuctions]         = useState<Auction[]>([])
-  const [kycDocs, setKycDocs]           = useState<KycDocument[]>([])
   const [participations, setParticipations] = useState<AuctionParticipation[]>([])
   const [users, setUsers]               = useState<User[]>([])
   const [orgs, setOrgs]                 = useState<{ id: string; name: string }[]>([])
+  const [participationMap, setParticipationMap] = useState<Map<string, number>>(new Map())
 
   useEffect(() => {
     Promise.all([
       getAuctions(),
-      getKycDocumentsByStatus('pending'),
       getParticipationsByStatus('pending_review'),
       getUsers(),
       getOrganizations(),
-    ]).then(([a, k, p, u, o]) => {
+      getAllParticipations(),
+    ]).then(([a, p, u, o, allP]) => {
       setAuctions(a)
-      setKycDocs(k)
       setParticipations(p)
       setUsers(u)
       setOrgs(o)
+      const map = new Map<string, number>()
+      allP
+        .filter((part) => part.payment_status === 'approved')
+        .forEach((part) => map.set(part.auction_id, (map.get(part.auction_id) ?? 0) + 1))
+      setParticipationMap(map)
     }).catch(() => {})
   }, [])
 
@@ -57,7 +59,7 @@ export default function AdminDashboard() {
   const liveAuctions    = auctions.filter((a) => a.status === 'live').length
   const totalBidders    = users.filter((u) => u.role === 'bidder').length
   const totalOrgs       = orgs.length
-  const pendingKyc      = kycDocs.filter((d) => d.status === 'pending').length
+  const pendingKyc      = users.filter((u) => u.kyc_status === 'pending').length
   const pendingPayments = participations.filter((p) => p.payment_status === 'pending_review').length
   const totalRevenue    = participations
     .filter((p) => p.payment_status === 'approved')
@@ -67,7 +69,7 @@ export default function AdminDashboard() {
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 5)
 
-  const pendingKycDocs = kycDocs.filter((d) => d.status === 'pending').slice(0, 4)
+  const pendingKycUsers = users.filter((u) => u.kyc_status === 'pending').slice(0, 4)
   const pendingPayList = participations.filter((p) => p.payment_status === 'pending_review').slice(0, 4)
 
   return (
@@ -139,7 +141,7 @@ export default function AdminDashboard() {
             <div className="divide-y divide-slate-100">
               {recentAuctions.map((a) => {
                 const org = orgs.find((o) => o.id === a.org_id)
-                const participants = 0
+                const participants = participationMap.get(a.id) ?? 0
                 return (
                   <div key={a.id} className="flex items-center gap-3 px-5 py-3.5 hover:bg-slate-50/50 transition-colors">
                     <img src={a.image_url} alt={a.title} className="w-10 h-8 rounded-lg object-cover shrink-0" />
@@ -176,24 +178,21 @@ export default function AdminDashboard() {
               <h3 className="text-sm font-semibold text-slate-800">KYC Queue</h3>
               <Link to="/admin/kyc" className="text-xs text-brand hover:underline">Review all</Link>
             </div>
-            {pendingKycDocs.length === 0 ? (
-              <p className="text-xs text-slate-400 text-center py-3">No pending documents</p>
+            {pendingKycUsers.length === 0 ? (
+              <p className="text-xs text-slate-400 text-center py-3">No pending KYC</p>
             ) : (
               <div className="space-y-2">
-                {pendingKycDocs.map((doc) => {
-                  const docUser = users.find((u) => u.id === doc.user_id)
-                  return (
-                    <div key={doc.id} className="flex items-center gap-2.5 bg-amber-light rounded-xl px-3 py-2">
-                      <ShieldCheck size={11} className="text-amber-dark shrink-0" />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-[11px] font-semibold text-amber-dark truncate">
-                          {docUser?.full_name ?? docUser?.email ?? doc.user_id}
-                        </p>
-                        <p className="text-[10px] text-amber-dark/70">{doc.document_type.replace('_', ' ')}</p>
-                      </div>
+                {pendingKycUsers.map((u) => (
+                  <div key={u.id} className="flex items-center gap-2.5 bg-amber-light rounded-xl px-3 py-2">
+                    <ShieldCheck size={11} className="text-amber-dark shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[11px] font-semibold text-amber-dark truncate">
+                        {u.full_name ?? u.email}
+                      </p>
+                      <p className="text-[10px] text-amber-dark/70">Pending verification</p>
                     </div>
-                  )
-                })}
+                  </div>
+                ))}
               </div>
             )}
           </div>

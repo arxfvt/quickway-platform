@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase'
+import { compressImage } from '../lib/imageUtils'
 import type { KycDocument, KycDocumentType } from '../types/kyc.types'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -33,6 +34,7 @@ export async function getKycDocumentsByStatus(status: 'pending' | 'approved' | '
 
 /**
  * Upload a KYC document to Supabase Storage and insert a row in kyc_documents.
+ * Images are compressed to JPEG before upload.
  * Storage path: `kyc-documents/{userId}/{timestamp}-{fileName}`
  */
 export async function uploadDocument(
@@ -40,13 +42,14 @@ export async function uploadDocument(
   file: File,
   documentType: KycDocumentType
 ): Promise<KycDocument> {
+  const fileToUpload = await compressImage(file)
   const timestamp = Date.now()
-  const storagePath = `${userId}/${timestamp}-${file.name}`
+  const storagePath = `${userId}/${timestamp}-${fileToUpload.name}`
 
   // 1. Upload file to private storage bucket
   const { error: uploadError } = await supabase.storage
     .from('kyc-documents')
-    .upload(storagePath, file, { upsert: false })
+    .upload(storagePath, fileToUpload, { upsert: false })
 
   if (uploadError) throw uploadError
 
@@ -56,7 +59,7 @@ export async function uploadDocument(
     .insert({
       user_id:       userId,
       document_type: documentType,
-      file_name:     file.name,
+      file_name:     fileToUpload.name,
       storage_path:  storagePath,
       status:        'pending',
     })

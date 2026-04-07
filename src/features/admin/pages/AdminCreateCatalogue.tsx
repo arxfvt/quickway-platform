@@ -86,7 +86,7 @@ export default function AdminCreateCatalogue() {
 
   const [draft, setDraft] = useState<AuctionDraft>({
     org_id: '',
-    title: '', description: '', category: 'Vehicles', location: '', image_url: '',
+    title: '', description: '', category: 'Vehicle & Equipment', location: '', image_url: '',
     lots: [makeLot()],
     participation_fee: '', currency: 'UGX',
     bank_details: 'Equity Bank Uganda · Account: 1006400123456 · Branch: Kampala Main · Ref: Use your registered email',
@@ -125,7 +125,7 @@ export default function AdminCreateCatalogue() {
     try {
       const auctionRef = `QW-${Date.now().toString(36).toUpperCase()}`
       const auction = await createAuction({
-        org_id:            draft.org_id,
+        org_id:            draft.org_id || null,
         title:             draft.title,
         description:       draft.description,
         category:          draft.category,
@@ -157,14 +157,23 @@ export default function AdminCreateCatalogue() {
       )
       navigate('/admin/auctions')
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : 'Failed to save catalogue. Please try again.')
+      console.error('Auction save error:', err)
+      const pgErr = err as Record<string, unknown>
+      const detail = [pgErr?.message, pgErr?.details, pgErr?.hint, pgErr?.code]
+        .filter(Boolean).join(' | ')
+      setSubmitError(detail || 'Failed to save catalogue. Please try again.')
     } finally {
       setSubmitting(false)
     }
   }
 
-  const isVehicles  = draft.category === 'Vehicles'
-  const isProperty  = draft.category === 'Property'
+  const PROPERTY_CATS = [
+    'Residential Property', 'Commercial Property', 'Industrial Property',
+    'Agricultural Land', 'Mailo Land', 'Leasehold Property', 'Freehold Property',
+    'Strata/Apartment', 'Mixed Use', 'Vacant Land/Plot',
+  ]
+  const isVehicles = draft.category === 'Vehicle & Equipment'
+  const isProperty = PROPERTY_CATS.includes(draft.category)
 
   // ─────────────────────────────────────────────────────────────────────
 

@@ -130,6 +130,11 @@ export default function AuctionCard({
                   {formatCurrency(current_bid, currency, 'en-UG')}
                 </p>
               </div>
+            ) : isLive ? (
+              <div>
+                <p className="text-[10px] text-slate-400 leading-none mb-0.5">Current bid</p>
+                <p className="text-sm font-semibold text-slate-400">No bids yet</p>
+              </div>
             ) : isScheduled ? (
               <div className="text-right">
                 <p className="text-[10px] text-slate-400 leading-none mb-0.5">Opens in</p>

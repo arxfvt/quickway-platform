@@ -35,14 +35,21 @@ export default function BidderKyc() {
   const [docType, setDocType] = useState<KycDocumentType>('national_id')
   const [file, setFile]       = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
+  const [compressing, setCompressing] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [uploaded, setUploaded]   = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
 
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
     if (!f) return
+    setUploadError(null)
+    if (f.size > 5 * 1024 * 1024) {
+      setUploadError('File is too large. Maximum size is 5 MB.')
+      return
+    }
     setFile(f)
     if (f.type.startsWith('image/')) {
       setPreview(URL.createObjectURL(f))
@@ -54,16 +61,28 @@ export default function BidderKyc() {
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!file || !user?.id) return
-    setUploading(true)
+    setUploadError(null)
+    const name = file.name.toLowerCase()
+    const isImage = file.type.startsWith('image/') ||
+                    name.endsWith('.heic') || name.endsWith('.heif')
+    setCompressing(isImage)
+    setUploading(!isImage)
     try {
-      const newDoc = await uploadDocument(user.id, file, docType)
+      const newDoc = await Promise.race([
+        uploadDocument(user.id, file, docType),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Upload timed out. Check your connection and try again.')), 120_000)
+        ),
+      ])
       setDocs((prev) => [newDoc, ...prev])
       setUploaded(true)
       clearFile()
-    } catch {
-      // Fallback: mark as uploaded optimistically so UI progresses
-      setUploaded(true)
+    } catch (err) {
+      console.error('[KYC Upload Error]', err)
+      const msg = err instanceof Error ? err.message : String(err)
+      setUploadError(`Upload failed: ${msg}`)
     } finally {
+      setCompressing(false)
       setUploading(false)
     }
   }
@@ -71,6 +90,7 @@ export default function BidderKyc() {
   const clearFile = () => {
     setFile(null)
     setPreview(null)
+    setUploadError(null)
     if (inputRef.current) inputRef.current.value = ''
   }
 
@@ -194,6 +214,17 @@ export default function BidderKyc() {
         </div>
       )}
 
+      {/* Upload error */}
+      {uploadError && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-5 flex items-center gap-3">
+          <AlertCircle size={16} className="text-red-500 shrink-0" />
+          <div>
+            <p className="text-xs font-semibold text-red-700">Upload failed</p>
+            <p className="text-[11px] text-red-600/80">{uploadError}</p>
+          </div>
+        </div>
+      )}
+
       <form onSubmit={handleUpload} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 space-y-4">
         {/* Document type */}
         <div>
@@ -259,16 +290,16 @@ export default function BidderKyc() {
 
         <button
           type="submit"
-          disabled={!file || uploading || uploaded}
+          disabled={!file || compressing || uploading || uploaded}
           className={cn(
             'w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-colors',
-            !file || uploading || uploaded
+            !file || compressing || uploading || uploaded
               ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
               : 'bg-brand hover:bg-brand-dark text-white'
           )}
         >
-          {uploading && <Loader2 size={14} className="animate-spin" />}
-          {uploading ? 'Uploading…' : uploaded ? 'Submitted' : 'Submit Document'}
+          {(compressing || uploading) && <Loader2 size={14} className="animate-spin" />}
+          {compressing ? 'Preparing…' : uploading ? 'Uploading…' : uploaded ? 'Submitted' : 'Submit Document'}
         </button>
       </form>
     </div>

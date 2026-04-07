@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuthStore } from '../../store/authStore'
+import { supabase } from '../../lib/supabase'
 import type { User } from '../../types/user.types'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -77,8 +78,9 @@ export default function DevRoleSwitcher() {
     window.location.href = entry.dest
   }
 
-  const logout = () => {
+  const logout = async () => {
     sessionStorage.removeItem('__dev_user')
+    await supabase.auth.signOut()
     setUser(null)
     window.location.href = '/'
   }

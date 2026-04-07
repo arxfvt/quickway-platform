@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { X, Ticket, CheckCircle2, AlertCircle, Copy, Loader2 } from 'lucide-react'
+import { useRef, useState } from 'react'
+import { X, Ticket, CheckCircle2, AlertCircle, Copy, Loader2, Paperclip } from 'lucide-react'
 import { formatCurrency } from '../../../utils/currency'
 import { cn } from '../../../lib/utils'
 import type { AuctionParticipation } from '../../../types/participation.types'
@@ -14,7 +14,7 @@ interface PaymentModalProps {
   participation: AuctionParticipation | null
   onClose: () => void
   onRegister: () => void
-  onSubmitRef: (ref: string) => void
+  onSubmitRef: (ref: string, proofFile?: File) => void
   isLoading: boolean
 }
 
@@ -38,7 +38,9 @@ export default function PaymentModal({
     return 'details'
   })
   const [ref, setRef] = useState(participation?.bank_transfer_ref ?? '')
+  const [proofFile, setProofFile] = useState<File | null>(null)
   const [copied, setCopied] = useState(false)
+  const proofInputRef = useRef<HTMLInputElement>(null)
 
   const formattedFee = formatCurrency(feeAmount, currency, 'en-UG')
 
@@ -55,7 +57,7 @@ export default function PaymentModal({
 
   const handleSubmit = () => {
     if (!ref.trim()) return
-    onSubmitRef(ref.trim())
+    onSubmitRef(ref.trim(), proofFile ?? undefined)
     setStep('confirmed')
   }
 
@@ -187,6 +189,46 @@ export default function PaymentModal({
                   <p className="text-[10px] text-slate-400 mt-1">
                     Enter the reference number from your bank transfer receipt.
                   </p>
+                </div>
+
+                {/* Proof upload */}
+                <div>
+                  <p className="text-xs font-medium text-slate-700 mb-1.5">
+                    Upload Payment Proof <span className="text-slate-400 font-normal">(optional)</span>
+                  </p>
+                  {proofFile ? (
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50">
+                      <Paperclip size={12} className="text-brand shrink-0" />
+                      <span className="text-[11px] text-slate-700 truncate flex-1">{proofFile.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => setProofFile(null)}
+                        className="text-slate-400 hover:text-slate-600"
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => proofInputRef.current?.click()}
+                      className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-dashed border-slate-200 hover:border-brand/40 text-[11px] text-slate-500 hover:text-brand transition-colors"
+                    >
+                      <Paperclip size={12} />
+                      Attach screenshot or PDF
+                    </button>
+                  )}
+                  <input
+                    ref={proofInputRef}
+                    type="file"
+                    accept="image/*,application/pdf"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0]
+                      if (f) setProofFile(f)
+                      e.target.value = ''
+                    }}
+                  />
                 </div>
 
                 <p className="text-[10px] text-slate-400 bg-amber-light border border-amber/20 rounded-xl px-3 py-2.5 leading-relaxed text-amber-dark">

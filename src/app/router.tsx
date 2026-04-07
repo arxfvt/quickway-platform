@@ -1,12 +1,10 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 
-// ── Layouts ──────────────────────────────────────────────────────────────────
+// ── Layout ────────────────────────────────────────────────────────────────────
+import AppShell from '../components/layout/AppShell'
 import HomeLayout from '../components/layout/HomeLayout'
-import PublicLayout from '../components/layout/PublicLayout'
-import AdminLayout from '../components/layout/AdminLayout'
-import BidderLayout from '../components/layout/BidderLayout'
-import OrgLayout from '../components/layout/OrgLayout'
 import AuthLayout from '../components/layout/AuthLayout'
+import ErrorPage from '../components/layout/ErrorPage'
 
 // ── Auth guard ────────────────────────────────────────────────────────────────
 import AuthGuard from '../features/auth/components/AuthGuard'
@@ -18,6 +16,7 @@ import ForgotPasswordPage from '../features/auth/pages/ForgotPasswordPage'
 
 // ── Home / landing page ───────────────────────────────────────────────────────
 import HomePage from '../features/home/pages/HomePage'
+import ContactPage from '../features/home/pages/ContactPage'
 
 // ── Public / auction catalogue pages ─────────────────────────────────────────
 import AuctionListPage from '../features/auctions/pages/AuctionListPage'
@@ -32,7 +31,6 @@ import BidderHistory from '../features/bidder/pages/BidderHistory'
 // ── Organisation portal pages ─────────────────────────────────────────────────
 import OrgDashboard from '../features/org/pages/OrgDashboard'
 import OrgAuctions from '../features/org/pages/OrgAuctions'
-import OrgCreateAuction from '../features/org/pages/OrgCreateAuction'
 import OrgBidders from '../features/org/pages/OrgBidders'
 
 // ── Admin panel pages ─────────────────────────────────────────────────────────
@@ -40,9 +38,9 @@ import AdminDashboard from '../features/admin/pages/AdminDashboard'
 import AdminUsers from '../features/admin/pages/AdminUsers'
 import AdminOrganizations from '../features/admin/pages/AdminOrganizations'
 import AdminAuctions from '../features/admin/pages/AdminAuctions'
+import AdminAuctionDetail from '../features/admin/pages/AdminAuctionDetail'
 import AdminKycQueue from '../features/admin/pages/AdminKycQueue'
 import AdminPayments from '../features/admin/pages/AdminPayments'
-import AdminCreateCatalogue from '../features/admin/pages/AdminCreateCatalogue'
 
 // ── Public catalogue page ─────────────────────────────────────────────────────
 import CataloguePage from '../features/auctions/pages/CataloguePage'
@@ -73,68 +71,76 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // ── Public routes (auction catalogue — with sidebar) ───────────────────────
+  // ── All sidebar routes under a single AppShell layout ──────────────────────
   {
-    path: '/auctions',
-    element: <PublicLayout />,
+    element: <AppShell />,
+    errorElement: <ErrorPage />,
     children: [
-      { index: true,              element: <AuctionListPage /> },
-      { path: ':id',              element: <AuctionDetailPage /> },
-      { path: ':id/catalogue',    element: <CataloguePage /> },
+      // Public — no auth required
+      { path: '/contact', element: <ContactPage /> },
+      {
+        path: '/auctions',
+        children: [
+          { index: true,           element: <AuctionListPage /> },
+          { path: ':id',           element: <AuctionDetailPage /> },
+          { path: ':id/catalogue', element: <CataloguePage /> },
+        ],
+      },
+
+      // Bidder portal (role: bidder)
+      {
+        element: <AuthGuard allowedRoles={['bidder']} />,
+        children: [
+          {
+            path: '/bidder',
+            children: [
+              { index: true,     element: <BidderDashboard /> },
+              { path: 'profile', element: <BidderProfile /> },
+              { path: 'kyc',     element: <BidderKyc /> },
+              { path: 'history', element: <BidderHistory /> },
+            ],
+          },
+        ],
+      },
+
+      // Organisation portal (role: org_admin)
+      {
+        element: <AuthGuard allowedRoles={['org_admin']} />,
+        children: [
+          {
+            path: '/org',
+            children: [
+              { index: true,      element: <OrgDashboard /> },
+              { path: 'auctions', element: <OrgAuctions /> },
+              { path: 'bidders',  element: <OrgBidders /> },
+            ],
+          },
+        ],
+      },
+
+      // Admin panel (role: admin)
+      {
+        element: <AuthGuard allowedRoles={['admin']} />,
+        children: [
+          {
+            path: '/admin',
+            children: [
+              { index: true,                  element: <AdminDashboard /> },
+              { path: 'users',                element: <AdminUsers /> },
+              { path: 'organizations',        element: <AdminOrganizations /> },
+              { path: 'auctions',             element: <AdminAuctions /> },
+              { path: 'auctions/new',         element: <AdminAuctionDetail /> },
+              { path: 'auctions/:id',         element: <AdminAuctionDetail /> },
+
+              { path: 'kyc',                  element: <AdminKycQueue /> },
+              { path: 'payments',             element: <AdminPayments /> },
+            ],
+          },
+        ],
+      },
     ],
   },
 
-  // ── Bidder portal (role: bidder) ────────────────────────────────────────────
-  {
-    path: '/bidder',
-    element: (
-      <AuthGuard allowedRoles={['bidder']}>
-        <BidderLayout />
-      </AuthGuard>
-    ),
-    children: [
-      { index: true,      element: <BidderDashboard /> },
-      { path: 'profile',  element: <BidderProfile /> },
-      { path: 'kyc',      element: <BidderKyc /> },
-      { path: 'history',  element: <BidderHistory /> },
-    ],
-  },
-
-  // ── Organisation portal (role: org_admin) ───────────────────────────────────
-  {
-    path: '/org',
-    element: (
-      <AuthGuard allowedRoles={['org_admin']}>
-        <OrgLayout />
-      </AuthGuard>
-    ),
-    children: [
-      { index: true,             element: <OrgDashboard /> },
-      { path: 'auctions',        element: <OrgAuctions /> },
-      { path: 'auctions/create', element: <OrgCreateAuction /> },
-      { path: 'bidders',         element: <OrgBidders /> },
-    ],
-  },
-
-  // ── Admin panel (role: admin) ───────────────────────────────────────────────
-  {
-    path: '/admin',
-    element: (
-      <AuthGuard allowedRoles={['admin']}>
-        <AdminLayout />
-      </AuthGuard>
-    ),
-    children: [
-      { index: true,               element: <AdminDashboard /> },
-      { path: 'users',             element: <AdminUsers /> },
-      { path: 'organizations',     element: <AdminOrganizations /> },
-      { path: 'auctions',               element: <AdminAuctions /> },
-      { path: 'catalogues/create',      element: <AdminCreateCatalogue /> },
-      { path: 'kyc',                    element: <AdminKycQueue /> },
-      { path: 'payments',          element: <AdminPayments /> },
-    ],
-  },
-
-  // ── Catch-all fallback ──────────────────────────────────────────────────────
-  { path: '*', element: <Navigate to="/" replace /> },
+  // ── Catch-all — show branded 404 page ──────────────────────────────────────
+  { path: '*', element: <ErrorPage /> },
 ])

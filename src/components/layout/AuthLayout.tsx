@@ -14,7 +14,9 @@ export default function AuthLayout({ children, title, subtitle }: AuthLayoutProp
       {/* ── Left panel (brand) ─────────────────────────── */}
       <div className="hidden lg:flex lg:w-[420px] xl:w-[480px] bg-brand flex-col justify-between p-10 shrink-0">
         <Link to="/" className="flex items-center gap-3">
-          <img src={quickwayLogo} alt="Quickway" className="h-10 w-10 object-contain brightness-0 invert" />
+          <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
+            <img src={quickwayLogo} alt="Quickway" className="h-7 w-7 object-contain" />
+          </div>
           <div>
             <p className="text-white font-bold tracking-wide text-sm">QUICKWAY</p>
             <p className="text-blue-200 text-[10px] leading-tight">Auctioneers & Court Bailiffs</p>
@@ -48,7 +50,7 @@ export default function AuthLayout({ children, title, subtitle }: AuthLayoutProp
       {/* ── Right panel (form) ─────────────────────────── */}
       <div className="flex-1 flex flex-col justify-center items-center px-6 py-12">
         {/* Mobile logo */}
-        <Link to="/" className="flex items-center gap-2.5 mb-8 lg:hidden">
+        <Link to="/" className="flex items-center gap-2.5 mb-8">
           <img src={quickwayLogo} alt="Quickway" className="h-8 w-8 object-contain" />
           <div>
             <p className="text-brand font-bold tracking-wide text-xs">QUICKWAY</p>

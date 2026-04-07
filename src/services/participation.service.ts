@@ -69,11 +69,33 @@ export async function registerForAuction(
   return data as AuctionParticipation
 }
 
-/** Submit bank transfer reference — moves status to 'pending_review'. */
-export async function submitBankTransferRef(participationId: string, ref: string): Promise<void> {
+/** Submit bank transfer reference — moves status to 'pending_review'. Optionally uploads a proof file. */
+export async function submitBankTransferRef(
+  participationId: string,
+  ref: string,
+  proofFile?: File
+): Promise<void> {
+  let proofUrl: string | null = null
+
+  if (proofFile) {
+    const path = `${participationId}/${Date.now()}-${proofFile.name}`
+    const { error: uploadError } = await supabase.storage
+      .from('payment-proofs')
+      .upload(path, proofFile)
+    if (!uploadError) {
+      const { data } = await supabase.storage.from('payment-proofs').createSignedUrl(path, 60 * 60 * 24 * 30)
+      proofUrl = data?.signedUrl ?? null
+    }
+  }
+
   const { error } = await supabase
     .from('auction_participations')
-    .update({ bank_transfer_ref: ref, payment_status: 'pending_review', submitted_at: new Date().toISOString() })
+    .update({
+      bank_transfer_ref:       ref,
+      bank_transfer_proof_url: proofUrl,
+      payment_status:          'pending_review',
+      submitted_at:            new Date().toISOString(),
+    })
     .eq('id', participationId)
 
   if (error) throw error

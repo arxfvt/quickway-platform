@@ -105,7 +105,7 @@ export default function BidderDashboard() {
       </div>
 
       {/* ── Stats ────────────────────────────────────────────── */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         {[
           { label: 'Registered Auctions', value: participations.length, icon: <Ticket size={16} className="text-brand" />,       bg: 'bg-brand-light' },
           { label: 'Active Bids',         value: activeBids.length,     icon: <Gavel size={16} className="text-amber" />,        bg: 'bg-amber-light' },
@@ -123,10 +123,10 @@ export default function BidderDashboard() {
         ))}
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* ── My Auctions (2 cols) ─────────────────────────── */}
-        <div className="col-span-2 space-y-4">
+        <div className="lg:col-span-2 space-y-4">
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm">
             <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
               <div className="flex items-center gap-2">

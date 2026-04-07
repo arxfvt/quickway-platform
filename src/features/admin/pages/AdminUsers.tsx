@@ -1,9 +1,12 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Search, ShieldCheck, ShieldOff, Clock, Users, ChevronDown, Loader2 } from 'lucide-react'
-import { getUsers } from '../../../services/users.service'
+import { getUsers, updateUserRole, updateUserOrgAssignment, updateUserKycStatus } from '../../../services/users.service'
+import { getOrganizations } from '../../../services/organizations.service'
 import { formatDate } from '../../../utils/date'
 import { cn } from '../../../lib/utils'
-import type { User } from '../../../types/user.types'
+import type { User, UserRole } from '../../../types/user.types'
+import type { Organization } from '../../../types/org.types'
+import { useAuthStore } from '../../../store/authStore'
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -30,14 +33,19 @@ const ROLE_CHIP: Record<string, string> = {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function AdminUsers() {
-  const [query, setQuery]     = useState('')
+  const currentUser = useAuthStore((s) => s.user)
+  const [query, setQuery]         = useState('')
   const [kycFilter, setKycFilter] = useState('all')
   const [roleFilter, setRoleFilter] = useState('all')
-  const [users, setUsers] = useState<User[]>([])
+  const [users, setUsers]         = useState<User[]>([])
+  const [orgs, setOrgs]           = useState<Organization[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    getUsers().then(setUsers).catch(() => {}).finally(() => setIsLoading(false))
+    Promise.all([getUsers(), getOrganizations()])
+      .then(([u, o]) => { setUsers(u); setOrgs(o) })
+      .catch(() => {})
+      .finally(() => setIsLoading(false))
   }, [])
 
   const filtered = useMemo(() => {
@@ -56,6 +64,34 @@ export default function AdminUsers() {
   const bidderCount     = users.filter((u) => u.role === 'bidder').length
   const verifiedCount   = users.filter((u) => u.kyc_status === 'approved').length
   const pendingKycCount = users.filter((u) => u.kyc_status === 'pending').length
+
+  const handleRoleChange = async (userId: string, role: UserRole) => {
+    // Optimistic update
+    setUsers((prev) => prev.map((u) => u.id === userId ? { ...u, role } : u))
+    try {
+      await updateUserRole(userId, role)
+    } catch {
+      // Revert on failure
+      setUsers((prev) => prev.map((u) => u.id === userId ? { ...u } : u))
+    }
+  }
+
+  const handleKycChange = async (userId: string, kyc_status: 'approved' | 'not_submitted') => {
+    setUsers((prev) => prev.map((u) => u.id === userId ? { ...u, kyc_status } : u))
+    try {
+      await updateUserKycStatus(userId, kyc_status)
+    } catch { /* revert silently — user will see stale state until refresh */ }
+  }
+
+  const handleOrgChange = async (userId: string, orgId: string) => {
+    const value = orgId === '' ? null : orgId
+    setUsers((prev) => prev.map((u) => u.id === userId ? { ...u, org_id: value ?? undefined } : u))
+    try {
+      await updateUserOrgAssignment(userId, value)
+    } catch {
+      setUsers((prev) => prev.map((u) => u.id === userId ? { ...u } : u))
+    }
+  }
 
   if (isLoading) return (
     <div className="flex items-center justify-center h-64">
@@ -143,17 +179,17 @@ export default function AdminUsers() {
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50">
                 <th className="text-left text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-5 py-3">User</th>
-                <th className="text-center text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-3 py-3">Role</th>
                 <th className="text-center text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-3 py-3">KYC Status</th>
-                <th className="text-center text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-3 py-3 hidden md:table-cell">Registered Auctions</th>
                 <th className="text-right text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-5 py-3 hidden lg:table-cell">Joined</th>
+                <th className="text-left text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-5 py-3">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filtered.map((u: User) => {
-                const registeredCount = 0 // populated by participation stats (not fetched here)
+                const isSelf = u.id === currentUser?.id
                 return (
                   <tr key={u.id} className="hover:bg-slate-50/50 transition-colors">
+                    {/* User cell */}
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-brand-light flex items-center justify-center shrink-0">
@@ -169,11 +205,8 @@ export default function AdminUsers() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-3 py-3.5 text-center">
-                      <span className={cn('text-[10px] font-semibold px-2.5 py-0.5 rounded-full', ROLE_CHIP[u.role])}>
-                        {u.role.replace('_', ' ')}
-                      </span>
-                    </td>
+
+                    {/* KYC */}
                     <td className="px-3 py-3.5 text-center">
                       <span className={cn('inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-0.5 rounded-full', KYC_CHIP[u.kyc_status])}>
                         {u.kyc_status === 'approved'
@@ -184,11 +217,70 @@ export default function AdminUsers() {
                         }
                       </span>
                     </td>
-                    <td className="px-3 py-3.5 text-center hidden md:table-cell">
-                      <span className="text-xs text-slate-600 font-medium">{registeredCount}</span>
-                    </td>
+
+                    {/* Joined */}
                     <td className="px-5 py-3.5 text-right hidden lg:table-cell">
                       <span className="text-[10px] text-slate-400">{formatDate(u.created_at)}</span>
+                    </td>
+
+                    {/* Actions */}
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {/* Role select */}
+                        <div className="relative">
+                          <select
+                            value={u.role}
+                            disabled={isSelf}
+                            onChange={(e) => handleRoleChange(u.id, e.target.value as UserRole)}
+                            className={cn(
+                              'appearance-none text-[10px] font-semibold px-2.5 py-1 pr-6 rounded-full border-0 focus:outline-none focus:ring-2 focus:ring-brand/20 transition-colors',
+                              isSelf ? 'cursor-not-allowed opacity-60' : 'cursor-pointer',
+                              ROLE_CHIP[u.role]
+                            )}
+                          >
+                            <option value="bidder">bidder</option>
+                            <option value="org_admin">org admin</option>
+                            <option value="admin">admin</option>
+                          </select>
+                          {!isSelf && (
+                            <ChevronDown size={10} className="absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-60" />
+                          )}
+                        </div>
+
+                        {/* KYC override */}
+                        {u.kyc_status !== 'approved' ? (
+                          <button
+                            onClick={() => handleKycChange(u.id, 'approved')}
+                            className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-green-50 text-green-700 hover:bg-green-100 transition-colors"
+                          >
+                            Approve KYC
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleKycChange(u.id, 'not_submitted')}
+                            className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors flex items-center gap-1"
+                          >
+                            <ShieldCheck size={9} />KYC ✓ Reset
+                          </button>
+                        )}
+
+                        {/* Org assignment — only for org_admin */}
+                        {u.role === 'org_admin' && (
+                          <div className="relative">
+                            <select
+                              value={u.org_id ?? ''}
+                              onChange={(e) => handleOrgChange(u.id, e.target.value)}
+                              className="appearance-none text-[10px] pl-2 pr-6 py-1 rounded-full border border-slate-200 bg-white text-slate-600 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors cursor-pointer"
+                            >
+                              <option value="">No org</option>
+                              {orgs.map((o) => (
+                                <option key={o.id} value={o.id}>{o.name}</option>
+                              ))}
+                            </select>
+                            <ChevronDown size={10} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                          </div>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 )

@@ -20,7 +20,8 @@ export function formatCountdown(seconds: number): string {
  * Formats a date string for display.
  * @example formatDate("2025-06-01T10:00:00Z") → "1 Jun 2025, 10:00"
  */
-export function formatDate(dateString: string, locale = 'en-GB'): string {
+export function formatDate(dateString: string | null | undefined, locale = 'en-GB'): string {
+  if (!dateString) return '—'
   return new Intl.DateTimeFormat(locale, {
     dateStyle: 'medium',
     timeStyle: 'short',

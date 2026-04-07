@@ -1,12 +1,14 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import {
-  LayoutDashboard, Gavel, Users, UserCircle, ShieldCheck, Clock,
+  LayoutDashboard, Gavel, Users, UserCircle, ShieldCheck,
   Ticket, Building2, ChevronLeft, ChevronRight, Radio, LogIn,
-  Package, History,
+  Package, History, LogOut,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { useUiStore } from '../../store/uiStore'
 import { useAuthStore } from '../../store/authStore'
+import { useAuth } from '../../features/auth/hooks/useAuth'
 import quickwayLogo from '../../assets/quickway-logo.png'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -170,10 +172,22 @@ function NavGroup({
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function AppSidebar() {
-  const { sidebarOpen, toggleSidebar } = useUiStore()
+  const { sidebarOpen, toggleSidebar, setSidebarOpen } = useUiStore()
   const { user } = useAuthStore()
+  const { signOut } = useAuth()
   const location = useLocation()
+  const navigate = useNavigate()
   const collapsed = !sidebarOpen
+
+  const handleSignOut = async () => {
+    await signOut()
+    navigate('/')
+  }
+
+  // Close sidebar on route change when on mobile
+  useEffect(() => {
+    if (window.innerWidth < 768) setSidebarOpen(false)
+  }, [location.pathname])
 
   const liveCount       = 0 // fetched per-page where needed
   const pendingKyc      = 0
@@ -185,8 +199,12 @@ export default function AppSidebar() {
     <aside
       className={cn(
         'fixed top-0 left-0 h-full bg-white border-r border-slate-200 flex flex-col z-40',
-        'transition-[width] duration-200 ease-in-out',
-        collapsed ? 'w-16' : 'w-56'
+        // Mobile: slide in/out; always full width (w-56) when open
+        'w-56 transition-transform md:transition-[width,transform] duration-200 ease-in-out',
+        // Mobile hide/show
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
+        // Desktop: collapse to icon rail
+        collapsed ? 'md:w-16' : 'md:w-56'
       )}
     >
       {/* ── Logo ──────────────────────────────────────────── */}
@@ -241,19 +259,37 @@ export default function AppSidebar() {
       {/* ── User footer ───────────────────────────────────── */}
       {user && !collapsed && (
         <div className="px-3 pb-3 border-t border-slate-100 pt-3 mx-2">
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 mb-2.5">
             <div className="w-7 h-7 rounded-full bg-brand-light flex items-center justify-center shrink-0">
               <span className="text-xs font-bold text-brand">
                 {(user.full_name ?? user.email)[0].toUpperCase()}
               </span>
             </div>
-            <div className="overflow-hidden">
+            <div className="overflow-hidden flex-1 min-w-0">
               <p className="text-xs font-semibold text-slate-800 truncate">
                 {user.full_name ?? user.email}
               </p>
               <p className="text-[10px] text-slate-400 capitalize">{user.role.replace('_', ' ')}</p>
             </div>
           </div>
+          <button
+            onClick={handleSignOut}
+            className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs font-medium text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+          >
+            <LogOut size={14} />
+            Sign Out
+          </button>
+        </div>
+      )}
+      {user && collapsed && (
+        <div className="px-2 pb-3">
+          <button
+            onClick={handleSignOut}
+            title="Sign Out"
+            className="w-full flex items-center justify-center py-2.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+          >
+            <LogOut size={16} />
+          </button>
         </div>
       )}
 

@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import { Search, SlidersHorizontal, Radio, Loader2 } from 'lucide-react'
+import { useSearchParams, Link } from 'react-router-dom'
+import { Search, SlidersHorizontal, Radio, Loader2, Gavel, LogIn } from 'lucide-react'
 import AuctionCard from '../../../components/auction/AuctionCard'
 import CategoryFilter from '../../../components/auction/CategoryFilter'
 import { type AuctionCategory } from '../../../lib/mockData'
@@ -8,6 +8,7 @@ import { getAuctions } from '../../../services/auctions.service'
 import { getOrganizations } from '../../../services/organizations.service'
 import type { Auction } from '../../../types/auction.types'
 import { cn } from '../../../lib/utils'
+import { useAuthStore } from '../../../store/authStore'
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -16,6 +17,7 @@ const ITEMS_PER_PAGE = 6
 export default function AuctionListPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const orgParam = searchParams.get('org') ?? 'all'
+  const { user } = useAuthStore()
 
   const [auctions, setAuctions] = useState<Auction[]>([])
   const [orgs, setOrgs] = useState<{ id: string; name: string; location: string }[]>([])
@@ -74,6 +76,36 @@ export default function AuctionListPage() {
 
   return (
     <div className="p-6 max-w-[1400px] mx-auto">
+
+      {/* ── Guest banner ─────────────────────────────────────── */}
+      {!user && (
+        <div className="mb-5 bg-brand rounded-2xl px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+              <Gavel size={18} className="text-white" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-white leading-tight">Quickway Auctioneers & Court Bailiffs</p>
+              <p className="text-xs text-white/70 mt-0.5">Browse our property and asset catalogue. Sign in to register and submit offers.</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Link
+              to="/login"
+              className="flex items-center gap-1.5 bg-white text-brand text-xs font-semibold px-3.5 py-2 rounded-lg hover:bg-white/90 transition-colors"
+            >
+              <LogIn size={13} />
+              Sign In
+            </Link>
+            <Link
+              to="/register"
+              className="text-xs font-semibold px-3.5 py-2 rounded-lg border border-white/40 text-white hover:bg-white/10 transition-colors"
+            >
+              Register
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* ── Page header ─────────────────────────────────────── */}
       <div className="flex items-start justify-between mb-5">

@@ -11,15 +11,12 @@ async function fetchAndSetProfile(
   userId: string,
   setUser: (u: User | null) => void
 ): Promise<void> {
-  const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 6000))
-  const query = supabase
+  const { data } = await supabase
     .from('profiles')
     .select('id, email, role, kyc_status, org_id, full_name, phone, address, created_at')
     .eq('id', userId)
     .single()
-    .then(({ data }) => data ?? null)
-  const data = await Promise.race([query, timeout])
-  setUser(data)
+  if (data) setUser(data)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -35,12 +32,18 @@ export function useAuth() {
   const signIn = async (email: string, password: string): Promise<string | null> => {
     setIsLoading(true)
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+      const authResult = await Promise.race([
+        supabase.auth.signInWithPassword({ email, password }),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Sign in timed out. Check your connection and try again.')), 15_000)
+        ),
+      ])
+      const { data, error } = authResult
       if (error) return error.message
       if (data.user) await fetchAndSetProfile(data.user.id, setUser)
       return null
-    } catch {
-      return 'An unexpected error occurred. Please try again.'
+    } catch (err) {
+      return err instanceof Error ? err.message : 'An unexpected error occurred. Please try again.'
     } finally {
       setIsLoading(false)
     }
@@ -89,6 +92,7 @@ export function useAuth() {
   // ── Sign out ──────────────────────────────────────────────────────────────
 
   const signOut = async (): Promise<void> => {
+    sessionStorage.removeItem('__dev_user')
     await supabase.auth.signOut()
     setUser(null)
   }

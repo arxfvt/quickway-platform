@@ -35,6 +35,21 @@ export async function updateUserRole(id: string, role: UserRole): Promise<void> 
   if (error) throw error
 }
 
+/** Admin: manually set a user's KYC status (bypass document flow). */
+export async function updateUserKycStatus(
+  id: string,
+  kyc_status: 'approved' | 'rejected' | 'not_submitted'
+): Promise<void> {
+  const { error } = await supabase.from('profiles').update({ kyc_status }).eq('id', id)
+  if (error) throw error
+}
+
+/** Admin: assign (or remove) an org from a user. */
+export async function updateUserOrgAssignment(id: string, orgId: string | null): Promise<void> {
+  const { error } = await supabase.from('profiles').update({ org_id: orgId }).eq('id', id)
+  if (error) throw error
+}
+
 /** Bidder: update own profile fields. */
 export async function updateProfile(
   id: string,

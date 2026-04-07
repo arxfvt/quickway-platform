@@ -13,8 +13,13 @@ import StatusBadge from '../../../components/auction/StatusBadge'
 // ─────────────────────────────────────────────────────────────────────────────
 
 function LotCard({ lot, auction }: { lot: Lot; auction: Auction }) {
-  const isVehicle  = auction.category === 'Vehicles'
-  const isProperty = auction.category === 'Property'
+  const PROPERTY_CATS = [
+    'Residential Property', 'Commercial Property', 'Industrial Property',
+    'Agricultural Land', 'Mailo Land', 'Leasehold Property', 'Freehold Property',
+    'Strata/Apartment', 'Mixed Use', 'Vacant Land/Plot',
+  ]
+  const isVehicle  = auction.category === 'Vehicle & Equipment'
+  const isProperty = PROPERTY_CATS.includes(auction.category)
 
   const specSummary: string[] = []
   if (isVehicle) {
@@ -106,8 +111,13 @@ export default function CataloguePage() {
   const [filter2, setFilter2]   = useState('')  // Year / Tenure
   const [filter3, setFilter3]   = useState('')  // Condition / (unused for property)
 
-  const isVehicles  = auction?.category === 'Vehicles'
-  const isProperty  = auction?.category === 'Property'
+  const PROPERTY_CATS_FILTER = [
+    'Residential Property', 'Commercial Property', 'Industrial Property',
+    'Agricultural Land', 'Mailo Land', 'Leasehold Property', 'Freehold Property',
+    'Strata/Apartment', 'Mixed Use', 'Vacant Land/Plot',
+  ]
+  const isVehicles = auction?.category === 'Vehicle & Equipment'
+  const isProperty = auction ? PROPERTY_CATS_FILTER.includes(auction.category) : false
 
   // Unique filter values derived from lot data
   const uniqueFilter1 = useMemo(() =>

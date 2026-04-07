@@ -42,12 +42,12 @@ export function useParticipation({ auctionId, feeAmount, currency }: UseParticip
     }
   }, [user, auctionId, feeAmount, currency])
 
-  const submitRef = useCallback(async (ref: string) => {
+  const submitRef = useCallback(async (ref: string, proofFile?: File) => {
     if (!participation) return
     setIsLoading(true)
     setError('')
     try {
-      await submitBankTransferRef(participation.id, ref)
+      await submitBankTransferRef(participation.id, ref, proofFile)
       setParticipation((prev) =>
         prev
           ? { ...prev, bank_transfer_ref: ref, payment_status: 'pending_review', submitted_at: new Date().toISOString() }

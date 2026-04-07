@@ -2,7 +2,7 @@ export type AuctionStatus = 'draft' | 'scheduled' | 'live' | 'closed' | 'cancell
 
 export interface Auction {
   id: string
-  org_id: string
+  org_id: string | null
   org_name: string
   org_location: string
   title: string
@@ -15,6 +15,8 @@ export interface Auction {
   category: string
   location: string
   image_url: string
+  images: string[]               // array of uploaded image URLs (up to 6)
+  video_url?: string             // optional YouTube/Vimeo/direct video URL
   auction_ref: string
   lot_count: number
   current_bid: number            // highest bid across all lots (for display)
@@ -30,6 +32,8 @@ export interface Lot {
   title: string
   description: string
   image_url: string
+  images: string[]
+  video_url?: string
   reserve_price: number
   current_bid: number
   bid_increment: number

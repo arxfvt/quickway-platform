@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Gavel, Radio, Package, Users, Clock, Loader2 } from 'lucide-react'
+import { Gavel, Radio, Package, Users, Clock, Loader2 } from 'lucide-react'
 import { getAuctions } from '../../../services/auctions.service'
+import { getAllParticipations } from '../../../services/participation.service'
 import { formatDate } from '../../../utils/date'
 import { useAuthStore } from '../../../store/authStore'
 import { cn } from '../../../lib/utils'
@@ -34,11 +35,19 @@ export default function OrgAuctions() {
   const orgId = user?.org_id ?? ORG_ID
   const [tab, setTab] = useState<AuctionStatus | 'all'>('all')
   const [allAuctions, setAllAuctions] = useState<Auction[]>([])
+  const [participationMap, setParticipationMap] = useState<Map<string, number>>(new Map())
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    getAuctions()
-      .then(setAllAuctions)
+    Promise.all([getAuctions(), getAllParticipations()])
+      .then(([auctions, participations]) => {
+        setAllAuctions(auctions)
+        const map = new Map<string, number>()
+        participations
+          .filter((p) => p.payment_status === 'approved')
+          .forEach((p) => map.set(p.auction_id, (map.get(p.auction_id) ?? 0) + 1))
+        setParticipationMap(map)
+      })
       .catch(() => {})
       .finally(() => setIsLoading(false))
   }, [])
@@ -62,13 +71,6 @@ export default function OrgAuctions() {
           <h1 className="text-xl font-bold text-slate-900">My Auctions</h1>
           <p className="text-xs text-slate-500 mt-0.5">{orgAuctions.length} auction{orgAuctions.length !== 1 ? 's' : ''} in your catalogue</p>
         </div>
-        <Link
-          to="/org/auctions/create"
-          className="flex items-center gap-1.5 bg-brand hover:bg-brand-dark text-white text-xs font-semibold px-4 py-2 rounded-xl transition-colors"
-        >
-          <Plus size={13} />
-          Create Auction
-        </Link>
       </div>
 
       {/* Status tabs */}
@@ -100,9 +102,6 @@ export default function OrgAuctions() {
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-12 text-center text-slate-400">
           <Gavel size={36} strokeWidth={1} className="mx-auto mb-3 opacity-40" />
           <p className="text-sm font-medium text-slate-600">No auctions in this category</p>
-          <Link to="/org/auctions/create" className="mt-2 inline-block text-xs text-brand hover:underline">
-            Create your first auction →
-          </Link>
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
@@ -119,7 +118,7 @@ export default function OrgAuctions() {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filtered.map((a) => {
-                const participants = 0
+                const participants = participationMap.get(a.id) ?? 0
                 return (
                   <tr key={a.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-5 py-3.5">
