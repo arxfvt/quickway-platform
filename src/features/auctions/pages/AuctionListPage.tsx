@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
-import { Search, SlidersHorizontal, Radio, Loader2, Gavel, LogIn } from 'lucide-react'
+import { Search, SlidersHorizontal, Radio, Loader2, Gavel, LogIn, ArrowLeft } from 'lucide-react'
 import AuctionCard from '../../../components/auction/AuctionCard'
 import CategoryFilter from '../../../components/auction/CategoryFilter'
 import { type AuctionCategory } from '../../../lib/mockData'
@@ -105,6 +105,17 @@ export default function AuctionListPage() {
             </Link>
           </div>
         </div>
+      )}
+
+      {/* ── Back to home (guest only) ────────────────────────── */}
+      {!user && (
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-brand mb-4 transition-colors group"
+        >
+          <ArrowLeft size={13} className="group-hover:-translate-x-0.5 transition-transform" />
+          Back to Home
+        </Link>
       )}
 
       {/* ── Page header ─────────────────────────────────────── */}

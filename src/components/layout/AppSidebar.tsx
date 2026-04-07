@@ -99,6 +99,7 @@ function getNavSections(role: string | undefined, pendingKyc: number, pendingPay
     {
       heading: 'Catalogue',
       items: [
+        { label: 'Home',            href: '/',         icon: LayoutDashboard },
         { label: 'Browse Auctions', href: '/auctions', icon: Gavel },
         { label: 'Sign In',         href: '/login',    icon: LogIn, state: { from: location } },
       ],
