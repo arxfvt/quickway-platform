@@ -2,6 +2,22 @@
   command = "npm run build"
   publish = "dist"
 
+[build.environment]
+  VITE_SUPABASE_URL      = "https://aptkkshrurkpdjxpqeja.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwdGtrc2hydXJrcGRqeHBxZWphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NTY2NzAsImV4cCI6MjA5MDAzMjY3MH0.JNNwXRgy1QuVq-uz6ELjT46T77zbmKAP-Eg_CwA9NyQ"
+
+[[redirects]]
+  from   = "http://quickwayauctioneersandcourtbailiffs.com/*"
+  to     = "https://quickwayauctioneersandcourtbailiffs.com/:splat"
+  status = 301
+  force  = true
+
+[[redirects]]
+  from   = "http://www.quickwayauctioneersandcourtbailiffs.com/*"
+  to     = "https://quickwayauctioneersandcourtbailiffs.com/:splat"
+  status = 301
+  force  = true
+
 [[redirects]]
   from   = "/*"
   to     = "/index.html"
