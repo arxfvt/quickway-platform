@@ -578,7 +578,7 @@ export default function AuctionDetailPage() {
   ].filter(Boolean).slice(0, 12)
 
   return (
-    <div className="p-6 max-w-[1200px] mx-auto">
+    <div className="px-3 py-4 sm:p-6 max-w-[1200px] mx-auto">
       {/* ── Back link ─────────────────────────────────────── */}
       <Link
         to="/auctions"
@@ -626,7 +626,7 @@ export default function AuctionDetailPage() {
             <img
               src={gallery[activeImage]}
               alt={auction.title}
-              className="w-full h-64 object-cover"
+              className="w-full h-48 sm:h-64 object-cover"
             />
             {gallery.length > 1 && (
               <div className="flex gap-2 p-3">
@@ -665,7 +665,7 @@ export default function AuctionDetailPage() {
                   <StatusBadge status={auction.status} />
                   <span className="text-[10px] text-slate-400 font-mono">{auction.auction_ref}</span>
                 </div>
-                <h1 className="text-lg font-bold text-slate-900 leading-snug">{auction.title}</h1>
+                <h1 className="text-base sm:text-lg font-bold text-slate-900 leading-snug">{auction.title}</h1>
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-4">
@@ -713,13 +713,21 @@ export default function AuctionDetailPage() {
                         <p className="text-xs font-semibold text-slate-800 truncate">
                           Lot {lot.lot_number} — {lot.title}
                         </p>
-                        <p className="text-[10px] text-slate-400 mt-0.5">{lot.bid_count} offer{lot.bid_count !== 1 ? 's' : ''}</p>
+                        {auction.status === 'closed' && (
+                          <p className="text-[10px] text-slate-400 mt-0.5">{lot.bid_count} offer{lot.bid_count !== 1 ? 's' : ''}</p>
+                        )}
                       </div>
                       <div className="text-right shrink-0">
-                        <p className="text-[10px] text-slate-400">Current</p>
-                        <p className="text-xs font-bold text-slate-800 font-tabular">
-                          {formatCurrency(lot.current_bid, auction.currency, 'en-UG')}
-                        </p>
+                        {auction.status === 'closed' ? (
+                          <>
+                            <p className="text-[10px] text-slate-400">Final</p>
+                            <p className="text-xs font-bold text-slate-800 font-tabular">
+                              {formatCurrency(lot.current_bid, auction.currency, 'en-UG')}
+                            </p>
+                          </>
+                        ) : (
+                          <p className="text-[10px] text-slate-400 italic">Sealed</p>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -728,19 +736,22 @@ export default function AuctionDetailPage() {
             </div>
           )}
 
-          {/* Offers activity — admin/org-level count only, no amounts shown publicly */}
-          {auction.bid_count > 0 && (
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-              <h2 className="text-sm font-semibold text-slate-800 mb-1 flex items-center gap-2">
-                <FileText size={14} className="text-brand" />
-                Offers Activity
-              </h2>
+          {/* Offers activity */}
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+            <h2 className="text-sm font-semibold text-slate-800 mb-1 flex items-center gap-2">
+              <FileText size={14} className="text-brand" />
+              Offers Activity
+            </h2>
+            {auction.status === 'closed' && auction.bid_count > 0 ? (
               <p className="text-[11px] text-slate-400 leading-relaxed">
-                <span className="font-semibold text-slate-600">{auction.bid_count}</span> offer{auction.bid_count !== 1 ? 's' : ''} received for this property.
-                Offer details are confidential and reviewed by Quickway Auctioneers.
+                <span className="font-semibold text-slate-600">{auction.bid_count}</span> offer{auction.bid_count !== 1 ? 's' : ''} were received for this property.
               </p>
-            </div>
-          )}
+            ) : (
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                Offers are sealed and confidential. All bids will be revealed once the auction closes.
+              </p>
+            )}
+          </div>
         </div>
 
         {/* ── Right: sticky bid card ─────────────────────── */}
@@ -761,7 +772,7 @@ export default function AuctionDetailPage() {
                 <p className="text-xs text-slate-500 mb-1">Offers Received</p>
                 <p className="text-lg font-bold text-slate-900 font-tabular flex items-center gap-1">
                   <Users size={14} className="text-brand" />
-                  {mainLot?.bid_count ?? auction.bid_count}
+                  {auction.status === 'closed' ? (mainLot?.bid_count ?? auction.bid_count) : '—'}
                 </p>
               </div>
               <div className={cn('rounded-xl p-3', isLive ? 'bg-brand-light' : 'bg-slate-50')}>
@@ -769,10 +780,10 @@ export default function AuctionDetailPage() {
                   {auction.status === 'closed' ? 'Final Offer' : 'Starting From'}
                 </p>
                 <p className={cn('text-sm font-bold font-tabular', isLive ? 'text-brand' : 'text-slate-700')}>
-                  {mainLot && mainLot.reserve_price > 0
-                    ? formatCurrency(mainLot.reserve_price, auction.currency, 'en-UG')
-                    : auction.current_bid > 0
+                  {auction.status === 'closed' && auction.current_bid > 0
                     ? formatCurrency(auction.current_bid, auction.currency, 'en-UG')
+                    : mainLot && mainLot.reserve_price > 0
+                    ? formatCurrency(mainLot.reserve_price, auction.currency, 'en-UG')
                     : '—'}
                 </p>
               </div>

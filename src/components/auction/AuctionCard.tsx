@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom'
-import { MapPin, Package, Users, Ticket } from 'lucide-react'
+import { MapPin, Package, Ticket, Lock } from 'lucide-react'
 import { formatCurrency } from '../../utils/currency'
 import { cn } from '../../lib/utils'
+import { isSealed } from '../../utils/date'
 import StatusBadge from './StatusBadge'
 import CountdownTimer from './CountdownTimer'
 import type { AuctionStatus } from '../../types/auction.types'
@@ -65,7 +66,7 @@ export default function AuctionCard({
         <img
           src={image_url}
           alt={title}
-          className="w-full h-44 object-cover transition-transform duration-300 group-hover:scale-105"
+          className="w-full h-36 sm:h-44 object-cover transition-transform duration-300 group-hover:scale-105"
           loading="lazy"
         />
         {/* Overlays */}
@@ -114,26 +115,13 @@ export default function AuctionCard({
               <Package size={11} />
               {lot_count} lot{lot_count !== 1 ? 's' : ''}
             </span>
-            {bid_count > 0 && (
-              <span className="flex items-center gap-1">
-                <Users size={11} />
-                {bid_count} bid{bid_count !== 1 ? 's' : ''}
-              </span>
-            )}
           </div>
 
           <div className="text-right">
-            {isLive && current_bid > 0 ? (
-              <div>
-                <p className="text-[10px] text-slate-400 leading-none mb-0.5">Current bid</p>
-                <p className="text-sm font-bold text-slate-900 font-tabular">
-                  {formatCurrency(current_bid, currency, 'en-UG')}
-                </p>
-              </div>
-            ) : isLive ? (
-              <div>
-                <p className="text-[10px] text-slate-400 leading-none mb-0.5">Current bid</p>
-                <p className="text-sm font-semibold text-slate-400">No bids yet</p>
+            {isLive ? (
+              <div className="flex items-center gap-1 text-slate-400">
+                <Lock size={11} />
+                <span className="text-[10px] font-medium">Sealed Bid</span>
               </div>
             ) : isScheduled ? (
               <div className="text-right">

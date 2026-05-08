@@ -67,13 +67,13 @@ export default function HomePage() {
         {/* Amber glow */}
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-amber rounded-full opacity-10 blur-3xl pointer-events-none" />
 
-        <div className="relative max-w-[1200px] mx-auto px-6 py-20 md:py-28">
+        <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6 py-14 sm:py-20 md:py-28">
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 bg-white/10 text-white/90 text-xs font-medium px-3 py-1.5 rounded-full mb-6 backdrop-blur-sm">
               <Radio size={11} className="animate-pulse text-amber" />
               {liveAuctions.length} auction{liveAuctions.length !== 1 ? 's' : ''} live right now
             </div>
-            <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight mb-5">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight mb-5">
               Uganda's Official<br />
               <span className="text-amber">Auction Platform</span>
             </h1>
@@ -111,7 +111,7 @@ export default function HomePage() {
         ]
         return (
           <section className="bg-white border-b border-slate-100">
-            <div className="max-w-[1200px] mx-auto px-6 py-5 grid grid-cols-2 md:grid-cols-4 gap-6 divide-x divide-slate-100">
+            <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-5 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 divide-x-0 sm:divide-x divide-slate-100">
               {stats.map((s) => (
                 <div key={s.label} className="text-center pl-6 first:pl-0">
                   <p className={cn('text-2xl font-bold', s.loading ? 'text-slate-200 animate-pulse' : 'text-brand')}>
@@ -319,11 +319,8 @@ function FeaturedAuctionCard({ auction: a }: { auction: Auction }) {
             <Ticket size={9} />
             {formatCurrency(a.participation_fee, a.currency, 'en-UG')}
           </span>
-          {isLive && a.current_bid > 0 ? (
-            <div className="text-right">
-              <p className="text-[9px] text-slate-400 leading-none">Current bid</p>
-              <p className="text-xs font-bold text-slate-900 font-tabular">{formatCurrency(a.current_bid, a.currency, 'en-UG')}</p>
-            </div>
+          {isLive ? (
+            <div className="text-right text-[9px] text-slate-400 italic">Sealed</div>
           ) : isScheduled ? (
             <CountdownTimer endsAt={a.starts_at} size="compact" />
           ) : null}

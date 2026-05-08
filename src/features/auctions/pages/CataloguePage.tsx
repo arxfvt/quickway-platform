@@ -44,7 +44,7 @@ function LotCard({ lot, auction }: { lot: Lot; auction: Auction }) {
         <img
           src={lot.image_url || 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=640&q=80'}
           alt={lot.title}
-          className="w-full h-44 object-cover"
+          className="w-full h-36 sm:h-44 object-cover"
           onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=640&q=80' }}
         />
         <span className="absolute top-2 left-2 bg-black/50 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
@@ -69,10 +69,21 @@ function LotCard({ lot, auction }: { lot: Lot; auction: Auction }) {
 
         <div className="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between">
           <div>
-            <p className="text-[10px] text-slate-400">{lot.current_bid > 0 ? 'Current Bid' : 'Reserve'}</p>
-            <p className="text-sm font-bold text-slate-900 font-tabular">
-              {formatCurrency(lot.current_bid > 0 ? lot.current_bid : lot.reserve_price, auction.currency, 'en-UG')}
-            </p>
+            {auction.status === 'closed' ? (
+              <>
+                <p className="text-[10px] text-slate-400">{lot.current_bid > 0 ? 'Sold For' : 'Reserve'}</p>
+                <p className="text-sm font-bold text-slate-900 font-tabular">
+                  {formatCurrency(lot.current_bid > 0 ? lot.current_bid : lot.reserve_price, auction.currency, 'en-UG')}
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-[10px] text-slate-400">Starting From</p>
+                <p className="text-sm font-bold text-slate-900 font-tabular">
+                  {formatCurrency(lot.reserve_price, auction.currency, 'en-UG')}
+                </p>
+              </>
+            )}
           </div>
           <Link
             to={`/auctions/${auction.id}`}
@@ -154,7 +165,7 @@ export default function CataloguePage() {
   }
 
   return (
-    <div className="p-6 max-w-[1200px] mx-auto">
+    <div className="px-3 py-4 sm:p-6 max-w-[1200px] mx-auto">
       {/* Back link */}
       <Link
         to={`/auctions/${auction.id}`}
@@ -190,8 +201,8 @@ export default function CataloguePage() {
       </div>
 
       {/* Filter bar */}
-      <div className="flex flex-wrap items-center gap-3 mb-5">
-        <div className="relative flex-1 min-w-[200px] max-w-xs">
+      <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-3 mb-5">
+        <div className="relative w-full sm:flex-1 sm:min-w-[200px] sm:max-w-xs">
           <Search size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
           <input
             value={search}
@@ -205,7 +216,7 @@ export default function CataloguePage() {
           <select
             value={filter1}
             onChange={(e) => setFilter1(e.target.value)}
-            className="px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors"
+            className="w-full sm:w-auto px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors"
           >
             <option value="">{isVehicles ? 'All Makes' : 'All Types'}</option>
             {uniqueFilter1.map((v) => <option key={v} value={v}>{v}</option>)}
@@ -216,7 +227,7 @@ export default function CataloguePage() {
           <select
             value={filter2}
             onChange={(e) => setFilter2(e.target.value)}
-            className="px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors"
+            className="w-full sm:w-auto px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors"
           >
             <option value="">{isVehicles ? 'All Years' : 'All Tenures'}</option>
             {uniqueFilter2.map((v) => <option key={v} value={v}>{v}</option>)}
@@ -227,7 +238,7 @@ export default function CataloguePage() {
           <select
             value={filter3}
             onChange={(e) => setFilter3(e.target.value)}
-            className="px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors"
+            className="w-full sm:w-auto px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors"
           >
             <option value="">All Conditions</option>
             {uniqueFilter3.map((v) => <option key={v} value={v}>{v}</option>)}
