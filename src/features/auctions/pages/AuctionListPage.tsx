@@ -75,7 +75,7 @@ export default function AuctionListPage() {
   )
 
   return (
-    <div className="p-6 max-w-[1400px] mx-auto">
+    <div className="px-3 py-4 sm:p-6 max-w-[1400px] mx-auto w-full">
 
       {/* ── Guest banner ─────────────────────────────────────── */}
       {!user && (

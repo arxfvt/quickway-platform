@@ -710,7 +710,7 @@ export default function AuctionDetailPage() {
                     >
                       <img src={lot.images?.[0] || lot.image_url} alt={lot.title} className="w-14 h-10 object-cover rounded-lg shrink-0 bg-slate-100" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-slate-800 truncate">
+                        <p className="text-xs font-semibold text-slate-800 line-clamp-2">
                           Lot {lot.lot_number} — {lot.title}
                         </p>
                         {auction.status === 'closed' && (

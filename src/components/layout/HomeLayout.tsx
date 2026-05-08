@@ -15,7 +15,7 @@ export default function HomeLayout() {
       : '/bidder'
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-[#F8FAFC] overflow-x-hidden">
       {/* ── Top nav ──────────────────────────────────────────── */}
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-sm">
         <div className="max-w-[1200px] mx-auto px-6 h-14 flex items-center justify-between">

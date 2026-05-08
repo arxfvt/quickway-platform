@@ -8,7 +8,7 @@ interface CategoryFilterProps {
 
 export default function CategoryFilter({ active, onChange }: CategoryFilterProps) {
   return (
-    <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+    <div className="w-full flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
       {AUCTION_CATEGORIES.map((cat) => (
         <button
           key={cat}
