@@ -629,7 +629,7 @@ export default function AuctionDetailPage() {
               className="w-full h-48 sm:h-64 object-cover"
             />
             {gallery.length > 1 && (
-              <div className="flex gap-2 p-3">
+              <div className="flex gap-2 p-3 overflow-x-auto">
                 {gallery.map((img, i) => (
                   <button
                     key={i}
@@ -660,12 +660,12 @@ export default function AuctionDetailPage() {
           {/* Title & org */}
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 mb-4">
             <div className="flex items-start justify-between gap-3 mb-3">
-              <div>
+              <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-2">
                   <StatusBadge status={auction.status} />
                   <span className="text-[10px] text-slate-400 font-mono">{auction.auction_ref}</span>
                 </div>
-                <h1 className="text-base sm:text-lg font-bold text-slate-900 leading-snug">{auction.title}</h1>
+                <h1 className="text-base sm:text-lg font-bold text-slate-900 leading-snug break-words">{auction.title}</h1>
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-4">
@@ -678,7 +678,7 @@ export default function AuctionDetailPage() {
                 Entry: {formatCurrency(auction.participation_fee, auction.currency, 'en-UG')}
               </span>
             </div>
-            <p className="text-sm text-slate-600 leading-relaxed">{auction.description}</p>
+            <p className="text-sm text-slate-600 leading-relaxed break-words">{auction.description}</p>
           </div>
 
           {/* Lots list */}
