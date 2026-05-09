@@ -772,7 +772,9 @@ export default function AuctionDetailPage() {
                 <p className="text-xs text-slate-500 mb-1">Offers Received</p>
                 <p className="text-lg font-bold text-slate-900 font-tabular flex items-center gap-1">
                   <Users size={14} className="text-brand" />
-                  {auction.status === 'closed' ? (mainLot?.bid_count ?? auction.bid_count) : '—'}
+                  {(auction.status === 'live' || auction.status === 'closed')
+                    ? (mainLot?.bid_count ?? auction.bid_count ?? 0)
+                    : '—'}
                 </p>
               </div>
               <div className={cn('rounded-xl p-3', isLive ? 'bg-brand-light' : 'bg-slate-50')}>
