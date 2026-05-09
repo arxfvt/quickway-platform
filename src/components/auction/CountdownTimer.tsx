@@ -25,7 +25,6 @@ export default function CountdownTimer({ endsAt, size = 'compact', className }: 
   const [secs, setSecs] = useState(() => secondsUntil(endsAt))
 
   useEffect(() => {
-    if (secs <= 0) return
     const id = setInterval(() => setSecs(secondsUntil(endsAt)), 1000)
     return () => clearInterval(id)
   }, [endsAt])
