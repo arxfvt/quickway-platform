@@ -17,7 +17,7 @@ function formatParts(seconds: number): { value: string; label: string }[] {
   const m = Math.floor((seconds % 3600) / 60)
   const s = seconds % 60
   if (d > 0) return [{ value: `${d}`, label: 'd' }, { value: `${h}`, label: 'h' }, { value: `${m}`, label: 'm' }]
-  if (h > 0) return [{ value: `${h}`, label: 'h' }, { value: `${m}`, label: 'm' }]
+  if (h > 0) return [{ value: `${h}`, label: 'h' }, { value: `${m}`, label: 'm' }, { value: `${String(s).padStart(2, '0')}`, label: 's' }]
   return [{ value: `${m}`, label: 'm' }, { value: `${String(s).padStart(2, '0')}`, label: 's' }]
 }
 
