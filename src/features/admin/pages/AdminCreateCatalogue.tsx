@@ -238,7 +238,7 @@ export default function AdminCreateCatalogue() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-slate-700 mb-1.5">Category</label>
               <select
@@ -281,7 +281,7 @@ export default function AdminCreateCatalogue() {
               </div>
 
               {/* Common lot fields */}
-              <div className="grid grid-cols-2 gap-4 mb-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3">
                 <Field
                   label="Title *"
                   value={lot.title}
@@ -328,7 +328,7 @@ export default function AdminCreateCatalogue() {
               {isVehicles && (
                 <div>
                   <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-2">Vehicle Specs</p>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {VEHICLE_SPEC_FIELDS.map((f) =>
                       f.type === 'select' ? (
                         <div key={f.key}>
@@ -360,7 +360,7 @@ export default function AdminCreateCatalogue() {
               {isProperty && (
                 <div>
                   <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-2">Property Details</p>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {PROPERTY_SPEC_FIELDS.map((f) => {
                       const propType = lot.specs['Property Type'] ?? ''
                       const isResidential = propType === 'House' || propType === 'Apartment'
@@ -416,7 +416,7 @@ export default function AdminCreateCatalogue() {
       {step === 2 && (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
           <h2 className="text-sm font-semibold text-slate-800 mb-2">Participation Fee & Schedule</h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Participation Fee *" value={draft.participation_fee} onChange={(v) => set('participation_fee', v)} placeholder="e.g. 100000" type="number" />
             <div>
               <label className="block text-xs font-medium text-slate-700 mb-1.5">Currency</label>

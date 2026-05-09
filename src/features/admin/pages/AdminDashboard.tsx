@@ -127,10 +127,10 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      <div className="grid grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
         {/* Recent auctions — 2/3 */}
-        <div className="col-span-2">
+        <div className="lg:col-span-2">
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm">
             <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
               <h2 className="text-sm font-semibold text-slate-800">All Auctions</h2>

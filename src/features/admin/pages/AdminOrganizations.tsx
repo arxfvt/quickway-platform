@@ -207,9 +207,9 @@ export default function AdminOrganizations() {
         </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Table */}
-        <div className="col-span-2">
+        <div className="lg:col-span-2">
           {orgs.length === 0 ? (
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-12 text-center">
               <Building2 size={36} strokeWidth={1} className="mx-auto mb-3 text-slate-300" />

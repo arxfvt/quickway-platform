@@ -428,16 +428,16 @@ export default function AdminAuctionDetail() {
       )}
 
       {/* Main grid */}
-      <div className="grid grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
         {/* LEFT */}
-        <div className="col-span-2 space-y-5">
+        <div className="lg:col-span-2 space-y-5">
 
           {/* Auction details */}
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
             <h2 className="text-sm font-semibold text-slate-800 mb-4">Auction Details</h2>
             <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Category</label>
                   <select value={form.category} onChange={(e) => field('category', e.target.value)}
@@ -459,7 +459,7 @@ export default function AdminAuctionDetail() {
                   className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors resize-none" />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Organisation</label>
                   <select value={form.org_id} onChange={(e) => field('org_id', e.target.value)}
@@ -482,7 +482,7 @@ export default function AdminAuctionDetail() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Starts At</label>
                   <input type="datetime-local" value={form.starts_at} onChange={(e) => field('starts_at', e.target.value)}
@@ -688,7 +688,7 @@ export default function AdminAuctionDetail() {
                   </button>
                 )}
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {displayedAuctionImages.map((url, i) => (
                   <div key={i}>
                     <div className="flex items-center justify-between mb-1">
@@ -739,7 +739,7 @@ export default function AdminAuctionDetail() {
                 <input value={form.auction_ref} readOnly
                   className="w-full px-3 py-2 text-xs rounded-xl border border-slate-100 bg-slate-50 text-slate-400 font-mono cursor-default" />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Entry Fee</label>
                   <input type="number" value={form.participation_fee || ''} placeholder="0" min={0}
