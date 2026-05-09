@@ -617,10 +617,10 @@ export default function AuctionDetailPage() {
       </div>
 
       {/* ── Two-column layout ─────────────────────────────── */}
-      <div className="flex flex-col md:flex-row gap-6 items-start">
+      <div className="flex flex-col md:flex-row gap-6 md:items-start">
 
         {/* ── Left: gallery + info ─────────────────────────── */}
-        <div className="flex-1 min-w-0">
+        <div className="w-full md:flex-1 min-w-0">
           {/* Gallery */}
           <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm mb-4">
             <img
