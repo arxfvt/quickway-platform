@@ -17,6 +17,14 @@ export function formatCountdown(seconds: number): string {
 }
 
 /**
+ * Returns true when bid details should be hidden (auction is live or scheduled).
+ * Bids are only revealed once the auction closes.
+ */
+export function isSealed(status: string): boolean {
+  return status === 'live' || status === 'scheduled'
+}
+
+/**
  * Formats a date string for display.
  * @example formatDate("2025-06-01T10:00:00Z") → "1 Jun 2025, 10:00"
  */

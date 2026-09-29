@@ -226,9 +226,11 @@ export default function BidderDashboard() {
                         <p className="text-xs font-bold font-tabular text-slate-800">
                           {formatCurrency(bid.amount, auction?.currency ?? 'UGX', 'en-UG')}
                         </p>
-                        <span className={cn('text-[10px] font-semibold', isTop ? 'text-green-600' : 'text-slate-400')}>
-                          {isTop ? '↑ Winning' : 'Outbid'}
-                        </span>
+                        {auction?.status === 'closed' && (
+                          <span className={cn('text-[10px] font-semibold', isTop ? 'text-green-600' : 'text-slate-400')}>
+                            {isTop ? '↑ Winning' : 'Outbid'}
+                          </span>
+                        )}
                       </div>
                     </div>
                   )

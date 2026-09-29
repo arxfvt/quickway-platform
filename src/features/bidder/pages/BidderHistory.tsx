@@ -75,7 +75,8 @@ export default function BidderHistory() {
 
   const totalBids = enriched.length
   const totalWon  = enriched.filter((r) => r.isWon).length
-  const totalWinning = enriched.filter((r) => r.isTopBid && !r.isWon && r.lot?.status === 'open').length
+  // Only count "winning" for closed auctions — live bids are sealed
+  const totalWinning = enriched.filter((r) => r.isTopBid && !r.isWon && r.auction?.status === 'closed').length
 
   return (
     <div className="p-6 max-w-[1000px] mx-auto">
@@ -170,11 +171,13 @@ export default function BidderHistory() {
                           </p>
                         </td>
                         <td className="px-5 py-3 text-right">
-                          {isWon ? (
+                          {auction.status !== 'closed' ? (
+                            <span className="text-[10px] font-semibold text-slate-400 italic">Sealed</span>
+                          ) : isWon ? (
                             <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-green-50 text-green-700 px-2 py-0.5 rounded-full">
                               <Trophy size={9} />Won
                             </span>
-                          ) : isTopBid && lot?.status === 'open' ? (
+                          ) : isTopBid ? (
                             <span className="text-[10px] font-semibold text-green-600">↑ Winning</span>
                           ) : (
                             <span className="text-[10px] font-semibold text-slate-400">Outbid</span>
