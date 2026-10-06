@@ -1,4 +1,5 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
+import type { ComponentType } from 'react'
 
 // ── Layout ────────────────────────────────────────────────────────────────────
 import AppShell from '../components/layout/AppShell'
@@ -17,33 +18,24 @@ import ForgotPasswordPage from '../features/auth/pages/ForgotPasswordPage'
 // ── Home / landing page ───────────────────────────────────────────────────────
 import HomePage from '../features/home/pages/HomePage'
 import ContactPage from '../features/home/pages/ContactPage'
+import { TermsPage, PrivacyPage } from '../features/home/pages/LegalPages'
 
 // ── Public / auction catalogue pages ─────────────────────────────────────────
 import AuctionListPage from '../features/auctions/pages/AuctionListPage'
 import AuctionDetailPage from '../features/auctions/pages/AuctionDetailPage'
 
-// ── Bidder portal pages ───────────────────────────────────────────────────────
-import BidderDashboard from '../features/bidder/pages/BidderDashboard'
-import BidderProfile from '../features/bidder/pages/BidderProfile'
-import BidderKyc from '../features/bidder/pages/BidderKyc'
-import BidderHistory from '../features/bidder/pages/BidderHistory'
-
-// ── Organisation portal pages ─────────────────────────────────────────────────
-import OrgDashboard from '../features/org/pages/OrgDashboard'
-import OrgAuctions from '../features/org/pages/OrgAuctions'
-import OrgBidders from '../features/org/pages/OrgBidders'
-
-// ── Admin panel pages ─────────────────────────────────────────────────────────
-import AdminDashboard from '../features/admin/pages/AdminDashboard'
-import AdminUsers from '../features/admin/pages/AdminUsers'
-import AdminOrganizations from '../features/admin/pages/AdminOrganizations'
-import AdminAuctions from '../features/admin/pages/AdminAuctions'
-import AdminAuctionDetail from '../features/admin/pages/AdminAuctionDetail'
-import AdminKycQueue from '../features/admin/pages/AdminKycQueue'
-import AdminPayments from '../features/admin/pages/AdminPayments'
+// ── Bidder / organisation / admin portal pages are lazy-loaded below with
+//    page() so buyers arriving from ads don't download the staff dashboards.
 
 // ── Public catalogue page ─────────────────────────────────────────────────────
 import CataloguePage from '../features/auctions/pages/CataloguePage'
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Lazy route helper: loads a page's code only when that route is opened. */
+const page = (load: () => Promise<{ default: ComponentType }>) => ({
+  lazy: async () => ({ Component: (await load()).default }),
+})
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -78,6 +70,8 @@ export const router = createBrowserRouter([
     children: [
       // Public — no auth required
       { path: '/contact', element: <ContactPage /> },
+      { path: '/terms',   element: <TermsPage /> },
+      { path: '/privacy', element: <PrivacyPage /> },
       {
         path: '/auctions',
         children: [
@@ -94,10 +88,10 @@ export const router = createBrowserRouter([
           {
             path: '/bidder',
             children: [
-              { index: true,     element: <BidderDashboard /> },
-              { path: 'profile', element: <BidderProfile /> },
-              { path: 'kyc',     element: <BidderKyc /> },
-              { path: 'history', element: <BidderHistory /> },
+              { index: true,     ...page(() => import('../features/bidder/pages/BidderDashboard')) },
+              { path: 'profile', ...page(() => import('../features/bidder/pages/BidderProfile')) },
+              { path: 'kyc',     ...page(() => import('../features/bidder/pages/BidderKyc')) },
+              { path: 'history', ...page(() => import('../features/bidder/pages/BidderHistory')) },
             ],
           },
         ],
@@ -110,9 +104,9 @@ export const router = createBrowserRouter([
           {
             path: '/org',
             children: [
-              { index: true,      element: <OrgDashboard /> },
-              { path: 'auctions', element: <OrgAuctions /> },
-              { path: 'bidders',  element: <OrgBidders /> },
+              { index: true,      ...page(() => import('../features/org/pages/OrgDashboard')) },
+              { path: 'auctions', ...page(() => import('../features/org/pages/OrgAuctions')) },
+              { path: 'bidders',  ...page(() => import('../features/org/pages/OrgBidders')) },
             ],
           },
         ],
@@ -125,15 +119,15 @@ export const router = createBrowserRouter([
           {
             path: '/admin',
             children: [
-              { index: true,                  element: <AdminDashboard /> },
-              { path: 'users',                element: <AdminUsers /> },
-              { path: 'organizations',        element: <AdminOrganizations /> },
-              { path: 'auctions',             element: <AdminAuctions /> },
-              { path: 'auctions/new',         element: <AdminAuctionDetail /> },
-              { path: 'auctions/:id',         element: <AdminAuctionDetail /> },
+              { index: true,                  ...page(() => import('../features/admin/pages/AdminDashboard')) },
+              { path: 'users',                ...page(() => import('../features/admin/pages/AdminUsers')) },
+              { path: 'organizations',        ...page(() => import('../features/admin/pages/AdminOrganizations')) },
+              { path: 'auctions',             ...page(() => import('../features/admin/pages/AdminAuctions')) },
+              { path: 'auctions/new',         ...page(() => import('../features/admin/pages/AdminAuctionDetail')) },
+              { path: 'auctions/:id',         ...page(() => import('../features/admin/pages/AdminAuctionDetail')) },
 
-              { path: 'kyc',                  element: <AdminKycQueue /> },
-              { path: 'payments',             element: <AdminPayments /> },
+              { path: 'kyc',                  ...page(() => import('../features/admin/pages/AdminKycQueue')) },
+              { path: 'payments',             ...page(() => import('../features/admin/pages/AdminPayments')) },
             ],
           },
         ],

@@ -3,7 +3,7 @@ import { useParams, Link, useLocation } from 'react-router-dom'
 import {
   ArrowLeft, MapPin, Package, Users, CheckCircle2, AlertCircle,
   ChevronRight, Clock, Building2, Gavel, Ticket, RotateCcw, Send,
-  FileText, BadgeCheck,
+  FileText, BadgeCheck, Loader2,
 } from 'lucide-react'
 import { getAuction, getLots } from '../../../services/auctions.service'
 import { getBidsForLot, placeBid } from '../../../services/bids.service'
@@ -18,6 +18,12 @@ import CountdownTimer from '../../../components/auction/CountdownTimer'
 import PaymentModal from '../components/PaymentModal'
 import { useParticipation } from '../../participation/hooks/useParticipation'
 import { useLiveBids } from '../../bidding/hooks/useLiveBids'
+import ListingContactCard from '../../../components/contact/ListingContactCard'
+import { useWhatsAppContext } from '../../../components/contact/WhatsAppFloat'
+import { waMessages } from '../../../config/site'
+import { usePageMeta } from '../../../hooks/usePageMeta'
+import { sizedImage, IMG } from '../../../lib/imageUrl'
+import { withEffectiveStatus, entryLabel } from '../../../utils/auctionStatus'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Spec table row
@@ -519,15 +525,35 @@ export default function AuctionDetailPage() {
   const [auction, setAuction] = useState<Auction | null>(null)
   const [lots, setLots] = useState<Lot[]>([])
   const [bids, setBids] = useState<Bid[]>([])
+  // 'loading' until the first fetch finishes — previously the page showed
+  // "Auction not found" while the data was still on its way.
+  const [loadState, setLoadState] = useState<'loading' | 'ready' | 'not_found' | 'error'>('loading')
+  const [reloadKey, setReloadKey] = useState(0)
 
   useEffect(() => {
     if (!id) return
-    Promise.all([getAuction(id), getLots(id)]).then(([a, ls]) => {
-      if (a) setAuction(a)
-      setLots(ls)
-      if (ls[0]) getBidsForLot(ls[0].id).then(setBids).catch(() => {})
-    }).catch(() => {})
-  }, [id])
+    let cancelled = false
+    setLoadState('loading')
+    setAuction(null)
+    setLots([])
+    setBids([])
+    setActiveImage(0)
+
+    getAuction(id)
+      .then(async (a) => {
+        if (cancelled) return
+        if (!a) { setLoadState('not_found'); return }
+        setAuction(withEffectiveStatus(a))
+        setLoadState('ready')
+        const ls = await getLots(id).catch(() => [] as Lot[])
+        if (cancelled) return
+        setLots(ls)
+        if (ls[0]) getBidsForLot(ls[0].id).then((b) => { if (!cancelled) setBids(b) }).catch(() => {})
+      })
+      .catch(() => { if (!cancelled) setLoadState('error') })
+
+    return () => { cancelled = true }
+  }, [id, reloadKey])
 
   const { user } = useAuthStore()
 
@@ -560,11 +586,52 @@ export default function AuctionDetailPage() {
   // My offers — only this user's submissions, newest first
   const myOffers = user ? bids.filter((b) => b.bidder_id === user.id) : []
 
-  if (!auction) {
+  // Page title, description and preview image for this listing
+  const metaImage = auction ? (auction.images?.[0] || auction.image_url) : undefined
+  usePageMeta({
+    title: auction?.title,
+    description: auction
+      ? `${auction.location ? auction.location + ' — ' : ''}${auction.description}`
+      : undefined,
+    image: metaImage ? sizedImage(metaImage, IMG.share, 75) : undefined,
+  })
+
+  // Floating WhatsApp button mentions this property
+  useWhatsAppContext(
+    auction
+      ? { message: waMessages.property(auction.title, auction.auction_ref), listing: auction.title, ref: auction.auction_ref }
+      : null
+  )
+
+  if (loadState === 'loading') {
     return (
-      <div className="p-6 flex flex-col items-center justify-center py-20 text-slate-400">
-        <p className="text-sm font-medium">Auction not found</p>
-        <Link to="/auctions" className="mt-2 text-xs text-brand hover:underline">← Back to Auctions</Link>
+      <div className="flex flex-col items-center justify-center py-24 text-slate-400">
+        <Loader2 size={24} className="animate-spin text-brand mb-3" />
+        <p className="text-xs">Loading property…</p>
+      </div>
+    )
+  }
+
+  if (!auction) {
+    const failed = loadState === 'error'
+    return (
+      <div className="p-6 flex flex-col items-center justify-center py-20 text-slate-500 text-center">
+        <p className="text-sm font-medium">
+          {failed ? 'We couldn\'t load this property. Check your connection and try again.' : 'This listing is no longer available.'}
+        </p>
+        <div className="flex gap-3 mt-4">
+          {failed && (
+            <button
+              onClick={() => setReloadKey((k) => k + 1)}
+              className="text-xs font-semibold bg-brand text-white px-4 py-2 rounded-lg hover:bg-brand-dark transition-colors"
+            >
+              Try again
+            </button>
+          )}
+          <Link to="/auctions" className="text-xs font-semibold text-brand border border-brand/30 px-4 py-2 rounded-lg hover:bg-brand-light transition-colors">
+            See all properties
+          </Link>
+        </div>
       </div>
     )
   }
@@ -624,9 +691,10 @@ export default function AuctionDetailPage() {
           {/* Gallery */}
           <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm mb-4">
             <img
-              src={gallery[activeImage]}
+              src={sizedImage(gallery[activeImage], IMG.main)}
               alt={auction.title}
-              className="w-full h-48 sm:h-64 object-cover"
+              fetchPriority="high"
+              className="w-full h-56 sm:h-80 object-cover bg-slate-100"
             />
             {gallery.length > 1 && (
               <div className="flex gap-2 p-3 overflow-x-auto">
@@ -639,7 +707,7 @@ export default function AuctionDetailPage() {
                       i === activeImage ? 'border-brand' : 'border-transparent hover:border-slate-300'
                     )}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <img src={sizedImage(img, IMG.thumb)} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover bg-slate-100" />
                   </button>
                 ))}
               </div>
@@ -670,15 +738,35 @@ export default function AuctionDetailPage() {
             </div>
             <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-4">
               <span className="flex items-center gap-1"><Building2 size={11} />{auction.org_name || 'Quickway Auctioneers & Court Bailiffs'}</span>
-              {(auction.org_location || auction.location) && (
-                <span className="flex items-center gap-1"><MapPin size={11} />{auction.org_location || auction.location}</span>
+              {(auction.location || auction.org_location) && (
+                <span className="flex items-center gap-1"><MapPin size={11} />{auction.location || auction.org_location}</span>
               )}
               <span className="flex items-center gap-1.5 bg-brand-light text-brand px-2 py-0.5 rounded-full font-medium">
                 <Ticket size={10} />
-                Entry: {formatCurrency(auction.participation_fee, auction.currency, 'en-UG')}
+                {entryLabel(auction.participation_fee, formatCurrency(auction.participation_fee, auction.currency, 'en-UG'))}
               </span>
             </div>
-            <p className="text-sm text-slate-600 leading-relaxed break-words">{auction.description}</p>
+            {/* Phones: price and closing date up front (desktop shows them in the side card) */}
+            {mainLot && mainLot.reserve_price > 0 && auction.status !== 'closed' && (
+              <div className="md:hidden flex items-center justify-between gap-3 bg-brand-light rounded-xl px-3.5 py-2.5 mb-4">
+                <div>
+                  <p className="text-[10px] text-slate-500">Starting from</p>
+                  <p className="text-base font-bold text-brand font-tabular">
+                    {formatCurrency(mainLot.reserve_price, auction.currency, 'en-UG')}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] text-slate-500">Closes</p>
+                  <p className="text-xs font-semibold text-slate-800">{formatDate(auction.ends_at)}</p>
+                </div>
+              </div>
+            )}
+            <p className="text-sm text-slate-600 leading-relaxed break-words whitespace-pre-line">{auction.description}</p>
+          </div>
+
+          {/* Phones: show the contact options right after the description */}
+          <div className="md:hidden mb-4">
+            <ListingContactCard title={auction.title} refCode={auction.auction_ref} closed={auction.status === 'closed'} />
           </div>
 
           {/* Lots list */}
@@ -708,7 +796,7 @@ export default function AuctionDetailPage() {
                       key={lot.id}
                       className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:border-brand/30 transition-colors cursor-pointer"
                     >
-                      <img src={lot.images?.[0] || lot.image_url} alt={lot.title} className="w-14 h-10 object-cover rounded-lg shrink-0 bg-slate-100" />
+                      <img src={sizedImage(lot.images?.[0] || lot.image_url || gallery[0], IMG.thumb)} alt={lot.title} loading="lazy" decoding="async" className="w-14 h-10 object-cover rounded-lg shrink-0 bg-slate-100" />
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-semibold text-slate-800 line-clamp-2">
                           Lot {lot.lot_number} — {lot.title}
@@ -772,9 +860,13 @@ export default function AuctionDetailPage() {
                 <p className="text-xs text-slate-500 mb-1">Offers Received</p>
                 <p className="text-lg font-bold text-slate-900 font-tabular flex items-center gap-1">
                   <Users size={14} className="text-brand" />
-                  {(auction.status === 'live' || auction.status === 'closed')
-                    ? (mainLot?.bid_count ?? auction.bid_count ?? 0)
-                    : '—'}
+                  {(() => {
+                    if (auction.status !== 'live' && auction.status !== 'closed') return '—'
+                    const count = mainLot?.bid_count ?? auction.bid_count ?? 0
+                    // While open, "0" puts buyers off — invite them to be first instead
+                    if (count === 0 && auction.status === 'live') return <span className="text-xs font-semibold text-brand">Be the first</span>
+                    return count
+                  })()}
                 </p>
               </div>
               <div className={cn('rounded-xl p-3', isLive ? 'bg-brand-light' : 'bg-slate-50')}>
@@ -806,6 +898,11 @@ export default function AuctionDetailPage() {
             />
           </div>
 
+          {/* Contact options (desktop — phones see this under the description) */}
+          <div className="hidden md:block">
+            <ListingContactCard title={auction.title} refCode={auction.auction_ref} closed={auction.status === 'closed'} />
+          </div>
+
           {/* Auction details table */}
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
             <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">
@@ -819,9 +916,9 @@ export default function AuctionDetailPage() {
               <>
                 <SpecRow label="Category" value={auction.category} />
                 <SpecRow label="Auctioneer" value={auction.org_name || 'Quickway Auctioneers & Court Bailiffs'} />
-                <SpecRow label="Location" value={auction.org_location || auction.location || '—'} />
+                <SpecRow label="Location" value={auction.location || auction.org_location || '—'} />
                 <SpecRow label="Lots" value={`${auction.lot_count} item${auction.lot_count !== 1 ? 's' : ''}`} />
-                <SpecRow label="Entry Fee" value={formatCurrency(auction.participation_fee, auction.currency, 'en-UG')} />
+                <SpecRow label="Entry Fee" value={auction.participation_fee > 0 ? formatCurrency(auction.participation_fee, auction.currency, 'en-UG') : 'Free'} />
                 <SpecRow label="Opens" value={formatDate(auction.starts_at)} />
                 <SpecRow label="Closes" value={formatDate(auction.ends_at)} />
               </>
@@ -832,7 +929,7 @@ export default function AuctionDetailPage() {
           <div className="text-center">
             <p className="text-[11px] text-slate-400">
               Questions?{' '}
-              <a href="mailto:info@quickway.ug" className="text-brand hover:underline">Contact Quickway</a>
+              <Link to="/contact" className="text-brand hover:underline">Contact Quickway</Link>
             </p>
           </div>
         </div>

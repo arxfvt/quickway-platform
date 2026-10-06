@@ -6,6 +6,8 @@ import { isSealed } from '../../utils/date'
 import StatusBadge from './StatusBadge'
 import CountdownTimer from './CountdownTimer'
 import type { AuctionStatus } from '../../types/auction.types'
+import { sizedImage, IMG } from '../../lib/imageUrl'
+import { entryLabel } from '../../utils/auctionStatus'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Props — extends the mock data shape minimally
@@ -19,6 +21,7 @@ interface AuctionCardProps {
   starts_at: string
   org_name: string
   org_location: string
+  location?: string
   category: string
   image_url: string
   lot_count: number
@@ -37,6 +40,7 @@ export default function AuctionCard({
   starts_at,
   org_name,
   org_location,
+  location,
   category,
   image_url,
   lot_count,
@@ -64,10 +68,11 @@ export default function AuctionCard({
       {/* ── Image ─────────────────────────────────────────── */}
       <div className="relative overflow-hidden">
         <img
-          src={image_url}
+          src={sizedImage(image_url, IMG.card)}
           alt={title}
-          className="w-full h-36 sm:h-44 object-cover transition-transform duration-300 group-hover:scale-105"
+          className="w-full h-36 sm:h-44 object-cover transition-transform duration-300 group-hover:scale-105 bg-slate-100"
           loading="lazy"
+          decoding="async"
         />
         {/* Overlays */}
         <div className="absolute top-3 left-3 flex items-center gap-1.5">
@@ -93,7 +98,7 @@ export default function AuctionCard({
 
         <div className="flex items-center gap-1 text-xs text-slate-500 mb-2">
           <MapPin size={11} className="shrink-0" />
-          <span className="truncate">{org_name} · {org_location}</span>
+          <span className="truncate">{location || org_location || org_name || 'Uganda'}</span>
         </div>
 
         {/* Participation fee badge */}
@@ -104,8 +109,14 @@ export default function AuctionCard({
             : 'bg-brand-light text-brand'
         )}>
           <Ticket size={10} />
-          {isClosed ? 'Entry was' : 'Entry fee:'}{' '}
-          <span className="font-semibold">{formatCurrency(participation_fee, currency, 'en-UG')}</span>
+          {participation_fee > 0 ? (
+            <>
+              {isClosed ? 'Entry was' : 'Entry fee:'}{' '}
+              <span className="font-semibold">{formatCurrency(participation_fee, currency, 'en-UG')}</span>
+            </>
+          ) : (
+            <span className="font-semibold">{isClosed ? 'Free entry' : entryLabel(0, '')}</span>
+          )}
         </div>
 
         {/* ── Stats row ─────────────────────────────────────── */}
@@ -129,12 +140,16 @@ export default function AuctionCard({
                 <CountdownTimer endsAt={starts_at} size="compact" />
               </div>
             ) : (
-              <div>
-                <p className="text-[10px] text-slate-400 leading-none mb-0.5">Sold for</p>
-                <p className="text-sm font-bold text-slate-500 font-tabular">
-                  {current_bid > 0 ? formatCurrency(current_bid, currency, 'en-UG') : '—'}
-                </p>
-              </div>
+              current_bid > 0 ? (
+                <div>
+                  <p className="text-[10px] text-slate-400 leading-none mb-0.5">Sold for</p>
+                  <p className="text-sm font-bold text-slate-500 font-tabular">
+                    {formatCurrency(current_bid, currency, 'en-UG')}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-[10px] font-medium text-slate-400">Closed</p>
+              )
             )}
           </div>
         </div>
@@ -150,7 +165,7 @@ export default function AuctionCard({
               : 'bg-slate-100 text-slate-400 cursor-default'
           )}
         >
-          {isLive ? 'Bid Now' : isScheduled ? 'View Details' : 'View Results'}
+          {isLive ? 'View & Make Offer' : isScheduled ? 'View Details' : 'View Results'}
         </button>
       </div>
     </Link>

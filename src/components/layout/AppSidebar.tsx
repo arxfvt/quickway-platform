@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import {
   LayoutDashboard, Gavel, Users, UserCircle, ShieldCheck,
   Ticket, Building2, ChevronLeft, ChevronRight, Radio, LogIn,
-  Package, History, LogOut,
+  Package, History, LogOut, Phone,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { useUiStore } from '../../store/uiStore'
@@ -101,6 +101,7 @@ function getNavSections(role: string | undefined, pendingKyc: number, pendingPay
       items: [
         { label: 'Home',            href: '/',         icon: LayoutDashboard },
         { label: 'Browse Auctions', href: '/auctions', icon: Gavel },
+        { label: 'Contact Us',      href: '/contact',  icon: Phone },
         { label: 'Sign In',         href: '/login',    icon: LogIn, state: { from: location } },
       ],
     },

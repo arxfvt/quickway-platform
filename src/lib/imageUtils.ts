@@ -1,5 +1,3 @@
-import heic2any from 'heic2any'
-
 /**
  * Convert any image to a compressed JPEG before upload.
  * - HEIC/HEIF: converted via heic2any library
@@ -18,6 +16,8 @@ export async function compressImage(file: File): Promise<File> {
   // Step 1: convert HEIC → JPEG blob, or use file directly for other formats
   let sourceBlob: Blob
   if (isHeic) {
+    // Loaded only when an iPhone HEIC photo is uploaded (the library is ~1.3 MB)
+    const { default: heic2any } = await import('heic2any')
     const result = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.85 })
     sourceBlob = Array.isArray(result) ? result[0] : result
   } else {

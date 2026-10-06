@@ -2,6 +2,8 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
 import { Bell, Menu, ShieldCheck, Ticket, X } from 'lucide-react'
 import AppSidebar from './AppSidebar'
+import SiteFooter from './SiteFooter'
+import WhatsAppFloat from '../contact/WhatsAppFloat'
 import { useUiStore } from '../../store/uiStore'
 import { useAuthStore } from '../../store/authStore'
 import { supabase } from '../../lib/supabase'
@@ -243,8 +245,12 @@ function TopBar() {
 // AppShell — layout route: renders Outlet as page content
 // ─────────────────────────────────────────────────────────────────────────────
 
+const PUBLIC_PREFIXES = ['/auctions', '/contact', '/terms', '/privacy']
+
 export default function AppShell() {
   const { sidebarOpen, setSidebarOpen } = useUiStore()
+  const { pathname } = useLocation()
+  const isPublicPage = PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + '/'))
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -269,7 +275,9 @@ export default function AppShell() {
         <TopBar />
         <main className="flex-1 overflow-y-auto overflow-x-hidden">
           <Outlet />
+          {isPublicPage && <div className="mt-10"><SiteFooter /></div>}
         </main>
+        <WhatsAppFloat />
       </div>
     </div>
   )

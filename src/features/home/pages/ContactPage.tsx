@@ -1,7 +1,14 @@
 import { Link } from 'react-router-dom'
-import { Mail, Phone, MapPin, ArrowLeft, Gavel } from 'lucide-react'
+import { Mail, Phone, MapPin, ArrowLeft, Gavel, MessageCircle } from 'lucide-react'
+import { SITE, OFFICE_ADDRESS, OFFICE_MAP_URL, telLink, whatsappLink, waMessages } from '../../../config/site'
+import { trackLead } from '../../../lib/tracking'
+import { usePageMeta } from '../../../hooks/usePageMeta'
 
 export default function ContactPage() {
+  usePageMeta({
+    title: 'Contact Us',
+    description: `WhatsApp or call Quickway Auctioneers on ${SITE.phoneDisplay}. Office: ${OFFICE_ADDRESS}.`,
+  })
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <Link
@@ -32,20 +39,24 @@ export default function ContactPage() {
         {/* Contact cards */}
         <div className="space-y-4">
           <a
-            href="mailto:info@quickway.ug"
-            className="flex items-center gap-4 p-4 rounded-xl border border-slate-100 hover:border-brand/30 hover:bg-brand-light/30 transition-colors group"
+            href={whatsappLink(waMessages.general)}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackLead('whatsapp', { placement: 'contact_page' })}
+            className="flex items-center gap-4 p-4 rounded-xl border border-[#25D366]/40 bg-[#25D366]/5 hover:bg-[#25D366]/10 transition-colors group"
           >
-            <div className="w-9 h-9 rounded-xl bg-brand-light flex items-center justify-center shrink-0">
-              <Mail size={15} className="text-brand" />
+            <div className="w-9 h-9 rounded-xl bg-[#25D366] flex items-center justify-center shrink-0">
+              <MessageCircle size={16} className="text-white" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-slate-800 group-hover:text-brand transition-colors">Email</p>
-              <p className="text-sm text-slate-600">info@quickway.ug</p>
+              <p className="text-xs font-semibold text-slate-800">WhatsApp (fastest)</p>
+              <p className="text-sm text-slate-600">{SITE.phoneDisplay}</p>
             </div>
           </a>
 
           <a
-            href="tel:+256700000000"
+            href={telLink}
+            onClick={() => trackLead('call', { placement: 'contact_page' })}
             className="flex items-center gap-4 p-4 rounded-xl border border-slate-100 hover:border-brand/30 hover:bg-brand-light/30 transition-colors group"
           >
             <div className="w-9 h-9 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
@@ -53,37 +64,49 @@ export default function ContactPage() {
             </div>
             <div>
               <p className="text-xs font-semibold text-slate-800 group-hover:text-brand transition-colors">Phone</p>
-              <p className="text-sm text-slate-600">+256 700 000 000</p>
+              <p className="text-sm text-slate-600">{SITE.phoneDisplay}</p>
             </div>
           </a>
 
-          <div className="flex items-center gap-4 p-4 rounded-xl border border-slate-100">
+          <a
+            href={`mailto:${SITE.email}`}
+            className="flex items-center gap-4 p-4 rounded-xl border border-slate-100 hover:border-brand/30 hover:bg-brand-light/30 transition-colors group"
+          >
+            <div className="w-9 h-9 rounded-xl bg-brand-light flex items-center justify-center shrink-0">
+              <Mail size={15} className="text-brand" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-800 group-hover:text-brand transition-colors">Email</p>
+              <p className="text-sm text-slate-600">{SITE.email}</p>
+            </div>
+          </a>
+
+          <a
+            href={OFFICE_MAP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-4 p-4 rounded-xl border border-slate-100 hover:border-brand/30 hover:bg-brand-light/30 transition-colors group"
+          >
             <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center shrink-0">
               <MapPin size={15} className="text-slate-500" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-slate-800">Office</p>
-              <p className="text-sm text-slate-600">Plot 23, Kampala Road, Kampala, Uganda</p>
+              <p className="text-xs font-semibold text-slate-800 group-hover:text-brand transition-colors">Office (open in Google Maps)</p>
+              <p className="text-sm text-slate-600">{OFFICE_ADDRESS}</p>
             </div>
-          </div>
+          </a>
         </div>
 
         {/* Office hours */}
         <div className="mt-6 pt-6 border-t border-slate-100">
           <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-3">Office Hours</p>
           <div className="space-y-1.5 text-xs text-slate-600">
-            <div className="flex justify-between">
-              <span>Monday – Friday</span>
-              <span className="font-medium">8:00 AM – 5:00 PM</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Saturday</span>
-              <span className="font-medium">9:00 AM – 1:00 PM</span>
-            </div>
-            <div className="flex justify-between text-slate-400">
-              <span>Sunday</span>
-              <span>Closed</span>
-            </div>
+            {SITE.hours.map((h) => (
+              <div key={h.days} className={h.time === 'Closed' ? 'flex justify-between text-slate-400' : 'flex justify-between'}>
+                <span>{h.days}</span>
+                <span className={h.time === 'Closed' ? '' : 'font-medium'}>{h.time}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>

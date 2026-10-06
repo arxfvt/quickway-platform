@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Gavel, ShieldCheck, Ticket, Radio, ChevronRight, MapPin, Package } from 'lucide-react'
+import { ArrowRight, Gavel, ShieldCheck, Ticket, Radio, ChevronRight, MapPin, Package, MessageCircle } from 'lucide-react'
 import { getAuctions } from '../../../services/auctions.service'
 import { getOrganizations } from '../../../services/organizations.service'
 import { supabase } from '../../../lib/supabase'
@@ -8,7 +8,12 @@ import { formatCurrency } from '../../../utils/currency'
 import StatusBadge from '../../../components/auction/StatusBadge'
 import CountdownTimer from '../../../components/auction/CountdownTimer'
 import { cn } from '../../../lib/utils'
-import quickwayLogo from '../../../assets/quickway-logo.png'
+import SiteFooter from '../../../components/layout/SiteFooter'
+import { usePageMeta } from '../../../hooks/usePageMeta'
+import { whatsappLink, waMessages } from '../../../config/site'
+import { trackLead } from '../../../lib/tracking'
+import { sizedImage, IMG } from '../../../lib/imageUrl'
+import { withEffectiveStatus, entryLabel } from '../../../utils/auctionStatus'
 import type { Auction } from '../../../types/auction.types'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -23,14 +28,14 @@ const HOW_IT_WORKS = [
   {
     step: '02',
     icon: <Ticket size={22} className="text-amber" />,
-    title: 'Register & Pay Entry Fee',
-    body: 'Create an account, complete KYC verification, and pay the participation fee for the auction you want to join.',
+    title: 'Register & Verify',
+    body: 'Create a free account and verify your ID (KYC). If an auction has a participation fee, it is shown on the listing before you pay.',
   },
   {
     step: '03',
     icon: <ShieldCheck size={22} className="text-green-500" />,
-    title: 'Bid With Confidence',
-    body: 'Once approved, place your bids in real time. The highest bid at closing wins the lot.',
+    title: 'Submit a Sealed Offer',
+    body: 'Offers stay private until the auction closes. Quickway then contacts the winning bidder to complete the sale.',
   },
 ]
 
@@ -40,15 +45,22 @@ export default function HomePage() {
   const [auctions, setAuctions] = useState<Auction[]>([])
   const [orgs, setOrgs] = useState<{ id: string; name: string; location: string }[]>([])
   const [lotsCount, setLotsCount] = useState<number | null>(null)
+  const [auctionsLoaded, setAuctionsLoaded] = useState(false)
+
+  usePageMeta({ path: '/' })
 
   useEffect(() => {
-    getAuctions().then(setAuctions).catch(() => {})
+    getAuctions()
+      .then((list) => setAuctions(list.map(withEffectiveStatus)))
+      .catch(() => {})
+      .finally(() => setAuctionsLoaded(true))
     getOrganizations().then(setOrgs).catch(() => {})
     supabase.from('lots').select('*', { count: 'exact', head: true }).eq('status', 'open')
       .then(({ count }) => setLotsCount(count ?? 0)).catch(() => setLotsCount(0))
   }, [])
 
-  const liveAuctions = auctions.filter((a) => a.status === 'live').slice(0, 3)
+  const allLive = auctions.filter((a) => a.status === 'live')
+  const liveAuctions = allLive.slice(0, 3)
   const upcomingAuctions = auctions.filter((a) => a.status === 'scheduled').slice(0, 3)
 
   return (
@@ -69,16 +81,18 @@ export default function HomePage() {
 
         <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6 py-14 sm:py-20 md:py-28">
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 bg-white/10 text-white/90 text-xs font-medium px-3 py-1.5 rounded-full mb-6 backdrop-blur-sm">
-              <Radio size={11} className="animate-pulse text-amber" />
-              {liveAuctions.length} auction{liveAuctions.length !== 1 ? 's' : ''} live right now
-            </div>
+            {auctionsLoaded && allLive.length > 0 && (
+              <div className="inline-flex items-center gap-2 bg-white/10 text-white/90 text-xs font-medium px-3 py-1.5 rounded-full mb-6 backdrop-blur-sm">
+                <Radio size={11} className="animate-pulse text-amber" />
+                {allLive.length} listing{allLive.length !== 1 ? 's' : ''} open for offers right now
+              </div>
+            )}
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight mb-5">
-              Uganda's Official<br />
-              <span className="text-amber">Auction Platform</span>
+              Property & Asset Auctions<br />
+              <span className="text-amber">in Uganda</span>
             </h1>
             <p className="text-white/75 text-base md:text-lg leading-relaxed mb-8 max-w-xl">
-              Court-ordered liquidations, bank repossessions, and organisation disposals — all catalogued, verified, and auctioned transparently by Quickway Auctioneers.
+              Land, houses, commercial buildings, vehicles and machinery from court-ordered, bank and private sales — verified and sold transparently by Quickway Auctioneers & Court Bailiffs, Kampala.
             </p>
             <div className="flex flex-wrap items-center gap-3">
               <Link
@@ -88,12 +102,16 @@ export default function HomePage() {
                 Browse Catalogues
                 <ArrowRight size={16} />
               </Link>
-              <Link
-                to="/register"
-                className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold px-5 py-3 rounded-xl transition-colors text-sm backdrop-blur-sm border border-white/20"
+              <a
+                href={whatsappLink(waMessages.general)}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackLead('whatsapp', { placement: 'hero' })}
+                className="flex items-center gap-2 bg-[#25D366] hover:bg-[#1ebe5b] text-white font-semibold px-5 py-3 rounded-xl transition-colors text-sm"
               >
-                Create Account
-              </Link>
+                <MessageCircle size={16} />
+                WhatsApp Us
+              </a>
             </div>
           </div>
         </div>
@@ -104,14 +122,15 @@ export default function HomePage() {
         const loading = auctions.length === 0 && orgs.length === 0 && lotsCount === null
         const activeCount = auctions.filter((a) => a.status === 'live' || a.status === 'scheduled').length
         const stats = [
-          { value: loading ? '—' : String(activeCount), label: 'Active Auctions', loading },
+          { value: loading ? '—' : String(activeCount), label: 'Open Auctions', loading },
           { value: loading || lotsCount === null ? '—' : String(lotsCount), label: 'Lots Available', loading: loading || lotsCount === null },
-          { value: loading ? '—' : String(orgs.length), label: 'Partner Orgs', loading },
+          // Only show partner organisations once there are some — "0" undermines trust
+          ...(orgs.length > 0 ? [{ value: String(orgs.length), label: 'Partner Orgs', loading: false }] : []),
           { value: 'UGX', label: 'Currency', loading: false },
         ]
         return (
           <section className="bg-white border-b border-slate-100">
-            <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-5 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 divide-x-0 sm:divide-x divide-slate-100">
+            <div className={cn('max-w-[1200px] mx-auto px-4 sm:px-6 py-5 grid gap-3 sm:gap-6 divide-x-0 sm:divide-x divide-slate-100', stats.length === 4 ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-3')}>
               {stats.map((s) => (
                 <div key={s.label} className="text-center pl-6 first:pl-0">
                   <p className={cn('text-2xl font-bold', s.loading ? 'text-slate-200 animate-pulse' : 'text-brand')}>
@@ -134,7 +153,7 @@ export default function HomePage() {
                 <Radio size={12} className="animate-pulse" />
                 <span className="text-xs font-semibold">Live Now</span>
               </div>
-              <span className="text-xs text-slate-400">{liveAuctions.length} auction{liveAuctions.length !== 1 ? 's' : ''} in progress</span>
+              <span className="text-xs text-slate-400">{allLive.length} auction{allLive.length !== 1 ? 's' : ''} in progress</span>
             </div>
             <Link to="/auctions" className="flex items-center gap-1 text-xs font-medium text-brand hover:underline">
               View all <ChevronRight size={13} />
@@ -148,8 +167,8 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* ── Browse by Principal ───────────────────────────────── */}
-      <section className="bg-slate-50 border-y border-slate-100 py-12">
+      {/* ── Browse by Principal (hidden until there are organisations) ── */}
+      {orgs.length > 0 && <section className="bg-slate-50 border-y border-slate-100 py-12">
         <div className="max-w-[1200px] mx-auto px-6">
           <div className="mb-7">
             <h2 className="text-xl font-bold text-slate-900">Browse by Catalogue</h2>
@@ -198,7 +217,7 @@ export default function HomePage() {
             })}
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* ── Upcoming Auctions ─────────────────────────────────── */}
       {upcomingAuctions.length > 0 && (
@@ -261,23 +280,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Footer ────────────────────────────────────────────── */}
-      <footer className="bg-slate-900 text-slate-400 py-8">
-        <div className="max-w-[1200px] mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
-          <div className="flex items-center gap-2.5">
-            <img src={quickwayLogo} alt="Quickway" className="h-7 w-7 object-contain" />
-            <span className="font-bold text-white text-sm">Quickway</span>
-            <span className="text-slate-600">|</span>
-            <span>Uganda's Premier Auctioneers</span>
-          </div>
-          <div className="flex items-center gap-5">
-            <Link to="/auctions" className="hover:text-white transition-colors">Catalogue</Link>
-            <Link to="/login" className="hover:text-white transition-colors">Sign In</Link>
-            <Link to="/register" className="hover:text-white transition-colors">Register</Link>
-          </div>
-          <p>© {new Date().getFullYear()} Quickway Auctioneers Ltd. All rights reserved.</p>
-        </div>
-      </footer>
+      <SiteFooter />
 
     </div>
   )
@@ -300,9 +303,11 @@ function FeaturedAuctionCard({ auction: a }: { auction: Auction }) {
       )}
     >
       <img
-        src={a.image_url}
+        src={sizedImage(a.image_url, IMG.thumb)}
         alt={a.title}
-        className="w-20 h-16 rounded-xl object-cover shrink-0 group-hover:scale-105 transition-transform duration-300 overflow-hidden"
+        loading="lazy"
+        decoding="async"
+        className="w-20 h-16 rounded-xl object-cover shrink-0 group-hover:scale-105 transition-transform duration-300 overflow-hidden bg-slate-100"
       />
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-1 mb-1">
@@ -312,12 +317,12 @@ function FeaturedAuctionCard({ auction: a }: { auction: Auction }) {
         <p className="text-xs font-semibold text-slate-900 leading-snug line-clamp-2 mb-1">{a.title}</p>
         <p className="text-[10px] text-slate-400 flex items-center gap-0.5 mb-2">
           <MapPin size={9} className="shrink-0" />
-          {a.org_location}
+          {a.location || a.org_location || 'Uganda'}
         </p>
         <div className="flex items-center justify-between">
           <span className="text-[10px] bg-brand-light text-brand px-1.5 py-0.5 rounded font-medium flex items-center gap-1">
             <Ticket size={9} />
-            {formatCurrency(a.participation_fee, a.currency, 'en-UG')}
+            {entryLabel(a.participation_fee, formatCurrency(a.participation_fee, a.currency, 'en-UG'))}
           </span>
           {isLive ? (
             <div className="text-right text-[9px] text-slate-400 italic">Sealed</div>

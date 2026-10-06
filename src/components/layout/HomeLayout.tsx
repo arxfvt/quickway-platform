@@ -2,6 +2,7 @@ import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { LogIn, LayoutDashboard } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import quickwayLogo from '../../assets/quickway-logo.png'
+import WhatsAppFloat from '../contact/WhatsAppFloat'
 
 export default function HomeLayout() {
   const user = useAuthStore((s) => s.user)
@@ -18,7 +19,7 @@ export default function HomeLayout() {
     <div className="min-h-screen bg-[#F8FAFC] overflow-x-hidden">
       {/* ── Top nav ──────────────────────────────────────────── */}
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-sm">
-        <div className="max-w-[1200px] mx-auto px-6 h-14 flex items-center justify-between">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-2">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5">
             <img src={quickwayLogo} alt="Quickway" className="h-8 w-8 object-contain" />
@@ -33,10 +34,18 @@ export default function HomeLayout() {
             <Link to="/auctions" className="hover:text-brand transition-colors">Catalogue</Link>
             <Link to="/auctions?status=live" className="hover:text-brand transition-colors">Live Auctions</Link>
             <Link to="/auctions?status=scheduled" className="hover:text-brand transition-colors">Upcoming</Link>
+            <Link to="/contact" className="hover:text-brand transition-colors">Contact</Link>
           </nav>
 
           {/* Auth CTA */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* Phones: the desktop nav is hidden, so keep a direct link to listings */}
+            <Link
+              to="/auctions"
+              className="md:hidden text-xs font-semibold text-brand px-2.5 py-2 rounded-lg hover:bg-brand-light transition-colors"
+            >
+              Properties
+            </Link>
             {user ? (
               <button
                 onClick={() => navigate(dashboardPath)}
@@ -49,10 +58,11 @@ export default function HomeLayout() {
               <>
                 <Link
                   to="/login"
+                  aria-label="Sign in"
                   className="flex items-center gap-1.5 text-slate-600 text-xs font-medium px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors"
                 >
                   <LogIn size={13} />
-                  Sign In
+                  <span className="hidden sm:inline">Sign In</span>
                 </Link>
                 <Link
                   to="/register"
@@ -68,6 +78,7 @@ export default function HomeLayout() {
 
       {/* ── Page content ─────────────────────────────────────── */}
       <Outlet />
+      <WhatsAppFloat />
     </div>
   )
 }

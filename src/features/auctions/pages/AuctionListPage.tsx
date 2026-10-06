@@ -9,6 +9,8 @@ import { getOrganizations } from '../../../services/organizations.service'
 import type { Auction } from '../../../types/auction.types'
 import { cn } from '../../../lib/utils'
 import { useAuthStore } from '../../../store/authStore'
+import { withEffectiveStatus } from '../../../utils/auctionStatus'
+import { usePageMeta } from '../../../hooks/usePageMeta'
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -26,9 +28,15 @@ export default function AuctionListPage() {
   const [category, setCategory] = useState<AuctionCategory>('All')
   const [page, setPage] = useState(1)
 
+  usePageMeta({
+    title: 'Land, Houses, Vehicles & Machinery for Sale by Auction',
+    description: 'Browse court-ordered, bank and private auction listings in Uganda — land, houses, commercial buildings, vehicles and machinery. WhatsApp Quickway on 0750 925 959.',
+    path: '/auctions',
+  })
+
   useEffect(() => {
     Promise.all([getAuctions(), getOrganizations()])
-      .then(([a, o]) => { setAuctions(a); setOrgs(o) })
+      .then(([a, o]) => { setAuctions(a.map(withEffectiveStatus)); setOrgs(o) })
       .catch(() => {})
       .finally(() => setIsLoading(false))
   }, [])
@@ -44,6 +52,7 @@ export default function AuctionListPage() {
         a.title.toLowerCase().includes(q) ||
         a.org_name.toLowerCase().includes(q) ||
         a.org_location.toLowerCase().includes(q) ||
+        (a.location ?? '').toLowerCase().includes(q) ||
         a.category.toLowerCase().includes(q)
       return matchesOrg && matchesCat && matchesSearch
     })
