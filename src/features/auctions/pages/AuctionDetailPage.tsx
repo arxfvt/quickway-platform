@@ -663,10 +663,14 @@ export default function AuctionDetailPage() {
   const isLive  = auction.status === 'live'
   const mainLot = lots[0]
 
-  const gallery = [
-    ...(auction.images?.length ? auction.images : (auction.image_url ? [auction.image_url] : [])),
-    ...lots.flatMap((l) => l.images?.length ? l.images : (l.image_url ? [l.image_url] : [])),
-  ].filter(Boolean).slice(0, 12)
+  // A single-lot listing's lot is the property itself, and its photos are an
+  // older copy of the listing's — only fall back to them when the listing has
+  // none. Multi-lot auctions show each lot's photos after the listing's.
+  const auctionImages = auction.images?.length ? auction.images : (auction.image_url ? [auction.image_url] : [])
+  const lotImages = lots.flatMap((l) => l.images?.length ? l.images : (l.image_url ? [l.image_url] : []))
+  const gallery = [...new Set(
+    (lots.length > 1 || auctionImages.length === 0 ? [...auctionImages, ...lotImages] : auctionImages).filter(Boolean)
+  )].slice(0, 12)
 
   return (
     <div className="px-3 py-4 sm:p-6 max-w-[1200px] mx-auto">

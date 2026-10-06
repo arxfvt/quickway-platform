@@ -334,8 +334,18 @@ export default function AdminAuctionDetail() {
             setLots([newLot])
             await updateAuction(auctionId!, { lot_count: 1 })
           } else {
-            await updateLot(lots[0].id, { reserve_price: form.starting_bid, bid_increment: form.bid_increment })
-            setLots((prev) => prev.map((l) => ({ ...l, reserve_price: form.starting_bid, bid_increment: form.bid_increment })))
+            // The single lot is the property itself — keep its title, text
+            // and photos in step with the listing (specs are left as they are)
+            const lotSync = {
+              title:         autoLotPayload.title,
+              description:   autoLotPayload.description,
+              image_url:     autoLotPayload.image_url,
+              images:        autoLotPayload.images,
+              reserve_price: form.starting_bid,
+              bid_increment: form.bid_increment,
+            }
+            await updateLot(lots[0].id, lotSync)
+            setLots((prev) => prev.map((l) => ({ ...l, ...lotSync })))
           }
         }
         flashSaved()

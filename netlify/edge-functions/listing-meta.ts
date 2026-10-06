@@ -139,6 +139,26 @@ export default async (request: Request, context: Context) => {
       jsonLd(breadcrumbs),
     ].filter(Boolean).join('\n    ')
 
+    // The listing's own content in the page body, so search engines that read
+    // the HTML before running JavaScript see a real page instead of an empty
+    // shell. It is the same content the app shows; React replaces it on load.
+    const paragraphs = (a.description ?? '')
+      .split(/\n{2,}/)
+      .map((p) => p.trim())
+      .filter(Boolean)
+      .map((p) => `<p style="margin:0 0 12px;white-space:pre-line">${esc(p)}</p>`)
+      .join('')
+    const body = isPublic
+      ? `<main style="max-width:820px;margin:0 auto;padding:24px 16px;font-family:system-ui,sans-serif;color:#0f172a;line-height:1.6">` +
+        `<p style="margin:0 0 8px"><a href="/auctions">Properties &amp; assets</a></p>` +
+        `<h1 style="font-size:24px;margin:0 0 8px">${esc(a.title)}</h1>` +
+        (facts ? `<p style="margin:0 0 16px;color:#475569">${esc(facts)}</p>` : '') +
+        (photoUrl ? `<img src="${esc(photoUrl)}" alt="${esc(a.title)}" width="1000" style="max-width:100%;height:auto;border-radius:12px;margin:0 0 16px" />` : '') +
+        paragraphs +
+        `<p style="margin:16px 0 0">WhatsApp or call Quickway Auctioneers on 0750 925 959${a.auction_ref ? ` and quote ref ${esc(a.auction_ref)}` : ''}.</p>` +
+        `</main>`
+      : ''
+
     let html = await response.text()
     // Drop the site-wide defaults, then insert this listing's tags
     html = html
@@ -146,6 +166,7 @@ export default async (request: Request, context: Context) => {
       .replace(/<meta\s+(name="description"|property="og:[^"]+"|name="twitter:card")[^>]*>\s*/gi, '')
       .replace(/<link\s+rel="canonical"[^>]*>\s*/gi, '')
       .replace('</head>', `    ${tags}\n  </head>`)
+      .replace('<div id="root"></div>', `<div id="root">${body}</div>`)
 
     const headers = new Headers(response.headers)
     headers.delete('content-length')
