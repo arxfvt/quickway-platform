@@ -54,6 +54,10 @@ const STATUS_TRANSITIONS: Record<AuctionStatus, { label: string; next: AuctionSt
 /** Supabase errors are plain objects, not Error instances — pull out something readable. */
 function errorText(e: unknown, fallback: string): string {
   const err = e as Record<string, unknown> | null
+  // The request never reached the server (connection dropped, offline, or blocked by an extension)
+  if (String(err?.message ?? '').includes('Failed to fetch')) {
+    return 'Could not reach the server. Check your internet connection and click Save again — your changes are still on this page.'
+  }
   const detail = [err?.message, err?.details, err?.hint, err?.code].filter(Boolean).join(' | ')
   return detail || fallback
 }
