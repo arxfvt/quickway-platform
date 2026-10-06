@@ -555,6 +555,20 @@ export default function AuctionDetailPage() {
     return () => { cancelled = true }
   }, [id, reloadKey])
 
+  // Flip the status when the auction opens or closes while the page is open,
+  // so buyers can't keep submitting offers after the end time.
+  useEffect(() => {
+    if (!auction) return
+    const target = auction.status === 'live' ? auction.ends_at
+      : auction.status === 'scheduled' ? auction.starts_at
+      : null
+    if (!target) return
+    const ms = new Date(target).getTime() - Date.now()
+    if (Number.isNaN(ms) || ms > 2_147_483_647) return // setTimeout can't wait longer than ~24 days
+    const t = setTimeout(() => setAuction((a) => (a ? withEffectiveStatus(a) : a)), Math.max(ms, 0) + 500)
+    return () => clearTimeout(t)
+  }, [auction])
+
   const { user } = useAuthStore()
 
   const refreshBids = useCallback(() => {

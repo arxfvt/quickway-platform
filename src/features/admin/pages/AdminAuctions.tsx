@@ -186,6 +186,11 @@ export default function AdminAuctions() {
                           </span>
                         ) : a.status}
                       </span>
+                      {(a.status === 'live' || a.status === 'scheduled') && a.ends_at && new Date(a.ends_at).getTime() <= Date.now() && (
+                        <p className="text-[9px] font-semibold text-amber-dark mt-1" title="End time has passed — buyers see this as closed. Open it to set a new end time.">
+                          End time passed
+                        </p>
+                      )}
                     </td>
                     <td className="px-3 py-3.5 text-center hidden md:table-cell">
                       <span className="flex items-center justify-center gap-1 text-xs text-slate-600">

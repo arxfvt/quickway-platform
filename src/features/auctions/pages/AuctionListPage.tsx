@@ -22,7 +22,7 @@ export default function AuctionListPage() {
   const { user } = useAuthStore()
 
   const [auctions, setAuctions] = useState<Auction[]>([])
-  const [orgs, setOrgs] = useState<{ id: string; name: string; location: string }[]>([])
+  const [orgs, setOrgs] = useState<{ id: string; name: string; location: string | null }[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState<AuctionCategory>('All')
@@ -135,7 +135,7 @@ export default function AuctionListPage() {
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
             {filtered.length} auction{filtered.length !== 1 ? 's' : ''} available
-            {selectedOrg ? ` · ${selectedOrg.location}` : ''}
+            {selectedOrg?.location ? ` · ${selectedOrg.location}` : ''}
           </p>
         </div>
         <button className="flex items-center gap-1.5 text-xs font-medium text-slate-600 border border-slate-200 bg-white px-3 py-2 rounded-lg hover:border-brand hover:text-brand transition-colors">

@@ -25,6 +25,29 @@ export function isSealed(status: string): boolean {
 }
 
 /**
+ * Database timestamp → value for an <input type="datetime-local"> in the
+ * admin's own timezone. (Slicing the ISO string would show UTC — 3 hours off
+ * in Kampala.)
+ */
+export function toLocalInput(iso: string | null | undefined): string {
+  if (!iso) return ''
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
+/**
+ * <input type="datetime-local"> value (admin's local time) → ISO timestamp
+ * for the database. Returns undefined for an empty or invalid value.
+ */
+export function fromLocalInput(local: string | null | undefined): string | undefined {
+  if (!local) return undefined
+  const d = new Date(local)
+  return Number.isNaN(d.getTime()) ? undefined : d.toISOString()
+}
+
+/**
  * Formats a date string for display.
  * @example formatDate("2025-06-01T10:00:00Z") → "1 Jun 2025, 10:00"
  */

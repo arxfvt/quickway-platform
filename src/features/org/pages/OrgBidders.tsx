@@ -63,7 +63,7 @@ export default function OrgBidders() {
               const map: Record<string, { full_name: string | null; email: string; kyc_status: string | null }> = {}
               profiles.forEach((pr) => { map[pr.id] = { full_name: pr.full_name, email: pr.email, kyc_status: pr.kyc_status } })
               setUserMap(map)
-            }).catch(() => {})
+            }, () => {})
         }
       })
       .catch(() => {})

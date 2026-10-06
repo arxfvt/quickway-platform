@@ -30,7 +30,7 @@ export async function getAuctions(filters?: AuctionFilters): Promise<Auction[]> 
 
   return (data ?? []).map((row: Record<string, unknown>) => {
     const org = row.organizations as { name: string; location: string } | null
-    return { ...row, org_name: org?.name ?? '', org_location: org?.location ?? '', organizations: undefined } as Auction
+    return { ...row, org_name: org?.name ?? '', org_location: org?.location ?? '', organizations: undefined } as unknown as Auction
   })
 }
 
@@ -44,7 +44,7 @@ export async function getAuction(id: string): Promise<Auction | null> {
 
   if (error) return null
   const org = (data as Record<string, unknown>).organizations as { name: string; location: string } | null
-  return { ...(data as Record<string, unknown>), org_name: org?.name ?? '', org_location: org?.location ?? '', organizations: undefined } as Auction
+  return { ...(data as Record<string, unknown>), org_name: org?.name ?? '', org_location: org?.location ?? '', organizations: undefined } as unknown as Auction
 }
 
 /** Fetch all lots for an auction ordered by lot_number. */
@@ -71,7 +71,7 @@ export async function createAuction(
 
   if (error) throw error
   const org = (data as Record<string, unknown>).organizations as { name: string; location: string } | null
-  return { ...(data as Record<string, unknown>), org_name: org?.name ?? '', org_location: org?.location ?? '', organizations: undefined } as Auction
+  return { ...(data as Record<string, unknown>), org_name: org?.name ?? '', org_location: org?.location ?? '', organizations: undefined } as unknown as Auction
 }
 
 /** Admin: update auction status. */

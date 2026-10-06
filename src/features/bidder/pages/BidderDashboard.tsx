@@ -48,8 +48,7 @@ export default function BidderDashboard() {
       if (lotIds.length > 0) {
         supabase.from('lots').select('id, title, auction_id, current_bid, status, winner_id')
           .in('id', lotIds)
-          .then(({ data }) => { if (data) setLots(data as Lot[]) })
-          .catch(() => {})
+          .then(({ data }) => { if (data) setLots(data as Lot[]) }, () => {})
       }
     }).catch(() => {})
   }, [user?.id])

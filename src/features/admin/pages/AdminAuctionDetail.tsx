@@ -10,6 +10,7 @@ import {
 } from '../../../services/auctions.service'
 import { getOrganizations } from '../../../services/organizations.service'
 import { cn } from '../../../lib/utils'
+import { toLocalInput, fromLocalInput } from '../../../utils/date'
 import LotFormModal, { type LotDraft } from '../components/LotFormModal'
 import ImageUploadField from '../components/ImageUploadField'
 import type { Auction, AuctionStatus, Lot } from '../../../types/auction.types'
@@ -44,8 +45,17 @@ const STATUS_TRANSITIONS: Record<AuctionStatus, { label: string; next: AuctionSt
     { label: 'Back to Draft', next: 'draft', style: 'bg-slate-100 hover:bg-slate-200 text-slate-600' },
   ],
   live:      [{ label: 'Close Auction', next: 'closed', style: 'bg-red-50 hover:bg-red-100 text-red-600' }],
-  closed:    [],
+  // Closed auctions (closed by an admin or automatically at the end time) can
+  // be reopened with a new end time.
+  closed:    [{ label: 'Reopen with new end time', next: 'live', style: 'bg-amber hover:bg-amber-dark text-white' }],
   cancelled: [],
+}
+
+/** Supabase errors are plain objects, not Error instances — pull out something readable. */
+function errorText(e: unknown, fallback: string): string {
+  const err = e as Record<string, unknown> | null
+  const detail = [err?.message, err?.details, err?.hint, err?.code].filter(Boolean).join(' | ')
+  return detail || fallback
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -93,8 +103,8 @@ function auctionToForm(a: Auction): AuctionForm {
     location:          a.location,
     org_id:            a.org_id ?? '',
     visibility:        'public',
-    starts_at:         a.starts_at ? a.starts_at.slice(0, 16) : '',
-    ends_at:           a.ends_at   ? a.ends_at.slice(0, 16)   : '',
+    starts_at:         toLocalInput(a.starts_at),
+    ends_at:           toLocalInput(a.ends_at),
     bank_details:      a.bank_details ?? '',
     status:            a.status,
     participation_fee: a.participation_fee,
@@ -187,18 +197,22 @@ export default function AdminAuctionDetail() {
         getLots(id!),
         getOrganizations(),
       ])
-      if (auction) {
-        const base = auctionToForm(auction)
-        setForm(lotsData.length === 1
-          ? { ...base, starting_bid: lotsData[0].reserve_price, bid_increment: lotsData[0].bid_increment }
-          : base
-        )
+      if (!auction) {
+        setSaveError('Could not load this auction. Refresh the page or go back to the list.')
+        return
       }
+      const base = auctionToForm(auction)
+      setForm(lotsData.length === 1
+        ? { ...base, starting_bid: lotsData[0].reserve_price, bid_increment: lotsData[0].bid_increment }
+        : base
+      )
       setLots(lotsData)
       setOrgs(orgsData)
       const qw = orgsData.find((org) => org.name.toLowerCase().includes('quickway'))
       if (qw) setQuickwayOrgId(qw.id)
-    } catch { /* ignore */ }
+    } catch (e) {
+      setSaveError(errorText(e, 'Could not load this auction.'))
+    }
   }, [id, isNew])
 
   useEffect(() => {
@@ -235,37 +249,59 @@ export default function AdminAuctionDetail() {
 
   // ── Save auction ──────────────────────────────────────────────────────────
 
+  /** Checks the form and returns an error message, or null when it can be saved. */
+  const validate = (): string | null => {
+    if (!form.title.trim()) return 'Title is required.'
+    const starts = fromLocalInput(form.starts_at)
+    const ends   = fromLocalInput(form.ends_at)
+    if (form.starts_at && !starts) return 'Starts At is not a valid date.'
+    if (form.ends_at && !ends) return 'Ends At is not a valid date.'
+    if (starts && ends && new Date(ends) <= new Date(starts)) return 'Ends At must be after Starts At.'
+    return null
+  }
+
+  /** Auction fields as stored in the database. Dates are converted from the admin's local time. */
+  const buildPayload = () => {
+    const cleanImages = form.images.filter(Boolean)
+    return {
+      title:             form.title.trim(),
+      description:       form.description,
+      category:          form.category,
+      location:          form.location,
+      org_id:            form.org_id || quickwayOrgId || null,
+      starts_at:         fromLocalInput(form.starts_at),
+      ends_at:           fromLocalInput(form.ends_at),
+      bank_details:      form.bank_details,
+      participation_fee: form.participation_fee,
+      currency:          form.currency,
+      image_url:         cleanImages[0] ?? form.image_url,
+      images:            cleanImages,
+      video_url:         form.video_url || null,
+      auction_ref:       form.auction_ref,
+      lot_count:         lots.length,
+    }
+  }
+
+  const flashSaved = () => {
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2500)
+  }
+
   const handleSave = async () => {
-    if (!form.title.trim()) { setSaveError('Title is required.'); return }
+    const invalid = validate()
+    if (invalid) { setSaveError(invalid); return }
     setIsSaving(true); setSaveError(null)
     try {
-      const cleanImages = form.images.filter(Boolean)
-      const payload = {
-        title:             form.title,
-        description:       form.description,
-        category:          form.category,
-        location:          form.location,
-        org_id:            form.org_id || quickwayOrgId || null,
-        starts_at:         form.starts_at || undefined,
-        ends_at:           form.ends_at || undefined,
-        bank_details:      form.bank_details,
-        status:            form.status,
-        participation_fee: form.participation_fee,
-        currency:          form.currency,
-        image_url:         cleanImages[0] ?? form.image_url,
-        images:            cleanImages,
-        video_url:         form.video_url || null,
-        auction_ref:       form.auction_ref,
-        lot_count:         lots.length,
-      }
+      const payload = buildPayload()
+      const cleanImages = payload.images
 
       if (isNew) {
-        const created = await createAuction(payload as Parameters<typeof createAuction>[0])
+        const created = await createAuction({ ...payload, status: form.status } as Parameters<typeof createAuction>[0])
         if (form.starting_bid > 0) {
           await createLot({
             auction_id:    created.id,
             lot_number:    1,
-            title:         form.title,
+            title:         payload.title,
             description:   form.description ?? '',
             image_url:     cleanImages[0] ?? '',
             images:        cleanImages,
@@ -278,12 +314,14 @@ export default function AdminAuctionDetail() {
         setAuctionId(created.id)
         navigate(`/admin/auctions/${created.id}`, { replace: true })
       } else {
+        // Status is not part of Save — it only changes through the Lifecycle
+        // buttons, so a page left open can't undo an automatic close.
         await updateAuction(auctionId!, payload)
         if (form.starting_bid > 0 && lots.length <= 1) {
           const autoLotPayload = {
             auction_id:    auctionId!,
             lot_number:    1,
-            title:         form.title,
+            title:         payload.title,
             description:   form.description ?? '',
             image_url:     cleanImages[0] ?? '',
             images:        cleanImages,
@@ -300,14 +338,11 @@ export default function AdminAuctionDetail() {
             setLots((prev) => prev.map((l) => ({ ...l, reserve_price: form.starting_bid, bid_increment: form.bid_increment })))
           }
         }
-        setSaved(true)
-        setTimeout(() => setSaved(false), 2500)
+        flashSaved()
       }
     } catch (e: unknown) {
       console.error('Auction save error:', e)
-      const pgErr = e as Record<string, unknown>
-      const detail = [pgErr?.message, pgErr?.details, pgErr?.hint, pgErr?.code].filter(Boolean).join(' | ')
-      setSaveError(detail || 'Save failed.')
+      setSaveError(errorText(e, 'Save failed.'))
     } finally { setIsSaving(false) }
   }
 
@@ -315,10 +350,35 @@ export default function AdminAuctionDetail() {
 
   const handleStatusTransition = async (next: AuctionStatus) => {
     if (!auctionId) return
+    setSaveError(null)
+
+    if (next === 'closed' && !window.confirm('Close this auction now? Buyers will no longer be able to submit offers.')) return
+
+    // Going live (or reopening) needs an end time in the future, otherwise the
+    // auction would close again straight away. Save the form with it so a new
+    // end time typed in is applied in the same click.
+    if (next === 'live') {
+      const invalid = validate()
+      if (invalid) { setSaveError(invalid); return }
+      const ends = fromLocalInput(form.ends_at)
+      if (!ends || new Date(ends).getTime() <= Date.now()) {
+        setSaveError('Set "Ends At" to a future date and time first, then try again.')
+        return
+      }
+    }
+
+    setIsSaving(true)
     try {
-      await updateAuctionStatus(auctionId, next)
+      if (next === 'live') {
+        await updateAuction(auctionId, { ...buildPayload(), status: 'live' })
+      } else {
+        await updateAuctionStatus(auctionId, next)
+      }
       setForm((f) => ({ ...f, status: next }))
-    } catch { /* ignore */ }
+      flashSaved()
+    } catch (e) {
+      setSaveError(errorText(e, 'Could not change the auction status.'))
+    } finally { setIsSaving(false) }
   }
 
   // ── Lot CRUD ──────────────────────────────────────────────────────────────
@@ -326,32 +386,43 @@ export default function AdminAuctionDetail() {
   const handleSaveLot = async (draft: LotDraft) => {
     const currentAuctionId = auctionId
     if (!currentAuctionId) return
+    setSaveError(null)
 
     try {
+      const payload = lotDraftToPayload(draft, currentAuctionId)
       if (draft.id.startsWith('lot-')) {
         // New lot
-        const payload = lotDraftToPayload(draft, currentAuctionId)
-        const newLot  = await createLot(payload)
+        const newLot = await createLot(payload)
         setLots((prev) => [...prev, newLot])
         await updateAuction(currentAuctionId, { lot_count: lots.length + 1 })
       } else {
         // Existing lot
-        const payload = lotDraftToPayload(draft, currentAuctionId)
         await updateLot(draft.id, payload)
         setLots((prev) => prev.map((l) => l.id === draft.id ? { ...l, ...payload } : l))
       }
-    } catch { /* ignore */ }
-    setLotModal({ open: false, editing: null })
+      setLotModal({ open: false, editing: null })
+    } catch (e) {
+      // Keep the modal open so the admin doesn't lose what they typed
+      // (alert, because the modal covers the page's error line)
+      window.alert(errorText(e, 'Could not save the lot.'))
+    }
   }
 
-  const handleDeleteLot = async (lotId: string) => {
+  const handleDeleteLot = async (lot: Lot) => {
     if (!auctionId) return
+    const warning = lot.bid_count > 0
+      ? `Delete lot ${lot.lot_number} "${lot.title}"? It has ${lot.bid_count} offer(s), which will be lost.`
+      : `Delete lot ${lot.lot_number} "${lot.title}"?`
+    if (!window.confirm(warning)) return
+    setSaveError(null)
     try {
-      await deleteLot(lotId)
-      const newLots = lots.filter((l) => l.id !== lotId)
+      await deleteLot(lot.id)
+      const newLots = lots.filter((l) => l.id !== lot.id)
       setLots(newLots)
       await updateAuction(auctionId, { lot_count: newLots.length })
-    } catch { /* ignore */ }
+    } catch (e) {
+      setSaveError(errorText(e, 'Could not delete the lot.'))
+    }
   }
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -363,6 +434,9 @@ export default function AdminAuctionDetail() {
   )
 
   const transitions = STATUS_TRANSITIONS[form.status] ?? []
+  // Based on the saved-or-typed end time, so the warning disappears once a future time is entered
+  const endsIso = fromLocalInput(form.ends_at)
+  const endTimePassed = !!endsIso && new Date(endsIso).getTime() <= Date.now()
 
   return (
     <div className="p-6 max-w-[1300px] mx-auto">
@@ -390,7 +464,6 @@ export default function AdminAuctionDetail() {
               ? <span className="flex items-center gap-1"><Radio size={8} className="animate-pulse" />Live</span>
               : form.status}
           </span>
-          {saveError && <p className="text-[10px] text-red-500 max-w-xs truncate">{saveError}</p>}
           <button onClick={handleSave} disabled={isSaving}
             className={cn('flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-colors',
               saved ? 'bg-green-50 text-green-700'
@@ -402,27 +475,42 @@ export default function AdminAuctionDetail() {
         </div>
       </div>
 
+      {saveError && (
+        <div role="alert" className="bg-red-50 border border-red-100 text-red-600 text-xs rounded-xl px-4 py-2.5 mb-5">
+          {saveError}
+        </div>
+      )}
+
       {/* Status strip */}
       {!isNew && transitions.length > 0 && (
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm px-5 py-4 mb-5 flex items-center gap-4">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm px-5 py-4 mb-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <div className="flex-1">
             <p className="text-xs font-semibold text-slate-700">Lifecycle</p>
             <p className="text-[10px] text-slate-400 mt-0.5">Current: <span className="font-semibold capitalize text-slate-600">{form.status}</span></p>
+            {form.status === 'closed' && (
+              <p className="text-[10px] text-slate-500 mt-1">
+                To extend this auction, set a new <strong>Ends At</strong> below, then click <strong>Reopen with new end time</strong>.
+              </p>
+            )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {transitions.map((t) => (
-              <button key={t.next} onClick={() => handleStatusTransition(t.next)}
-                className={cn('px-4 py-2 rounded-xl text-xs font-semibold transition-colors', t.style)}>
+              <button key={t.next} onClick={() => handleStatusTransition(t.next)} disabled={isSaving}
+                className={cn('px-4 py-2 rounded-xl text-xs font-semibold transition-colors disabled:opacity-50', t.style)}>
                 {t.label}
               </button>
             ))}
           </div>
         </div>
       )}
-      {!isNew && form.status === 'closed' && (
-        <div className="bg-slate-50 rounded-2xl border border-slate-100 px-5 py-3.5 mb-5">
-          <p className="text-xs text-slate-500 flex items-center gap-1.5">
-            <Clock size={12} className="text-slate-400" />Auction is closed — no further lifecycle changes.
+      {!isNew && (form.status === 'live' || form.status === 'scheduled') && endTimePassed && (
+        <div className="bg-amber-light/60 rounded-2xl border border-amber/30 px-5 py-3.5 mb-5">
+          <p className="text-xs text-amber-dark flex items-start gap-1.5">
+            <Clock size={12} className="shrink-0 mt-0.5" />
+            <span>
+              The end time has passed, so buyers see this auction as closed. To extend it, set a new
+              <strong> Ends At</strong> and click <strong>Save</strong>.
+            </span>
           </p>
         </div>
       )}
@@ -651,7 +739,7 @@ export default function AdminAuctionDetail() {
                                 className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-brand-light text-slate-400 hover:text-brand transition-colors">
                                 <Pencil size={11} />
                               </button>
-                              <button onClick={() => handleDeleteLot(lot.id)}
+                              <button onClick={() => handleDeleteLot(lot)}
                                 className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors">
                                 <Trash2 size={11} />
                               </button>

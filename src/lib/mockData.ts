@@ -35,6 +35,7 @@ export const mockAuctions: Auction[] = [
     category: 'Commercial Property',
     location: 'Kampala, Uganda',
     image_url: 'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=640&q=80',
+    images: [],
     lot_count: 4,
     current_bid: 480_000_000,
     bid_count: 23,
@@ -58,6 +59,7 @@ export const mockAuctions: Auction[] = [
     category: 'Vehicle & Equipment',
     location: 'Jinja, Uganda',
     image_url: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=640&q=80',
+    images: [],
     lot_count: 18,
     current_bid: 45_000_000,
     bid_count: 41,
@@ -81,6 +83,7 @@ export const mockAuctions: Auction[] = [
     category: 'Vehicle & Equipment',
     location: 'Namanve, Uganda',
     image_url: 'https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?w=640&q=80',
+    images: [],
     lot_count: 32,
     current_bid: 78_000_000,
     bid_count: 17,
@@ -104,6 +107,7 @@ export const mockAuctions: Auction[] = [
     category: 'Vehicle & Equipment',
     location: 'Kampala, Uganda',
     image_url: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=640&q=80',
+    images: [],
     lot_count: 50,
     current_bid: 0,
     bid_count: 0,
@@ -127,6 +131,7 @@ export const mockAuctions: Auction[] = [
     category: 'Mixed Use',
     location: 'Kampala, Uganda',
     image_url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=640&q=80',
+    images: [],
     lot_count: 12,
     current_bid: 0,
     bid_count: 0,
@@ -150,6 +155,7 @@ export const mockAuctions: Auction[] = [
     category: 'Agricultural Land',
     location: 'Mbarara, Uganda',
     image_url: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=640&q=80',
+    images: [],
     lot_count: 1,
     current_bid: 0,
     bid_count: 0,
@@ -173,6 +179,7 @@ export const mockAuctions: Auction[] = [
     category: 'Mixed Use',
     location: 'Gulu, Uganda',
     image_url: 'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=640&q=80',
+    images: [],
     lot_count: 26,
     current_bid: 32_000_000,
     bid_count: 58,
@@ -196,6 +203,7 @@ export const mockAuctions: Auction[] = [
     category: 'Vehicle & Equipment',
     location: 'Kampala, Uganda',
     image_url: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=640&q=80',
+    images: [],
     lot_count: 9,
     current_bid: 54_000_000,
     bid_count: 34,
@@ -235,6 +243,7 @@ export const mockLots: Lot[] = [
       'VIN (masked)': 'JTEBU****00123',
     },
     image_url: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=640&q=80',
+    images: [],
     bid_count: 0,
   },
   {
@@ -260,6 +269,7 @@ export const mockLots: Lot[] = [
       'VIN (masked)': 'MR0****90KA4577',
     },
     image_url: 'https://images.unsplash.com/photo-1502877338535-766e1452684a?w=640&q=80',
+    images: [],
     bid_count: 0,
   },
   {
@@ -285,6 +295,7 @@ export const mockLots: Lot[] = [
       'VIN (masked)': 'JN8AY2****C9012',
     },
     image_url: 'https://images.unsplash.com/photo-1469285994282-454ceb49e63c?w=640&q=80',
+    images: [],
     bid_count: 0,
   },
   {
@@ -310,6 +321,7 @@ export const mockLots: Lot[] = [
       'VIN (masked)': 'JTFSX22P****3340',
     },
     image_url: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=640&q=80',
+    images: [],
     bid_count: 0,
   },
   {
@@ -335,6 +347,7 @@ export const mockLots: Lot[] = [
       'VIN (masked)': 'JTERB71J****8801',
     },
     image_url: 'https://images.unsplash.com/photo-1614027164847-1b28cfe1df60?w=640&q=80',
+    images: [],
     bid_count: 0,
   },
 
@@ -357,6 +370,7 @@ export const mockLots: Lot[] = [
       Tenure: 'Freehold',
     },
     image_url: 'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=640&q=80',
+    images: [],
     bid_count: 8,
   },
   {
@@ -377,6 +391,7 @@ export const mockLots: Lot[] = [
       Tenure: 'Leasehold',
     },
     image_url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=640&q=80',
+    images: [],
     bid_count: 6,
   },
   {
@@ -397,6 +412,7 @@ export const mockLots: Lot[] = [
       Tenure: 'Freehold',
     },
     image_url: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=640&q=80',
+    images: [],
     bid_count: 9,
   },
 
@@ -422,6 +438,7 @@ export const mockLots: Lot[] = [
       'VIN (masked)': 'JTEBU5J****5678',
     },
     image_url: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=640&q=80',
+    images: [],
     bid_count: 12,
   },
   {
@@ -445,6 +462,7 @@ export const mockLots: Lot[] = [
       'VIN (masked)': 'JADC****00P4321',
     },
     image_url: 'https://images.unsplash.com/photo-1611016186353-9af58c69a533?w=640&q=80',
+    images: [],
     bid_count: 9,
   },
   {
@@ -468,6 +486,7 @@ export const mockLots: Lot[] = [
       'VIN (masked)': 'JTFSX22P****9012',
     },
     image_url: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=640&q=80',
+    images: [],
     bid_count: 7,
   },
 ]

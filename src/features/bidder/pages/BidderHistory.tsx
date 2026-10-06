@@ -31,13 +31,12 @@ export default function BidderHistory() {
         .then(({ data }) => {
           if (!data) return
           setLots(data as Lot[])
-          const auctionIds = [...new Set(data.map((l: Lot) => l.auction_id))]
+          const auctionIds = [...new Set(data.map((l) => l.auction_id as string))]
           if (auctionIds.length === 0) return
           supabase.from('auctions').select('id, title, auction_ref, image_url, currency, ends_at')
             .in('id', auctionIds)
-            .then(({ data: aData }) => { if (aData) setAuctions(aData as Auction[]) })
-            .catch(() => {})
-        }).catch(() => {})
+            .then(({ data: aData }) => { if (aData) setAuctions(aData as Auction[]) }, () => {})
+        }, () => {})
     }).catch(() => {})
   }, [user?.id])
 

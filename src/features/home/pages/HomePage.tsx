@@ -43,7 +43,7 @@ const HOW_IT_WORKS = [
 
 export default function HomePage() {
   const [auctions, setAuctions] = useState<Auction[]>([])
-  const [orgs, setOrgs] = useState<{ id: string; name: string; location: string }[]>([])
+  const [orgs, setOrgs] = useState<{ id: string; name: string; location: string | null }[]>([])
   const [lotsCount, setLotsCount] = useState<number | null>(null)
   const [auctionsLoaded, setAuctionsLoaded] = useState(false)
 
@@ -56,7 +56,7 @@ export default function HomePage() {
       .finally(() => setAuctionsLoaded(true))
     getOrganizations().then(setOrgs).catch(() => {})
     supabase.from('lots').select('*', { count: 'exact', head: true }).eq('status', 'open')
-      .then(({ count }) => setLotsCount(count ?? 0)).catch(() => setLotsCount(0))
+      .then(({ count }) => setLotsCount(count ?? 0), () => setLotsCount(0))
   }, [])
 
   const allLive = auctions.filter((a) => a.status === 'live')

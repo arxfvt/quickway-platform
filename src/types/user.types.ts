@@ -1,6 +1,6 @@
 export type UserRole = 'admin' | 'org_admin' | 'bidder'
 
-export type KycStatus = 'pending' | 'approved' | 'rejected'
+export type KycStatus = 'pending' | 'approved' | 'rejected' | 'not_submitted'
 
 export interface User {
   id: string

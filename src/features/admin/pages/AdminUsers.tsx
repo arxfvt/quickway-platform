@@ -65,32 +65,32 @@ export default function AdminUsers() {
   const verifiedCount   = users.filter((u) => u.kyc_status === 'approved').length
   const pendingKycCount = users.filter((u) => u.kyc_status === 'pending').length
 
-  const handleRoleChange = async (userId: string, role: UserRole) => {
-    // Optimistic update
-    setUsers((prev) => prev.map((u) => u.id === userId ? { ...u, role } : u))
+  /**
+   * Show a change straight away, save it, and put the old value back (with a
+   * message) if the save fails — otherwise the screen would show a change
+   * that never reached the database.
+   */
+  const applyUserChange = async (userId: string, change: Partial<User>, save: () => Promise<void>) => {
+    const before = users.find((u) => u.id === userId)
+    setUsers((prev) => prev.map((u) => u.id === userId ? { ...u, ...change } : u))
     try {
-      await updateUserRole(userId, role)
-    } catch {
-      // Revert on failure
-      setUsers((prev) => prev.map((u) => u.id === userId ? { ...u } : u))
+      await save()
+    } catch (e) {
+      if (before) setUsers((prev) => prev.map((u) => u.id === userId ? before : u))
+      const msg = (e as { message?: string } | null)?.message
+      window.alert(`Could not save this change${msg ? `: ${msg}` : '.'}`)
     }
   }
 
-  const handleKycChange = async (userId: string, kyc_status: 'approved' | 'not_submitted') => {
-    setUsers((prev) => prev.map((u) => u.id === userId ? { ...u, kyc_status } : u))
-    try {
-      await updateUserKycStatus(userId, kyc_status)
-    } catch { /* revert silently — user will see stale state until refresh */ }
-  }
+  const handleRoleChange = (userId: string, role: UserRole) =>
+    applyUserChange(userId, { role }, () => updateUserRole(userId, role))
 
-  const handleOrgChange = async (userId: string, orgId: string) => {
+  const handleKycChange = (userId: string, kyc_status: 'approved' | 'not_submitted') =>
+    applyUserChange(userId, { kyc_status }, () => updateUserKycStatus(userId, kyc_status))
+
+  const handleOrgChange = (userId: string, orgId: string) => {
     const value = orgId === '' ? null : orgId
-    setUsers((prev) => prev.map((u) => u.id === userId ? { ...u, org_id: value ?? undefined } : u))
-    try {
-      await updateUserOrgAssignment(userId, value)
-    } catch {
-      setUsers((prev) => prev.map((u) => u.id === userId ? { ...u } : u))
-    }
+    return applyUserChange(userId, { org_id: value }, () => updateUserOrgAssignment(userId, value))
   }
 
   if (isLoading) return (

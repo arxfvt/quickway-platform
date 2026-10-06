@@ -5,6 +5,7 @@ import { AUCTION_CATEGORIES } from '../../../lib/mockData'
 import { createAuction, createLot } from '../../../services/auctions.service'
 import { getOrganizations } from '../../../services/organizations.service'
 import { cn } from '../../../lib/utils'
+import { fromLocalInput } from '../../../utils/date'
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -131,9 +132,11 @@ export default function AdminCreateCatalogue() {
         category:          draft.category,
         location:          draft.location,
         image_url:         draft.image_url,
+        images:            draft.image_url ? [draft.image_url] : [],
         status,
-        starts_at:         draft.starts_at,
-        ends_at:           draft.ends_at,
+        // datetime-local values are the admin's local time — store as UTC ISO
+        starts_at:         fromLocalInput(draft.starts_at) ?? draft.starts_at,
+        ends_at:           fromLocalInput(draft.ends_at) ?? draft.ends_at,
         participation_fee: Number(draft.participation_fee.replace(/[^0-9]/g, '')) || 0,
         currency:          draft.currency,
         bank_details:      draft.bank_details,
@@ -149,8 +152,9 @@ export default function AdminCreateCatalogue() {
             title:         lot.title,
             description:   lot.description,
             image_url:     lot.image_url,
+            images:        lot.image_url ? [lot.image_url] : [],
             reserve_price: Number(lot.reserve_price.replace(/[^0-9]/g, '')) || 0,
-            bid_increment: Number(lot.bid_increment.replace(/[^0-9,]/g, '').replace(',', '')) || 50_000,
+            bid_increment: Number(lot.bid_increment.replace(/[^0-9]/g, '')) || 50_000,
             specs:         lot.specs,
           })
         )

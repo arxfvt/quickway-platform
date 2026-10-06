@@ -78,6 +78,9 @@ export function useAuth() {
         role,
         kyc_status: 'pending',
         org_id:     null,
+        full_name:  null,
+        phone:      null,
+        address:    null,
         created_at: new Date().toISOString(),
       })
 

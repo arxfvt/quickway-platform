@@ -58,7 +58,7 @@ export default function AdminPayments() {
             const map: Record<string, { full_name: string | null; email: string; kyc_status: string | null }> = {}
             profiles.forEach((p) => { map[p.id] = { full_name: p.full_name, email: p.email, kyc_status: p.kyc_status } })
             setUserMap(map)
-          }).catch(() => {})
+          }, () => {})
       }
       if (auctionIds.length > 0) {
         supabase.from('auctions').select('id, title, auction_ref').in('id', auctionIds)
@@ -67,7 +67,7 @@ export default function AdminPayments() {
             const map: Record<string, { title: string; auction_ref: string }> = {}
             auctions.forEach((a) => { map[a.id] = { title: a.title, auction_ref: a.auction_ref } })
             setAuctionMap(map)
-          }).catch(() => {})
+          }, () => {})
       }
     }).catch(() => {})
   }, [filter])

@@ -16,7 +16,7 @@ export interface Auction {
   location: string
   image_url: string
   images: string[]               // array of uploaded image URLs (up to 6)
-  video_url?: string             // optional YouTube/Vimeo/direct video URL
+  video_url?: string | null      // optional YouTube/Vimeo/direct video URL
   auction_ref: string
   lot_count: number
   current_bid: number            // highest bid across all lots (for display)
@@ -33,7 +33,7 @@ export interface Lot {
   description: string
   image_url: string
   images: string[]
-  video_url?: string
+  video_url?: string | null
   reserve_price: number
   current_bid: number
   bid_increment: number
