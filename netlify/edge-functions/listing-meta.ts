@@ -1,26 +1,35 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Netlify Edge Function — server-side title, description and preview image for
-// listing pages (/auctions/:id).
+// Netlify Edge Function — server-side title, description, preview image and
+// structured data for listing pages (/auctions/:id).
 //
 // The site is a single-page app, so without this every page is served as the
-// same bare "Quickway" HTML. WhatsApp, Facebook and Google read the HTML before
-// any JavaScript runs — this function puts the property's name, description and
-// photo into that HTML so shared links show a proper preview.
-// If anything goes wrong it simply returns the normal page.
+// same bare HTML. WhatsApp, Facebook and Google read the HTML before any
+// JavaScript runs — this function puts the property's name, description,
+// photo and price into that HTML so shared links and search results show the
+// listing properly. If anything goes wrong it simply returns the normal page.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { Config, Context } from 'https://edge.netlify.com'
-
-// Public (anon) credentials — the same ones already shipped in the website's JavaScript.
-const SUPABASE_URL = 'https://aptkkshrurkpdjxpqeja.supabase.co'
-const SUPABASE_ANON_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwdGtrc2hydXJrcGRqeHBxZWphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NTY2NzAsImV4cCI6MjA5MDAzMjY3MH0.JNNwXRgy1QuVq-uz6ELjT46T77zbmKAP-Eg_CwA9NyQ'
-const SITE_URL = 'https://quickwayauctioneersandcourtbailiffs.com'
+import { SITE_URL, supabaseGet, esc, jsonLd } from '../shared/supabase.ts'
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-function esc(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+// Listings in these states are visible to buyers and may be indexed
+const PUBLIC_STATUSES = new Set(['live', 'scheduled', 'closed'])
+
+interface AuctionRow {
+  title: string
+  description: string | null
+  location: string | null
+  category: string | null
+  image_url: string | null
+  images: string[] | null
+  auction_ref: string | null
+  status: string
+  currency: string | null
+  starts_at: string | null
+  ends_at: string | null
+  created_at: string | null
 }
 
 /** Collapse whitespace and cut to ~160 characters at a word boundary. */
@@ -37,6 +46,10 @@ function sized(url: string, width: number): string {
   return `${r}${r.includes('?') ? '&' : '?'}width=${width}&quality=70&resize=contain`
 }
 
+function money(amount: number, currency: string): string {
+  return `${currency} ${Math.round(amount).toLocaleString('en-US')}`
+}
+
 export default async (request: Request, context: Context) => {
   const response = await context.next()
 
@@ -46,41 +59,84 @@ export default async (request: Request, context: Context) => {
     const id = new URL(request.url).pathname.split('/')[2] ?? ''
     if (!UUID.test(id)) return response
 
-    const api =
-      `${SUPABASE_URL}/rest/v1/auctions?id=eq.${id}` +
-      `&select=title,description,location,image_url,images,auction_ref`
-    const res = await fetch(api, {
-      headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
-      signal: AbortSignal.timeout(1500),
-    })
-    if (!res.ok) return response
-    const rows = (await res.json()) as Array<{
-      title: string
-      description: string | null
-      location: string | null
-      image_url: string | null
-      images: string[] | null
-      auction_ref: string | null
-    }>
-    const a = rows[0]
+    const [rows, lots] = await Promise.all([
+      supabaseGet<AuctionRow[]>(
+        `auctions?id=eq.${id}&select=title,description,location,category,image_url,images,auction_ref,status,currency,starts_at,ends_at,created_at`
+      ),
+      supabaseGet<{ reserve_price: number | null }[]>(
+        `lots?auction_id=eq.${id}&select=reserve_price&order=lot_number.asc&limit=1`
+      ),
+    ])
+    const a = rows?.[0]
     if (!a?.title) return response
 
+    const isPublic = PUBLIC_STATUSES.has(a.status)
+    // The site shows a listing as closed once its end time passes, even before
+    // the database status changes — match that here.
+    const ended = a.status === 'closed' || (!!a.ends_at && new Date(a.ends_at).getTime() <= Date.now())
+    const currency = a.currency || 'UGX'
+    const price = lots?.[0]?.reserve_price ?? 0
+
     const title = `${a.title} | Quickway Auctioneers`
-    const desc = clip(`${a.location ? a.location + ' — ' : ''}${a.description ?? ''}`)
-    const photo = a.images?.[0] || a.image_url || ''
+    const facts = [
+      a.location,
+      ended ? 'Auction closed — ask us about similar properties' : price > 0 ? `Starting from ${money(price, currency)}` : null,
+    ].filter(Boolean).join(' · ')
+    const desc = clip(`${facts ? facts + '. ' : ''}${a.description ?? ''}`)
+    const photo = a.images?.find(Boolean) || a.image_url || ''
+    const photoUrl = photo ? sized(photo, 1000) : ''
     const pageUrl = `${SITE_URL}/auctions/${id}`
+
+    // Structured data describes only what the page itself shows
+    const listing: Record<string, unknown> = {
+      '@context': 'https://schema.org',
+      '@type': 'RealEstateListing',
+      name: a.title,
+      description: clip(a.description ?? '', 500),
+      url: pageUrl,
+      ...(photoUrl ? { image: photoUrl } : {}),
+      ...(a.created_at ? { datePosted: a.created_at } : {}),
+      ...(a.category ? { category: a.category } : {}),
+      ...(a.location ? { contentLocation: { '@type': 'Place', name: a.location, address: { '@type': 'PostalAddress', addressCountry: 'UG' } } } : {}),
+      provider: { '@type': 'LocalBusiness', name: 'Quickway Auctioneers & Court Bailiffs', url: SITE_URL, telephone: '+256750925959' },
+      ...(!ended && price > 0
+        ? {
+            offers: {
+              '@type': 'Offer',
+              price,
+              priceCurrency: currency,
+              availability: 'https://schema.org/InStock',
+              ...(a.ends_at ? { validThrough: a.ends_at } : {}),
+              url: pageUrl,
+            },
+          }
+        : {}),
+    }
+    const breadcrumbs = {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
+        { '@type': 'ListItem', position: 2, name: 'Properties & Assets', item: `${SITE_URL}/auctions` },
+        { '@type': 'ListItem', position: 3, name: a.title, item: pageUrl },
+      ],
+    }
 
     const tags = [
       `<title>${esc(title)}</title>`,
       `<meta name="description" content="${esc(desc)}" />`,
       `<link rel="canonical" href="${pageUrl}" />`,
+      // Drafts and cancelled listings must not appear in search results
+      isPublic ? '' : `<meta name="robots" content="noindex, nofollow" />`,
       `<meta property="og:type" content="website" />`,
       `<meta property="og:site_name" content="Quickway Auctioneers &amp; Court Bailiffs" />`,
       `<meta property="og:title" content="${esc(title)}" />`,
       `<meta property="og:description" content="${esc(desc)}" />`,
       `<meta property="og:url" content="${pageUrl}" />`,
-      photo ? `<meta property="og:image" content="${esc(sized(photo, 1000))}" />` : '',
+      photoUrl ? `<meta property="og:image" content="${esc(photoUrl)}" />` : '',
       `<meta name="twitter:card" content="summary_large_image" />`,
+      isPublic ? jsonLd(listing) : '',
+      jsonLd(breadcrumbs),
     ].filter(Boolean).join('\n    ')
 
     let html = await response.text()

@@ -602,10 +602,20 @@ export default function AuctionDetailPage() {
 
   // Page title, description and preview image for this listing
   const metaImage = auction ? (auction.images?.[0] || auction.image_url) : undefined
+  // Same wording as the server-side version in netlify/edge-functions/listing-meta.ts
+  const metaPrice = lots[0]?.reserve_price ?? 0
+  const metaFacts = auction
+    ? [
+        auction.location,
+        auction.status === 'closed'
+          ? 'Auction closed — ask us about similar properties'
+          : metaPrice > 0 ? `Starting from ${auction.currency || 'UGX'} ${metaPrice.toLocaleString('en-US')}` : null,
+      ].filter(Boolean).join(' · ')
+    : ''
   usePageMeta({
     title: auction?.title,
     description: auction
-      ? `${auction.location ? auction.location + ' — ' : ''}${auction.description}`
+      ? `${metaFacts ? metaFacts + '. ' : ''}${auction.description}`
       : undefined,
     image: metaImage ? sizedImage(metaImage, IMG.share, 75) : undefined,
   })

@@ -29,8 +29,8 @@ export default function AuctionListPage() {
   const [page, setPage] = useState(1)
 
   usePageMeta({
-    title: 'Land, Houses, Vehicles & Machinery for Sale by Auction',
-    description: 'Browse court-ordered, bank and private auction listings in Uganda — land, houses, commercial buildings, vehicles and machinery. WhatsApp Quickway on 0750 925 959.',
+    title: 'Land & Houses for Sale by Auction in Uganda',
+    description: 'Land, houses, commercial buildings, vehicles and machinery from court, bank and private sales in Uganda. Photos, prices and closing dates. WhatsApp 0750 925 959.',
     path: '/auctions',
   })
 

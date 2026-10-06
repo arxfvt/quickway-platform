@@ -1,0 +1,14 @@
+# Quickway Auctioneers & Court Bailiffs
+# Public listings are open to search engines and AI assistants.
+# Account, staff and admin areas are kept out of search results.
+
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /org
+Disallow: /bidder
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+
+Sitemap: https://quickwayauctioneersandcourtbailiffs.com/sitemap.xml

@@ -6,7 +6,7 @@ import { usePageMeta } from '../../../hooks/usePageMeta'
 
 export default function ContactPage() {
   usePageMeta({
-    title: 'Contact Us',
+    title: 'Contact Us — Kampala Office & WhatsApp',
     description: `WhatsApp or call Quickway Auctioneers on ${SITE.phoneDisplay}. Office: ${OFFICE_ADDRESS}.`,
   })
   return (

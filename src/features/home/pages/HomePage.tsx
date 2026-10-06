@@ -10,13 +10,52 @@ import CountdownTimer from '../../../components/auction/CountdownTimer'
 import { cn } from '../../../lib/utils'
 import SiteFooter from '../../../components/layout/SiteFooter'
 import { usePageMeta } from '../../../hooks/usePageMeta'
-import { whatsappLink, waMessages } from '../../../config/site'
+import { SITE, OFFICE_ADDRESS, whatsappLink, waMessages } from '../../../config/site'
 import { trackLead } from '../../../lib/tracking'
 import { sizedImage, IMG } from '../../../lib/imageUrl'
 import { withEffectiveStatus, entryLabel } from '../../../utils/auctionStatus'
 import type { Auction } from '../../../types/auction.types'
 
 // ─────────────────────────────────────────────────────────────────────────────
+
+// Buyer questions — shown on the page and repeated as FAQPage structured data,
+// so every answer here must stay true and visible.
+const FAQS: { q: string; a: string }[] = [
+  {
+    q: 'Do I need an account to view properties?',
+    a: 'No. Every listing — photos, location, starting price and closing date — is open to anyone. You only need an account when you are ready to submit an offer.',
+  },
+  {
+    q: 'How do I make an offer?',
+    a: 'Create a free account, then verify your identity (KYC) by uploading a valid ID such as a national ID or passport. Once you are approved, open the listing and submit your offer before the closing date. If an auction has a participation fee, it is shown on the listing before you pay.',
+  },
+  {
+    q: 'Can other buyers see my offer?',
+    a: 'No. Offers are sealed, which means they stay private until the auction closes.',
+  },
+  {
+    q: 'Can I view the property before making an offer?',
+    a: `Yes. Book a site visit on WhatsApp ${SITE.phoneDisplay}, or use the "Book a site visit" button on any listing. Inspect the property and do your own checks before you make an offer — for land and buildings, that includes a land search.`,
+  },
+  {
+    q: 'Where do these properties come from?',
+    a: 'Court-ordered sales, bank sales and private sales. Quickway publishes each one here with its location, photos and closing date.',
+  },
+  {
+    q: 'What happens if my offer is successful?',
+    a: 'When the auction closes, Quickway contacts the successful buyer to arrange the deposit, payment and transfer.',
+  },
+  {
+    q: 'Where is your office?',
+    a: `${OFFICE_ADDRESS}. Open Monday to Friday 8:00 AM – 5:00 PM and Saturday 9:00 AM – 1:00 PM.`,
+  },
+]
+
+const FAQ_JSON_LD = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: FAQS.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+}).replace(/</g, '\\u003c')
 
 const HOW_IT_WORKS = [
   {
@@ -258,23 +297,49 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── Buyer FAQ ─────────────────────────────────────────── */}
+      <section className="bg-slate-50 border-t border-slate-100 py-14">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-8">
+            <h2 className="text-xl font-bold text-slate-900">Questions Buyers Ask</h2>
+            <p className="text-sm text-slate-500 mt-1">Buying at auction for the first time? Here is exactly what happens.</p>
+          </div>
+          <div className="space-y-2">
+            {FAQS.map((f) => (
+              <details key={f.q} className="group bg-white rounded-xl border border-slate-100 shadow-sm">
+                <summary className="flex items-center justify-between gap-3 cursor-pointer list-none px-4 py-3.5 text-sm font-semibold text-slate-800">
+                  {f.q}
+                  <ChevronRight size={15} className="shrink-0 text-slate-400 transition-transform group-open:rotate-90" />
+                </summary>
+                <p className="px-4 pb-4 text-sm text-slate-600 leading-relaxed">{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: FAQ_JSON_LD }} />
+      </section>
+
       {/* ── CTA Banner ────────────────────────────────────────── */}
       <section className="bg-brand py-12">
         <div className="max-w-[1200px] mx-auto px-6 text-center">
-          <h2 className="text-xl font-bold text-white mb-2">Ready to start bidding?</h2>
-          <p className="text-white/70 text-sm mb-6">Create your free account and complete KYC verification to participate in any auction.</p>
-          <div className="flex items-center justify-center gap-3">
+          <h2 className="text-xl font-bold text-white mb-2">Found a property you like?</h2>
+          <p className="text-white/70 text-sm mb-6">WhatsApp us to ask questions or book a site visit. Ready to buy? Create a free account to submit a sealed offer.</p>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <a
+              href={whatsappLink(waMessages.general)}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackLead('whatsapp', { placement: 'home_cta' })}
+              className="flex items-center gap-2 bg-[#25D366] hover:bg-[#1ebe5b] text-white font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors"
+            >
+              <MessageCircle size={15} />
+              WhatsApp Us
+            </a>
             <Link
               to="/register"
-              className="bg-amber hover:bg-amber-dark text-white font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors"
-            >
-              Create Account
-            </Link>
-            <Link
-              to="/auctions"
               className="bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors border border-white/20"
             >
-              Browse Auctions
+              Create Free Account
             </Link>
           </div>
         </div>

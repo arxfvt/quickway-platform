@@ -43,7 +43,7 @@ function setCanonical(href: string) {
  */
 export function usePageMeta({ title, description, image, path }: PageMeta) {
   useEffect(() => {
-    const fullTitle = title ? `${title} | ${SITE.shortName} Auctioneers` : `${SITE.name} — Property & Asset Auctions in Uganda`
+    const fullTitle = title ? `${title} | ${SITE.shortName} Auctioneers` : SITE.defaultTitle
     const desc = clip(description || SITE.defaultDescription)
     const url = SITE.url + (path ?? window.location.pathname)
 

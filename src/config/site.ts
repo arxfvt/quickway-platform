@@ -7,14 +7,15 @@ export const SITE = {
   shortName: 'Quickway',
   url: 'https://quickwayauctioneersandcourtbailiffs.com',
   tagline: 'Property, land, vehicles & machinery — court and bank auctions in Uganda',
+  defaultTitle: 'Property Auctions in Uganda: Land, Houses & Vehicles | Quickway',
   defaultDescription:
-    'Buy land, houses, commercial buildings, vehicles and machinery from court-ordered and bank auctions in Uganda. Verified listings by Quickway Auctioneers & Court Bailiffs, Kampala. WhatsApp 0750 925 959.',
+    'Buy land, houses, commercial property and vehicles from court and bank auctions in Uganda. View listings free. WhatsApp Quickway on 0750 925 959.',
 
   // Contact — international format without "+" for wa.me, display format for people
   phoneE164: '+256750925959',
   phoneDisplay: '0750 925 959',
   whatsappNumber: '256750925959',
-  email: 'info@quickway.ug',
+  email: 'festus@quickwayauctioneersandcourtbailiffs.com',
 
   office: {
     building: 'London Chambers',
