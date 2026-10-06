@@ -32,9 +32,33 @@ import CataloguePage from '../features/auctions/pages/CataloguePage'
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** Lazy route helper: loads a page's code only when that route is opened. */
+const RELOAD_KEY = 'qw-chunk-reload'
+
+/**
+ * Lazy route helper: loads a page's code only when that route is opened.
+ *
+ * Each deploy renames these code files, so a tab opened before a deploy asks
+ * for files that no longer exist. When that happens, reload once to pick up
+ * the new version instead of showing the error page. The session flag stops
+ * a reload loop if the file is genuinely broken.
+ */
 const page = (load: () => Promise<{ default: ComponentType }>) => ({
-  lazy: async () => ({ Component: (await load()).default }),
+  lazy: async () => {
+    try {
+      const mod = await load()
+      sessionStorage.removeItem(RELOAD_KEY)
+      return { Component: mod.default }
+    } catch (err) {
+      let reloaded = false
+      try { reloaded = sessionStorage.getItem(RELOAD_KEY) === '1' } catch { /* storage blocked */ }
+      if (!reloaded) {
+        try { sessionStorage.setItem(RELOAD_KEY, '1') } catch { /* storage blocked */ }
+        window.location.reload()
+        return new Promise<never>(() => {}) // keep the loader waiting while the page reloads
+      }
+      throw err
+    }
+  },
 })
 
 // ─────────────────────────────────────────────────────────────────────────────

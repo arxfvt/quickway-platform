@@ -3,6 +3,8 @@ import { AlertTriangle, Home, ArrowLeft } from 'lucide-react'
 
 export default function ErrorPage() {
   const error = useRouteError()
+  // Keep the real error in the browser console so it can be diagnosed
+  console.error('Route error:', error)
 
   const is404 = isRouteErrorResponse(error) && error.status === 404
   const title = is404 ? 'Page Not Found' : 'Something Went Wrong'
