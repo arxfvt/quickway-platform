@@ -18,6 +18,7 @@ import CountdownTimer from '../../../components/auction/CountdownTimer'
 import PaymentModal from '../components/PaymentModal'
 import { useParticipation } from '../../participation/hooks/useParticipation'
 import { useLiveBids } from '../../bidding/hooks/useLiveBids'
+import ListingGallery from '../../../components/auction/ListingGallery'
 import ListingContactCard from '../../../components/contact/ListingContactCard'
 import { useWhatsAppContext } from '../../../components/contact/WhatsAppFloat'
 import { waMessages } from '../../../config/site'
@@ -519,7 +520,6 @@ type LotTab = 'all' | 'active' | 'closed'
 
 export default function AuctionDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const [activeImage, setActiveImage] = useState(0)
   const [lotTab, setLotTab] = useState<LotTab>('all')
 
   const [auction, setAuction] = useState<Auction | null>(null)
@@ -537,7 +537,6 @@ export default function AuctionDetailPage() {
     setAuction(null)
     setLots([])
     setBids([])
-    setActiveImage(0)
 
     getAuction(id)
       .then(async (a) => {
@@ -716,31 +715,8 @@ export default function AuctionDetailPage() {
 
         {/* ── Left: gallery + info ─────────────────────────── */}
         <div className="w-full md:flex-1 min-w-0">
-          {/* Gallery */}
-          <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm mb-4">
-            <img
-              src={sizedImage(gallery[activeImage], IMG.main)}
-              alt={auction.title}
-              fetchPriority="high"
-              className="w-full h-56 sm:h-80 object-cover bg-slate-100"
-            />
-            {gallery.length > 1 && (
-              <div className="flex gap-2 p-3 overflow-x-auto">
-                {gallery.map((img, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setActiveImage(i)}
-                    className={cn(
-                      'w-16 h-12 rounded-lg overflow-hidden border-2 transition-colors shrink-0',
-                      i === activeImage ? 'border-brand' : 'border-transparent hover:border-slate-300'
-                    )}
-                  >
-                    <img src={sizedImage(img, IMG.thumb)} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover bg-slate-100" />
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* Gallery — whole photos, arrows, swipe and full-screen viewer */}
+          <ListingGallery key={auction.id} images={gallery} title={auction.title} />
 
           {/* Video — auction-level first, then first lot with a video */}
           {(() => {
