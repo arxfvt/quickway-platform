@@ -1,13 +1,14 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Link, useParams, useNavigate } from 'react-router-dom'
+import { Link, useParams, useNavigate, useBlocker } from 'react-router-dom'
 import {
   ChevronLeft, Save, Package, Plus, Pencil, Trash2,
-  Radio, Clock, ImagePlus, Loader2, Video,
+  Radio, Clock, ImagePlus, Loader2, Video, Star, Upload,
 } from 'lucide-react'
 import {
   getAuction, getLots, createAuction, updateAuction,
-  updateAuctionStatus, createLot, updateLot, deleteLot,
+  updateAuctionStatus, createLot, updateLot, deleteLot, uploadAuctionImage,
 } from '../../../services/auctions.service'
+import { compressImage } from '../../../lib/imageUtils'
 import { getOrganizations } from '../../../services/organizations.service'
 import { cn } from '../../../lib/utils'
 import { toLocalInput, fromLocalInput } from '../../../utils/date'
@@ -160,6 +161,14 @@ function lotDraftToPayload(draft: LotDraft, auctionId: string): Omit<Lot, 'id' |
 
 function fmt(n: number) { return n.toLocaleString('en-UG') }
 
+/** "Fri, 1 Jan 2027, 2:00 am" — spelled out under the date fields so a wrong time is easy to spot */
+function readableDate(local: string): string {
+  const iso = fromLocalInput(local)
+  return iso
+    ? new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }).format(new Date(iso))
+    : ''
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Page
 // ─────────────────────────────────────────────────────────────────────────────
@@ -183,6 +192,41 @@ export default function AdminAuctionDetail() {
   const [quickwayOrgId, setQuickwayOrgId] = useState<string | null>(null)
   const [customStartingBid, setCustomStartingBid]   = useState(false)
   const [customBidIncrement, setCustomBidIncrement] = useState(false)
+  const [uploadsInFlight, setUploadsInFlight] = useState(0)
+  const [bulkProgress, setBulkProgress] = useState<string | null>(null)
+  const bulkInputRef = useRef<HTMLInputElement>(null)
+
+  // Unsaved changes: compare the form with how it was last loaded or saved
+  const [baseline, setBaseline] = useState<string | null>(null)
+  const isDirty = baseline !== null && JSON.stringify(form) !== baseline
+  const isDirtyRef = useRef(false)
+  isDirtyRef.current = isDirty
+  const allowNavRef = useRef(false)
+
+  // Warn before leaving the page (in-app links, refresh or closing the tab) with unsaved changes
+  const blocker = useBlocker(({ currentLocation, nextLocation }) =>
+    isDirtyRef.current && !allowNavRef.current && currentLocation.pathname !== nextLocation.pathname)
+  useEffect(() => {
+    if (blocker.state !== 'blocked') return
+    if (window.confirm('You have unsaved changes. Leave this page without saving?')) blocker.proceed()
+    else blocker.reset()
+  }, [blocker])
+  useEffect(() => {
+    if (!isDirty) return
+    const warn = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = '' }
+    window.addEventListener('beforeunload', warn)
+    return () => window.removeEventListener('beforeunload', warn)
+  }, [isDirty])
+
+  // Ctrl+S / Cmd+S saves
+  const saveRef = useRef<() => void>(() => {})
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); saveRef.current() }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   // ── Load data ──────────────────────────────────────────────────────────────
 
@@ -221,8 +265,14 @@ export default function AdminAuctionDetail() {
 
   useEffect(() => {
     setIsLoading(true)
+    setBaseline(null)
     loadData().finally(() => setIsLoading(false))
   }, [loadData])
+
+  // Once loading finishes, the loaded form counts as saved
+  useEffect(() => {
+    if (!isLoading && baseline === null) setBaseline(JSON.stringify(form))
+  }, [isLoading, baseline, form])
 
   // ── Field helper ──────────────────────────────────────────────────────────
 
@@ -250,6 +300,55 @@ export default function AdminAuctionDetail() {
   }
 
   const auctionSlotLabel = (i: number) => (i === 0 ? 'Cover Image' : `Photo ${i + 1}`)
+
+  const makeCover = (i: number) =>
+    setForm((f) => {
+      const next = [...f.images]
+      const [img] = next.splice(i, 1)
+      return { ...f, images: [img, ...next] }
+    })
+
+  const trackUpload = (busy: boolean) => setUploadsInFlight((n) => n + (busy ? 1 : -1))
+
+  /** Upload several photos at once into the free slots */
+  const handleBulkPhotos = async (files: FileList | null) => {
+    const picked = Array.from(files ?? []).filter((file) => file.type.startsWith('image/') || /\.(heic|heif)$/i.test(file.name))
+    if (picked.length === 0) return
+    const room = MAX_AUCTION_IMAGES - form.images.filter(Boolean).length
+    if (room <= 0) { setSaveError(`This listing already has ${MAX_AUCTION_IMAGES} photos. Remove one to add another.`); return }
+    const batch = picked.slice(0, room)
+    setSaveError(picked.length > room ? `Only ${room} more photo${room === 1 ? '' : 's'} fit, so the first ${room} were added.` : null)
+
+    let failed = 0
+    trackUpload(true)
+    try {
+      for (let k = 0; k < batch.length; k++) {
+        setBulkProgress(`Uploading ${k + 1} of ${batch.length}…`)
+        try {
+          const compressed = await compressImage(batch[k])
+          const url = await uploadAuctionImage(compressed, `auctions/${auctionId ?? tempUploadId.current}/photo-${Date.now()}-${k}.jpg`)
+          setForm((f) => {
+            const kept = f.images.filter(Boolean)
+            return kept.length >= MAX_AUCTION_IMAGES ? f : { ...f, images: [...kept, url] }
+          })
+        } catch { failed++ }
+      }
+    } finally {
+      setBulkProgress(null)
+      trackUpload(false)
+    }
+    if (failed) setSaveError(`${failed} photo${failed === 1 ? '' : 's'} failed to upload. Check your internet connection and try again.`)
+  }
+
+  /** Push the end time out by a number of days (from the next full hour if it has already passed) */
+  const extendEnds = (days: number) => {
+    const current = fromLocalInput(form.ends_at)
+    const stillAhead = !!current && new Date(current).getTime() > Date.now()
+    const base = stillAhead ? new Date(current!) : new Date()
+    if (!stillAhead) { base.setMinutes(0, 0, 0); base.setHours(base.getHours() + 1) }
+    base.setDate(base.getDate() + days)
+    field('ends_at', toLocalInput(base.toISOString()))
+  }
 
   // ── Save auction ──────────────────────────────────────────────────────────
 
@@ -292,6 +391,9 @@ export default function AdminAuctionDetail() {
   }
 
   const handleSave = async () => {
+    if (isSaving) return
+    if (uploadsInFlight > 0) { setSaveError('A photo is still uploading. Wait for it to finish, then click Save.'); return }
+    const savedSnapshot = JSON.stringify(form)
     const invalid = validate()
     if (invalid) { setSaveError(invalid); return }
     setIsSaving(true); setSaveError(null)
@@ -316,6 +418,8 @@ export default function AdminAuctionDetail() {
           await updateAuction(created.id, { lot_count: 1 })
         }
         setAuctionId(created.id)
+        setBaseline(savedSnapshot)
+        allowNavRef.current = true
         navigate(`/admin/auctions/${created.id}`, { replace: true })
       } else {
         // Status is not part of Save — it only changes through the Lifecycle
@@ -352,6 +456,7 @@ export default function AdminAuctionDetail() {
             setLots((prev) => prev.map((l) => ({ ...l, ...lotSync })))
           }
         }
+        setBaseline(savedSnapshot)
         flashSaved()
       }
     } catch (e: unknown) {
@@ -359,6 +464,8 @@ export default function AdminAuctionDetail() {
       setSaveError(errorText(e, 'Save failed.'))
     } finally { setIsSaving(false) }
   }
+
+  saveRef.current = handleSave
 
   // ── Status transition ─────────────────────────────────────────────────────
 
@@ -372,6 +479,7 @@ export default function AdminAuctionDetail() {
     // auction would close again straight away. Save the form with it so a new
     // end time typed in is applied in the same click.
     if (next === 'live') {
+      if (uploadsInFlight > 0) { setSaveError('A photo is still uploading. Wait for it to finish, then try again.'); return }
       const invalid = validate()
       if (invalid) { setSaveError(invalid); return }
       const ends = fromLocalInput(form.ends_at)
@@ -389,6 +497,10 @@ export default function AdminAuctionDetail() {
         await updateAuctionStatus(auctionId, next)
       }
       setForm((f) => ({ ...f, status: next }))
+      // Going live saves the whole form; other changes only update the status
+      setBaseline((b) => next === 'live'
+        ? JSON.stringify({ ...form, status: next })
+        : b ? JSON.stringify({ ...JSON.parse(b), status: next }) : b)
       flashSaved()
     } catch (e) {
       setSaveError(errorText(e, 'Could not change the auction status.'))
@@ -455,8 +567,8 @@ export default function AdminAuctionDetail() {
   return (
     <div className="p-6 max-w-[1300px] mx-auto">
 
-      {/* Header */}
-      <div className="flex items-start justify-between mb-5 gap-4">
+      {/* Header — stays on screen while scrolling so Save is always reachable */}
+      <div className="sticky top-0 z-20 -mx-6 px-6 py-3 mb-5 bg-background/95 backdrop-blur border-b border-slate-100 flex items-start justify-between gap-4">
         <div className="flex items-start gap-3 min-w-0">
           <Link to="/admin/auctions" className="mt-0.5 shrink-0 text-slate-400 hover:text-brand transition-colors">
             <ChevronLeft size={18} />
@@ -478,7 +590,12 @@ export default function AdminAuctionDetail() {
               ? <span className="flex items-center gap-1"><Radio size={8} className="animate-pulse" />Live</span>
               : form.status}
           </span>
-          <button onClick={handleSave} disabled={isSaving}
+          {isDirty && !isSaving && !saved && (
+            <span className="hidden sm:flex items-center gap-1.5 text-[10px] font-semibold text-amber-dark">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber" />Unsaved changes
+            </span>
+          )}
+          <button onClick={handleSave} disabled={isSaving} title="Save (Ctrl+S)"
             className={cn('flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-colors',
               saved ? 'bg-green-50 text-green-700'
               : isSaving ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
@@ -556,9 +673,9 @@ export default function AdminAuctionDetail() {
 
               <div>
                 <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Description</label>
-                <textarea value={form.description} onChange={(e) => field('description', e.target.value)} rows={3}
+                <textarea value={form.description} onChange={(e) => field('description', e.target.value)} rows={10}
                   placeholder="Describe this auction…"
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors resize-none" />
+                  className="w-full px-3 py-2 text-xs leading-relaxed rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors resize-y" />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -589,11 +706,22 @@ export default function AdminAuctionDetail() {
                   <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Starts At</label>
                   <input type="datetime-local" value={form.starts_at} onChange={(e) => field('starts_at', e.target.value)}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors" />
+                  {form.starts_at && <p className="text-[10px] text-slate-500 mt-1">{readableDate(form.starts_at)}</p>}
                 </div>
                 <div>
                   <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Ends At</label>
                   <input type="datetime-local" value={form.ends_at} onChange={(e) => field('ends_at', e.target.value)}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors" />
+                  {form.ends_at && <p className="text-[10px] text-slate-500 mt-1">{readableDate(form.ends_at)}</p>}
+                  <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                    <span className="text-[10px] text-slate-400">Extend:</span>
+                    {[{ label: '+1 day', days: 1 }, { label: '+1 week', days: 7 }, { label: '+30 days', days: 30 }].map((x) => (
+                      <button key={x.days} type="button" onClick={() => extendEnds(x.days)}
+                        className="px-2 py-1 rounded-lg text-[10px] font-semibold bg-slate-100 hover:bg-brand-light hover:text-brand text-slate-600 transition-colors">
+                        {x.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -780,16 +908,41 @@ export default function AdminAuctionDetail() {
                 <p className="text-[10px] text-slate-400 uppercase tracking-wide font-semibold">
                   Photos <span className="normal-case text-slate-300">({displayedAuctionImages.length}/{MAX_AUCTION_IMAGES})</span>
                 </p>
-                {form.images.length < MAX_AUCTION_IMAGES && (
-                  <button
-                    type="button"
-                    onClick={addAuctionSlot}
-                    className="flex items-center gap-1 text-[10px] font-semibold text-brand hover:text-brand-dark transition-colors"
-                  >
-                    <Plus size={10} />Add Photo
-                  </button>
-                )}
+                <div className="flex items-center gap-3">
+                  {form.images.filter(Boolean).length < MAX_AUCTION_IMAGES && (
+                    <button
+                      type="button"
+                      onClick={() => bulkInputRef.current?.click()}
+                      disabled={!!bulkProgress}
+                      className="flex items-center gap-1 text-[10px] font-semibold text-brand hover:text-brand-dark transition-colors disabled:opacity-50"
+                    >
+                      <Upload size={10} />Upload several
+                    </button>
+                  )}
+                  {form.images.length < MAX_AUCTION_IMAGES && (
+                    <button
+                      type="button"
+                      onClick={addAuctionSlot}
+                      className="flex items-center gap-1 text-[10px] font-semibold text-brand hover:text-brand-dark transition-colors"
+                    >
+                      <Plus size={10} />Add Photo
+                    </button>
+                  )}
+                </div>
+                <input
+                  ref={bulkInputRef}
+                  type="file"
+                  accept="image/*,.heic,.heif"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => { handleBulkPhotos(e.target.files); e.target.value = '' }}
+                />
               </div>
+              {bulkProgress && (
+                <p className="flex items-center gap-1.5 text-[11px] text-brand font-medium mb-2">
+                  <Loader2 size={11} className="animate-spin" />{bulkProgress}
+                </p>
+              )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {displayedAuctionImages.map((url, i) => (
                   <div key={i}>
@@ -797,20 +950,32 @@ export default function AdminAuctionDetail() {
                       <span className="text-[9px] text-slate-400 uppercase tracking-wide font-semibold">
                         {auctionSlotLabel(i)}
                       </span>
-                      {(form.images.length > 1 || i > 0) && (
-                        <button
-                          type="button"
-                          onClick={() => removeAuctionSlot(i)}
-                          className="text-[9px] text-red-400 hover:text-red-600 transition-colors flex items-center gap-0.5"
-                        >
-                          <Trash2 size={9} />Remove
-                        </button>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {i > 0 && url && (
+                          <button
+                            type="button"
+                            onClick={() => makeCover(i)}
+                            className="text-[9px] text-slate-500 hover:text-brand transition-colors flex items-center gap-0.5"
+                          >
+                            <Star size={9} />Make cover
+                          </button>
+                        )}
+                        {(form.images.length > 1 || i > 0) && (
+                          <button
+                            type="button"
+                            onClick={() => removeAuctionSlot(i)}
+                            className="text-[9px] text-red-400 hover:text-red-600 transition-colors flex items-center gap-0.5"
+                          >
+                            <Trash2 size={9} />Remove
+                          </button>
+                        )}
+                      </div>
                     </div>
                     <ImageUploadField
                       value={url}
                       onChange={(u) => setAuctionImage(i, u)}
                       uploadPath={`auctions/${auctionId ?? tempUploadId.current}/photo-${i}`}
+                      onBusyChange={trackUpload}
                     />
                   </div>
                 ))}

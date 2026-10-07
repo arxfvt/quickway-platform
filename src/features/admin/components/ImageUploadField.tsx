@@ -14,6 +14,8 @@ interface ImageUploadFieldProps {
   uploadPath?: string
   label?: string
   className?: string
+  /** Called with true when an upload starts and false when it ends */
+  onBusyChange?: (busy: boolean) => void
 }
 
 export default function ImageUploadField({
@@ -22,6 +24,7 @@ export default function ImageUploadField({
   uploadPath,
   label,
   className,
+  onBusyChange,
 }: ImageUploadFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [compressing, setCompressing] = useState(false)
@@ -33,18 +36,21 @@ export default function ImageUploadField({
     setUploadError('')
 
     if (uploadPath) {
+      onBusyChange?.(true)
       try {
         setCompressing(true)
         const compressed = await compressImage(file)
         setCompressing(false)
         setUploading(true)
-        const url = await uploadAuctionImage(compressed, `${uploadPath}.jpg`)
+        // A new file name per upload, so replacing one photo never overwrites another
+        const url = await uploadAuctionImage(compressed, `${uploadPath}-${Date.now()}.jpg`)
         onChange(url)
       } catch {
-        setUploadError('Upload failed. Check your storage bucket permissions.')
+        setUploadError('Upload failed. Check your internet connection and try again.')
       } finally {
         setCompressing(false)
         setUploading(false)
+        onBusyChange?.(false)
       }
     } else {
       // Fallback: local preview (no persistent URL)
@@ -71,17 +77,33 @@ export default function ImageUploadField({
       )}
 
       {value ? (
-        /* ── Preview ── */
+        /* ── Preview — click "Change" to replace without removing first ── */
         <div className="relative rounded-xl overflow-hidden border border-slate-200 group">
           <img src={value} alt="Preview" className="w-full h-36 object-cover" />
-          <button
-            type="button"
-            onClick={() => onChange('')}
-            className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100"
-            aria-label="Remove image"
-          >
-            <X size={12} className="text-white" />
-          </button>
+          {(compressing || uploading) ? (
+            <div className="absolute inset-0 bg-white/80 flex flex-col items-center justify-center gap-1.5">
+              <Loader2 size={20} className="text-brand animate-spin" />
+              <p className="text-xs text-brand font-medium">{compressing ? 'Compressing…' : 'Uploading…'}</p>
+            </div>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => inputRef.current?.click()}
+                className="absolute bottom-2 left-2 flex items-center gap-1 px-2 py-1 rounded-lg bg-black/60 hover:bg-black/80 text-white text-[10px] font-semibold transition-colors sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100"
+              >
+                <ImagePlus size={11} />Change
+              </button>
+              <button
+                type="button"
+                onClick={() => onChange('')}
+                className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center transition-colors sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100"
+                aria-label="Remove image"
+              >
+                <X size={12} className="text-white" />
+              </button>
+            </>
+          )}
         </div>
       ) : (
         /* ── Drop zone ── */
