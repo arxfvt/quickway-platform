@@ -565,7 +565,7 @@ export default function AdminAuctionDetail() {
   const endTimePassed = !!endsIso && new Date(endsIso).getTime() <= Date.now()
 
   return (
-    <div className="p-6 max-w-[1300px] mx-auto">
+    <div className="p-6 max-w-[1300px] mx-auto [&_input]:scroll-mt-24 [&_textarea]:scroll-mt-24 [&_select]:scroll-mt-24 [&_button]:scroll-mt-24">
 
       {/* Header — stays on screen while scrolling so Save is always reachable */}
       <div className="sticky top-0 z-20 -mx-6 px-6 py-3 mb-5 bg-background/95 backdrop-blur border-b border-slate-100 flex items-start justify-between gap-4">
@@ -578,7 +578,7 @@ export default function AdminAuctionDetail() {
               value={form.title}
               onChange={(e) => field('title', e.target.value)}
               placeholder="New Auction"
-              className="text-xl font-bold text-slate-900 bg-transparent border-0 outline-none hover:bg-slate-50 focus:bg-slate-50 rounded-lg px-1 -ml-1 w-full max-w-lg transition-colors placeholder:text-slate-300"
+              className="text-xl font-bold text-slate-900 bg-transparent border-0 outline-none hover:bg-slate-50 focus:bg-slate-50 rounded-lg px-1 -ml-1 w-full max-w-3xl transition-colors placeholder:text-slate-300"
             />
             <p className="text-[10px] text-slate-400 font-mono mt-0.5 ml-1">{form.auction_ref}</p>
           </div>
