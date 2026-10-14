@@ -6,7 +6,7 @@ import quickwayLogo from '../../assets/quickway-logo.png'
 
 export default function SiteFooter() {
   return (
-    <footer className="bg-slate-900 text-slate-400 pt-10 pb-24 sm:pb-10">
+    <footer className="bg-slate-900 text-slate-300 pt-10 pb-24 sm:pb-10">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 grid gap-8 sm:grid-cols-2 lg:grid-cols-3 text-sm">
         {/* Brand */}
         <div>
@@ -14,7 +14,7 @@ export default function SiteFooter() {
             <img src={quickwayLogo} alt="Quickway" className="h-8 w-8 object-contain bg-white rounded" />
             <div>
               <p className="font-bold text-white leading-tight">Quickway</p>
-              <p className="text-[11px] text-slate-400 leading-tight">Auctioneers & Court Bailiffs</p>
+              <p className="text-[11px] text-slate-300 leading-tight">Auctioneers & Court Bailiffs</p>
             </div>
           </div>
           <p className="text-xs leading-relaxed">
@@ -78,7 +78,7 @@ export default function SiteFooter() {
         </div>
       </div>
 
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 mt-8 pt-6 border-t border-slate-800 text-[11px] text-slate-500">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 mt-8 pt-6 border-t border-slate-800 text-[11px] text-slate-400">
         © {new Date().getFullYear()} Quickway Auctioneers Ltd. All rights reserved.
       </div>
     </footer>

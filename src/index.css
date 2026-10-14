@@ -9,7 +9,7 @@
 
   /* ── Accent (live / urgency) ───────────────────────── */
   --color-amber:        #E9A820;
-  --color-amber-dark:   #C98A10;
+  --color-amber-dark:   #8A5A00;
   --color-amber-light:  #FEF3C7;
 
   /* ── Background ─────────────────────────────────────── */
@@ -21,19 +21,22 @@
 }
 
 /* ── Base reset ─────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; }
+/* In the base layer so Tailwind classes (e.g. text-white on a link) override it */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
 
-body {
-  margin: 0;
-  font-family: var(--font-sans);
-  background-color: #F8FAFC;
-  color: #0F172A;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    background-color: #F8FAFC;
+    color: #0F172A;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  a { text-decoration: none; color: inherit; }
 }
-
-a { text-decoration: none; color: inherit; }
 
 /* ── Scrollbar ──────────────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -50,3 +53,34 @@ a { text-decoration: none; color: inherit; }
 }
 
 .font-tabular { font-variant-numeric: tabular-nums; }
+
+/* ── Accessibility ──────────────────────────────────── */
+
+/* Visible keyboard focus on links and buttons (form fields use their own focus ring) */
+:where(a, button, summary, [role="button"], [tabindex]):focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Respect the "reduce motion" setting */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Phones ─────────────────────────────────────────── */
+@media (max-width: 639px) {
+  /* 16px stops iPhones zooming the page when a field is tapped */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea {
+    font-size: 16px;
+  }
+  /* The tiniest labels are hard to read on a small screen */
+  .text-\[9px\]  { font-size: 11px; }
+  .text-\[10px\] { font-size: 12px; }
+  .text-\[11px\] { font-size: 12px; }
+}

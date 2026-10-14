@@ -48,12 +48,12 @@ export default function LoginPage() {
 
       {/* Email */}
       <div>
-        <label className="block text-xs font-medium text-slate-700 mb-1.5">
+        <label htmlFor="login-page-email-address" className="block text-xs font-medium text-slate-700 mb-1.5">
           Email address
         </label>
         <div className="relative">
-          <Mail size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-          <input
+          <Mail size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+          <input id="login-page-email-address"
             type="email"
             autoComplete="email"
             required
@@ -73,14 +73,14 @@ export default function LoginPage() {
       {/* Password */}
       <div>
         <div className="flex items-center justify-between mb-1.5">
-          <label className="text-xs font-medium text-slate-700">Password</label>
+          <label htmlFor="login-page-password" className="text-xs font-medium text-slate-700">Password</label>
           <Link to="/forgot-password" className="text-[11px] text-brand hover:underline">
             Forgot password?
           </Link>
         </div>
         <div className="relative">
-          <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-          <input
+          <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+          <input id="login-page-password"
             type={showPw ? 'text' : 'password'}
             autoComplete="current-password"
             required
@@ -97,7 +97,9 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => setShowPw((v) => !v)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+            aria-label={showPw ? 'Hide password' : 'Show password'}
+            aria-pressed={showPw}
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-lg text-slate-500 hover:text-slate-700"
           >
             {showPw ? <EyeOff size={14} /> : <Eye size={14} />}
           </button>
@@ -111,7 +113,7 @@ export default function LoginPage() {
         className={cn(
           'w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-colors mt-2',
           isLoading || !email || !password
-            ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+            ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
             : 'bg-brand hover:bg-brand-dark text-white'
         )}
       >
@@ -122,7 +124,7 @@ export default function LoginPage() {
       {/* Divider */}
       <div className="relative flex items-center gap-3 py-1">
         <div className="flex-1 border-t border-slate-200" />
-        <span className="text-[11px] text-slate-400">or</span>
+        <span className="text-[11px] text-slate-500">or</span>
         <div className="flex-1 border-t border-slate-200" />
       </div>
 

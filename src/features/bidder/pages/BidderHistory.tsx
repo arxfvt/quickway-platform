@@ -78,7 +78,7 @@ export default function BidderHistory() {
   const totalWinning = enriched.filter((r) => r.isTopBid && !r.isWon && r.auction?.status === 'closed').length
 
   return (
-    <div className="p-6 max-w-[1000px] mx-auto">
+    <div className="p-4 sm:p-6 max-w-[1000px] mx-auto">
       <div className="flex items-start justify-between mb-5">
         <div>
           <h1 className="text-xl font-bold text-slate-900">Bid History</h1>
@@ -105,8 +105,8 @@ export default function BidderHistory() {
 
       {/* Filter row */}
       <div className="flex items-center gap-3 mb-5">
-        <label className="text-xs font-medium text-slate-600">Filter by Auction:</label>
-        <select
+        <label htmlFor="bidder-history-filter-by-auction" className="text-xs font-medium text-slate-600">Filter by Auction:</label>
+        <select id="bidder-history-filter-by-auction"
           value={auctionFilter}
           onChange={(e) => setAuctionFilter(e.target.value)}
           className="px-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors"
@@ -120,7 +120,7 @@ export default function BidderHistory() {
 
       {/* Grouped table */}
       {grouped.size === 0 ? (
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-12 text-center text-slate-400">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-12 text-center text-slate-500">
           <Gavel size={36} strokeWidth={1} className="mx-auto mb-3 opacity-40" />
           <p className="text-sm font-medium text-slate-600">No bids placed yet</p>
           <p className="text-xs mt-1">Register for an auction and start bidding.</p>
@@ -136,7 +136,7 @@ export default function BidderHistory() {
                   <img src={auction.image_url} alt={auction.title} className="w-8 h-8 rounded-lg object-cover shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold text-slate-800 truncate">{auction.title}</p>
-                    <p className="text-[10px] text-slate-400 flex items-center gap-1">
+                    <p className="text-[10px] text-slate-500 flex items-center gap-1">
                       <Calendar size={9} />{auction.auction_ref}
                     </p>
                   </div>
@@ -144,13 +144,14 @@ export default function BidderHistory() {
                 </div>
 
                 {/* Bid rows */}
+                <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-slate-100">
-                      <th className="text-left text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-5 py-2.5">Lot</th>
-                      <th className="text-left text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-3 py-2.5 hidden md:table-cell">Time</th>
-                      <th className="text-right text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-5 py-2.5">Your Bid</th>
-                      <th className="text-right text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-5 py-2.5">Outcome</th>
+                      <th className="text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-5 py-2.5">Lot</th>
+                      <th className="text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-3 py-2.5 hidden md:table-cell">Time</th>
+                      <th className="text-right text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-5 py-2.5">Your Bid</th>
+                      <th className="text-right text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-5 py-2.5">Outcome</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -162,7 +163,7 @@ export default function BidderHistory() {
                           </p>
                         </td>
                         <td className="px-3 py-3 hidden md:table-cell">
-                          <p className="text-[10px] text-slate-400">{formatDate(bid.created_at)}</p>
+                          <p className="text-[10px] text-slate-500">{formatDate(bid.created_at)}</p>
                         </td>
                         <td className="px-5 py-3 text-right">
                           <p className="text-xs font-bold font-tabular text-slate-800">
@@ -171,7 +172,7 @@ export default function BidderHistory() {
                         </td>
                         <td className="px-5 py-3 text-right">
                           {auction.status !== 'closed' ? (
-                            <span className="text-[10px] font-semibold text-slate-400 italic">Sealed</span>
+                            <span className="text-[10px] font-semibold text-slate-500 italic">Sealed</span>
                           ) : isWon ? (
                             <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-green-50 text-green-700 px-2 py-0.5 rounded-full">
                               <Trophy size={9} />Won
@@ -179,13 +180,14 @@ export default function BidderHistory() {
                           ) : isTopBid ? (
                             <span className="text-[10px] font-semibold text-green-600">↑ Winning</span>
                           ) : (
-                            <span className="text-[10px] font-semibold text-slate-400">Outbid</span>
+                            <span className="text-[10px] font-semibold text-slate-500">Outbid</span>
                           )}
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+                </div>
               </div>
             )
           })}

@@ -33,7 +33,7 @@ const KYC_CHIP: Record<string, string> = {
   approved:      'bg-green-50 text-green-700',
   pending:       'bg-amber-light text-amber-dark',
   rejected:      'bg-red-50 text-red-600',
-  not_submitted: 'bg-slate-100 text-slate-400',
+  not_submitted: 'bg-slate-100 text-slate-500',
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -106,8 +106,8 @@ export default function OrgBidders() {
   )
 
   return (
-    <div className="p-6 max-w-[1200px] mx-auto">
-      <div className="flex items-center justify-between mb-5">
+    <div className="p-4 sm:p-6 max-w-[1200px] mx-auto">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <div>
           <h1 className="text-xl font-bold text-slate-900">Participants</h1>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -137,7 +137,7 @@ export default function OrgBidders() {
       <div className="flex flex-wrap items-center gap-3 mb-5">
         {/* Auction filter */}
         <div className="relative">
-          <select
+          <select aria-label="Filter by auction"
             value={selectedAuction}
             onChange={(e) => {
               const params = new URLSearchParams(searchParams)
@@ -152,12 +152,12 @@ export default function OrgBidders() {
               <option key={a.id} value={a.id}>{a.title}</option>
             ))}
           </select>
-          <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+          <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
         </div>
 
         {/* Status filter */}
         <div className="relative">
-          <select
+          <select aria-label="Filter by payment status"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as ParticipationStatus | 'all')}
             className="appearance-none pl-3 pr-8 py-2 text-xs rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors cursor-pointer"
@@ -168,7 +168,7 @@ export default function OrgBidders() {
             <option value="rejected">Rejected</option>
             <option value="unpaid">Unpaid</option>
           </select>
-          <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+          <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
         </div>
 
         {pendingCount > 0 && (
@@ -183,20 +183,21 @@ export default function OrgBidders() {
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-12 text-center">
           <Users size={36} strokeWidth={1} className="mx-auto mb-3 text-slate-300" />
           <p className="text-sm font-medium text-slate-600">No participants found</p>
-          <p className="text-xs text-slate-400 mt-1">Try a different auction or status filter.</p>
+          <p className="text-xs text-slate-500 mt-1">Try a different auction or status filter.</p>
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50">
-                <th className="text-left text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-5 py-3">Bidder</th>
-                <th className="text-left text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-3 py-3 hidden lg:table-cell">Auction</th>
-                <th className="text-center text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-3 py-3">KYC</th>
-                <th className="text-center text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-3 py-3">Payment</th>
-                <th className="text-right text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-3 py-3 hidden md:table-cell">Fee</th>
-                <th className="text-left text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-3 py-3 hidden xl:table-cell">Bank Ref</th>
-                <th className="text-right text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-5 py-3 hidden md:table-cell">Registered</th>
+                <th className="text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-5 py-3">Bidder</th>
+                <th className="text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-3 py-3 hidden lg:table-cell">Auction</th>
+                <th className="text-center text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-3 py-3">KYC</th>
+                <th className="text-center text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-3 py-3">Payment</th>
+                <th className="text-right text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-3 py-3 hidden md:table-cell">Fee</th>
+                <th className="text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-3 py-3 hidden xl:table-cell">Bank Ref</th>
+                <th className="text-right text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-5 py-3 hidden md:table-cell">Registered</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -214,7 +215,7 @@ export default function OrgBidders() {
                         <p className="text-xs font-semibold text-slate-800 truncate max-w-[160px]">
                           {bidder?.full_name ?? '—'}
                         </p>
-                        <p className="text-[10px] text-slate-400 truncate max-w-[160px]">{bidder?.email}</p>
+                        <p className="text-[10px] text-slate-500 truncate max-w-[160px]">{bidder?.email}</p>
                       </div>
                     </div>
                   </td>
@@ -222,7 +223,7 @@ export default function OrgBidders() {
                   {/* Auction */}
                   <td className="px-3 py-3.5 hidden lg:table-cell">
                     <p className="text-xs text-slate-700 truncate max-w-[200px]">{auction?.title}</p>
-                    <p className="text-[10px] text-slate-400 font-mono">{auction?.auction_ref}</p>
+                    <p className="text-[10px] text-slate-500 font-mono">{auction?.auction_ref}</p>
                   </td>
 
                   {/* KYC */}
@@ -262,21 +263,22 @@ export default function OrgBidders() {
                     {p.bank_transfer_ref ? (
                       <span className="text-[10px] font-mono text-slate-500">{p.bank_transfer_ref}</span>
                     ) : (
-                      <span className="text-[10px] text-slate-300">—</span>
+                      <span className="text-[10px] text-slate-500">—</span>
                     )}
                   </td>
 
                   {/* Registered */}
                   <td className="px-5 py-3.5 text-right hidden md:table-cell">
-                    <span className="text-[10px] text-slate-400">{formatDate(p.created_at)}</span>
+                    <span className="text-[10px] text-slate-500">{formatDate(p.created_at)}</span>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          </div>
 
           <div className="px-5 py-3 border-t border-slate-100 bg-slate-50">
-            <p className="text-[10px] text-slate-400 text-center">
+            <p className="text-[10px] text-slate-500 text-center">
               Payment approvals are managed by the platform administrator.
             </p>
           </div>

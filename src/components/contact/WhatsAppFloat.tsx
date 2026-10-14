@@ -44,17 +44,19 @@ export default function WhatsAppFloat() {
   const message = ctx?.message ?? waMessages.general
 
   return (
-    <a
-      href={whatsappLink(message)}
-      target="_blank"
-      rel="noopener noreferrer"
-      onClick={() => trackLead('whatsapp', { listing: ctx?.listing, ref: ctx?.ref, placement: 'floating' })}
-      aria-label="Chat with Quickway on WhatsApp"
-      className="fixed z-50 right-4 bottom-4 sm:right-6 sm:bottom-6 flex items-center gap-2 bg-[#25D366] hover:bg-[#1ebe5b] text-white font-semibold text-sm pl-3.5 pr-4 py-3 rounded-full shadow-lg shadow-black/20 transition-colors"
-      style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
-    >
-      <MessageCircle size={20} strokeWidth={2.25} />
-      <span>WhatsApp us</span>
-    </a>
+    <aside aria-label="Contact Quickway">
+      <a
+        href={whatsappLink(message)}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={() => trackLead('whatsapp', { listing: ctx?.listing, ref: ctx?.ref, placement: 'floating' })}
+        aria-label="Chat with Quickway on WhatsApp"
+        className="fixed z-50 right-4 bottom-4 sm:right-6 sm:bottom-6 flex items-center gap-2 bg-[#0E7A40] hover:bg-[#0B6535] text-white font-semibold text-sm pl-3.5 pr-4 py-3 rounded-full shadow-lg shadow-black/20 transition-colors"
+        style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
+      >
+        <MessageCircle size={20} strokeWidth={2.25} />
+        <span>WhatsApp us</span>
+      </a>
+    </aside>
   )
 }

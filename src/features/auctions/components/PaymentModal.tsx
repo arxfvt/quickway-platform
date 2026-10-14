@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { useEscapeKey } from '../../../hooks/useEscapeKey'
 import { X, Ticket, CheckCircle2, AlertCircle, Copy, Loader2, Paperclip } from 'lucide-react'
 import { formatCurrency } from '../../../utils/currency'
 import { cn } from '../../../lib/utils'
@@ -31,6 +32,7 @@ export default function PaymentModal({
   onSubmitRef,
   isLoading,
 }: PaymentModalProps) {
+  useEscapeKey(onClose)
   const [step, setStep] = useState<Step>(() => {
     if (!participation || participation.payment_status === 'unpaid') return 'details'
     if (participation.payment_status === 'pending_review') return 'confirmed'
@@ -72,6 +74,9 @@ export default function PaymentModal({
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
         <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Register for ${auctionTitle}`}
           className="bg-white rounded-2xl shadow-2xl w-full max-w-md pointer-events-auto"
           onClick={(e) => e.stopPropagation()}
         >
@@ -86,7 +91,8 @@ export default function PaymentModal({
             </div>
             <button
               onClick={onClose}
-              className="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-lg hover:bg-slate-100"
+              aria-label="Close"
+              className="text-slate-500 hover:text-slate-600 transition-colors p-2 rounded-lg hover:bg-slate-100"
             >
               <X size={16} />
             </button>
@@ -108,7 +114,7 @@ export default function PaymentModal({
                 </div>
                 <span className={cn(
                   'text-[10px] font-medium',
-                  step === s ? 'text-brand' : 'text-slate-400'
+                  step === s ? 'text-brand' : 'text-slate-500'
                 )}>
                   {s === 'details' ? 'Fee Details' : s === 'reference' ? 'Submit Ref' : 'Done'}
                 </span>
@@ -145,7 +151,7 @@ export default function PaymentModal({
                   </div>
                 </div>
 
-                <p className="text-[10px] text-slate-400 leading-relaxed">
+                <p className="text-[10px] text-slate-500 leading-relaxed">
                   Make the bank transfer using the details above, then click below to submit your reference number. Your participation will be approved within 24 hours.
                 </p>
 
@@ -176,17 +182,17 @@ export default function PaymentModal({
                 )}
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                  <label htmlFor="payment-modal-bank-transfer-reference-number" className="block text-xs font-medium text-slate-700 mb-1.5">
                     Bank Transfer Reference Number <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <input id="payment-modal-bank-transfer-reference-number"
                     type="text"
                     value={ref}
                     onChange={(e) => setRef(e.target.value)}
                     placeholder="e.g. EQB-20250301-001234"
                     className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors font-mono"
                   />
-                  <p className="text-[10px] text-slate-400 mt-1">
+                  <p className="text-[10px] text-slate-500 mt-1">
                     Enter the reference number from your bank transfer receipt.
                   </p>
                 </div>
@@ -194,7 +200,7 @@ export default function PaymentModal({
                 {/* Proof upload */}
                 <div>
                   <p className="text-xs font-medium text-slate-700 mb-1.5">
-                    Upload Payment Proof <span className="text-slate-400 font-normal">(optional)</span>
+                    Upload Payment Proof <span className="text-slate-500 font-normal">(optional)</span>
                   </p>
                   {proofFile ? (
                     <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50">
@@ -203,7 +209,7 @@ export default function PaymentModal({
                       <button
                         type="button"
                         onClick={() => setProofFile(null)}
-                        className="text-slate-400 hover:text-slate-600"
+                        className="text-slate-500 hover:text-slate-600"
                       >
                         <X size={12} />
                       </button>
@@ -231,7 +237,7 @@ export default function PaymentModal({
                   />
                 </div>
 
-                <p className="text-[10px] text-slate-400 bg-amber-light border border-amber/20 rounded-xl px-3 py-2.5 leading-relaxed text-amber-dark">
+                <p className="text-[10px] text-slate-500 bg-amber-light border border-amber/20 rounded-xl px-3 py-2.5 leading-relaxed text-amber-dark">
                   Make sure the amount transferred matches exactly: <strong>{formattedFee}</strong>. Use your registered email as the payment reference/narration.
                 </p>
 
@@ -248,7 +254,7 @@ export default function PaymentModal({
                     className={cn(
                       'flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-colors',
                       !ref.trim() || isLoading
-                        ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                        ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
                         : 'bg-brand hover:bg-brand-dark text-white'
                     )}
                   >
@@ -273,7 +279,7 @@ export default function PaymentModal({
                 </div>
                 {ref && (
                   <div className="bg-slate-50 rounded-xl px-4 py-3 text-xs">
-                    <p className="text-slate-400 mb-0.5">Your reference</p>
+                    <p className="text-slate-500 mb-0.5">Your reference</p>
                     <p className="font-mono font-semibold text-slate-700">{ref}</p>
                   </div>
                 )}

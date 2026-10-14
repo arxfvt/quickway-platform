@@ -77,7 +77,7 @@ export default function ListingGallery({ images, title }: { images: string[]; ti
     return (
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm mb-4 aspect-[4/3] sm:aspect-[16/10] flex flex-col items-center justify-center text-slate-300">
         <ImageOff size={32} strokeWidth={1.5} />
-        <p className="text-xs mt-2 text-slate-400">Photos coming soon</p>
+        <p className="text-xs mt-2 text-slate-500">Photos coming soon</p>
       </div>
     )
   }
@@ -199,7 +199,7 @@ function FullScreenViewer({ images, title, index, onIndex, onClose }: {
     >
       <div className="flex items-center justify-between px-4 py-3 text-white" onClick={(e) => e.stopPropagation()}>
         <p className="text-sm font-semibold tabular-nums">{index + 1} / {count}</p>
-        <p className="hidden sm:block text-sm text-white/70 truncate mx-4">{title}</p>
+        <p className="hidden sm:block text-sm text-white/85 truncate mx-4">{title}</p>
         <button
           ref={closeRef}
           type="button"

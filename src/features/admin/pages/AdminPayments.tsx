@@ -123,9 +123,9 @@ export default function AdminPayments() {
   }
 
   return (
-    <div className="p-6 max-w-[1300px] mx-auto">
+    <div className="p-4 sm:p-6 max-w-[1300px] mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <div>
           <h1 className="text-xl font-bold text-slate-900">Participation Payments</h1>
           <p className="text-xs text-slate-500 mt-0.5">Review and approve entry fee bank transfers submitted by bidders.</p>
@@ -166,7 +166,7 @@ export default function AdminPayments() {
                 onClick={() => setFilter(f)}
                 className={cn(
                   'flex-1 py-2.5 text-[10px] font-semibold uppercase tracking-wide transition-colors',
-                  filter === f ? 'text-brand border-b-2 border-brand' : 'text-slate-400 hover:text-slate-600'
+                  filter === f ? 'text-brand border-b-2 border-brand' : 'text-slate-500 hover:text-slate-600'
                 )}
               >
                 {f === 'pending_review' ? 'Pending' : f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
@@ -177,7 +177,7 @@ export default function AdminPayments() {
           {/* List */}
           <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
             {filtered.length === 0 ? (
-              <div className="p-8 text-center text-slate-400">
+              <div className="p-8 text-center text-slate-500">
                 <Ticket size={28} strokeWidth={1} className="mx-auto mb-2 opacity-40" />
                 <p className="text-xs">No payments in this category</p>
               </div>
@@ -212,7 +212,7 @@ export default function AdminPayments() {
                       <p className="text-xs font-semibold text-slate-800 truncate">
                         {pUser?.full_name ?? pUser?.email ?? payment.bidder_id}
                       </p>
-                      <p className="text-[10px] text-slate-400 truncate">{pAuction?.title ?? payment.auction_id}</p>
+                      <p className="text-[10px] text-slate-500 truncate">{pAuction?.title ?? payment.auction_id}</p>
                     </div>
                     <div className="text-right shrink-0">
                       <p className="text-[10px] font-semibold text-slate-600">
@@ -238,7 +238,7 @@ export default function AdminPayments() {
                     <p className="text-sm font-bold text-slate-800">
                       {selectedUser?.full_name ?? selectedUser?.email ?? selected.bidder_id}
                     </p>
-                    <p className="text-xs text-slate-400">{selectedUser?.email}</p>
+                    <p className="text-xs text-slate-500">{selectedUser?.email}</p>
                   </div>
                   <span className={cn('text-[10px] font-semibold px-2.5 py-1 rounded-full', STATUS_CHIP[selected.payment_status])}>
                     {STATUS_LABEL[selected.payment_status]}
@@ -247,39 +247,39 @@ export default function AdminPayments() {
 
                 <div className="grid grid-cols-2 gap-3 text-[11px]">
                   <div>
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Auction</p>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-wide mb-0.5">Auction</p>
                     <p className="font-medium text-slate-700 text-xs truncate">{selectedAuction?.title}</p>
-                    <p className="text-[10px] font-mono text-slate-400">{selectedAuction?.auction_ref}</p>
+                    <p className="text-[10px] font-mono text-slate-500">{selectedAuction?.auction_ref}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Entry Fee</p>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-wide mb-0.5">Entry Fee</p>
                     <p className="font-bold text-slate-800 text-sm">
                       {formatCurrency(selected.fee_amount, selected.currency, 'en-UG')}
                     </p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Bank Transfer Ref</p>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-wide mb-0.5">Bank Transfer Ref</p>
                     {selected.bank_transfer_ref ? (
                       <p className="font-mono font-semibold text-slate-700">{selected.bank_transfer_ref}</p>
                     ) : (
-                      <p className="text-slate-300 text-xs">Not submitted</p>
+                      <p className="text-slate-500 text-xs">Not submitted</p>
                     )}
                   </div>
                   <div>
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Submitted</p>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-wide mb-0.5">Submitted</p>
                     <p className="font-medium text-slate-700">
                       {selected.submitted_at ? formatDate(selected.submitted_at) : '—'}
                     </p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Bidder KYC</p>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-wide mb-0.5">Bidder KYC</p>
                     <p className={cn('font-semibold text-xs', selectedUser?.kyc_status === 'approved' ? 'text-green-600' : 'text-amber-dark')}>
                       {selectedUser?.kyc_status === 'approved' ? 'Verified' : selectedUser?.kyc_status ?? '—'}
                     </p>
                   </div>
                   {selected.reviewed_at && (
                     <div>
-                      <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Reviewed</p>
+                      <p className="text-[10px] text-slate-500 uppercase tracking-wide mb-0.5">Reviewed</p>
                       <p className="font-medium text-slate-700">{formatDate(selected.reviewed_at)}</p>
                     </div>
                   )}
@@ -296,7 +296,7 @@ export default function AdminPayments() {
               {/* Proof preview placeholder */}
               <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex-1 flex flex-col">
                 <p className="text-xs font-semibold text-slate-600 mb-3 flex items-center gap-1.5">
-                  <FileText size={13} className="text-slate-400" />
+                  <FileText size={13} className="text-slate-500" />
                   Payment Proof
                 </p>
                 <div className="flex-1 bg-slate-50 rounded-xl flex items-center justify-center min-h-[120px] border border-slate-100">
@@ -316,7 +316,7 @@ export default function AdminPayments() {
               {selected.payment_status === 'pending_review' && (
                 <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 space-y-3">
                   <p className="text-xs font-semibold text-slate-700">Approval Decision</p>
-                  <textarea
+                  <textarea aria-label="Rejection reason (required only if rejecting)"
                     placeholder="Rejection reason (required only if rejecting)…"
                     value={rejectionNote}
                     onChange={(e) => setRejectionNote(e.target.value)}
@@ -329,7 +329,7 @@ export default function AdminPayments() {
                       disabled={isProcessing}
                       className={cn(
                         'flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold transition-colors',
-                        isProcessing ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 text-white'
+                        isProcessing ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 text-white'
                       )}
                     >
                       {isProcessing ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle2 size={13} />}
@@ -340,7 +340,7 @@ export default function AdminPayments() {
                       disabled={isProcessing}
                       className={cn(
                         'flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold transition-colors',
-                        isProcessing ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-red-50 hover:bg-red-100 text-red-600'
+                        isProcessing ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-red-50 hover:bg-red-100 text-red-600'
                       )}
                     >
                       {isProcessing ? <Loader2 size={13} className="animate-spin" /> : <XCircle size={13} />}

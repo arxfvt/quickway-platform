@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useEscapeKey } from '../../../hooks/useEscapeKey'
 import {
   Building2, Gavel, Plus, Trash2, Radio,
   Loader2, Mail, Phone, MapPin, X, ChevronRight,
@@ -36,6 +37,7 @@ interface CreateOrgModalProps {
 }
 
 function CreateOrgModal({ onClose, onCreate }: CreateOrgModalProps) {
+  useEscapeKey(onClose)
   const [form, setForm] = useState({
     name: '', slug: '', description: '', contact_email: '', contact_phone: '', location: '',
   })
@@ -68,13 +70,16 @@ function CreateOrgModal({ onClose, onCreate }: CreateOrgModalProps) {
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="New organisation"
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md flex flex-col">
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
           <h3 className="text-sm font-bold text-slate-900">New Organisation</h3>
-          <button onClick={onClose} className="w-7 h-7 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400">
+          <button onClick={onClose} aria-label="Close" className="w-9 h-9 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-500">
             <X size={15} />
           </button>
         </div>
@@ -83,39 +88,39 @@ function CreateOrgModal({ onClose, onCreate }: CreateOrgModalProps) {
           {error && <p className="text-xs text-red-600 bg-red-50 rounded-xl px-3 py-2">{error}</p>}
 
           <div>
-            <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Name <span className="text-red-400">*</span></label>
-            <input value={form.name} onChange={(e) => set('name', e.target.value)} placeholder="Kampala Auctioneers Ltd"
+            <label htmlFor="admin-organizations-name" className="block text-[10px] text-slate-500 uppercase tracking-wide mb-1">Name <span className="text-red-400">*</span></label>
+            <input id="admin-organizations-name" value={form.name} onChange={(e) => set('name', e.target.value)} placeholder="Kampala Auctioneers Ltd"
               className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors" />
           </div>
 
           <div>
-            <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Slug <span className="text-red-400">*</span></label>
-            <input value={form.slug} onChange={(e) => set('slug', e.target.value)} placeholder="kampala-auctioneers"
+            <label htmlFor="admin-organizations-slug" className="block text-[10px] text-slate-500 uppercase tracking-wide mb-1">Slug <span className="text-red-400">*</span></label>
+            <input id="admin-organizations-slug" value={form.slug} onChange={(e) => set('slug', e.target.value)} placeholder="kampala-auctioneers"
               className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 font-mono focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors" />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Contact Email</label>
-              <input type="email" value={form.contact_email} onChange={(e) => set('contact_email', e.target.value)} placeholder="info@org.com"
+              <label htmlFor="admin-organizations-contact-email" className="block text-[10px] text-slate-500 uppercase tracking-wide mb-1">Contact Email</label>
+              <input id="admin-organizations-contact-email" type="email" value={form.contact_email} onChange={(e) => set('contact_email', e.target.value)} placeholder="info@org.com"
                 className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors" />
             </div>
             <div>
-              <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Contact Phone</label>
-              <input value={form.contact_phone} onChange={(e) => set('contact_phone', e.target.value)} placeholder="+256 700 000000"
+              <label htmlFor="admin-organizations-contact-phone" className="block text-[10px] text-slate-500 uppercase tracking-wide mb-1">Contact Phone</label>
+              <input id="admin-organizations-contact-phone" value={form.contact_phone} onChange={(e) => set('contact_phone', e.target.value)} placeholder="+256 700 000000"
                 className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors" />
             </div>
           </div>
 
           <div>
-            <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Location</label>
-            <input value={form.location} onChange={(e) => set('location', e.target.value)} placeholder="Kampala, Uganda"
+            <label htmlFor="admin-organizations-location" className="block text-[10px] text-slate-500 uppercase tracking-wide mb-1">Location</label>
+            <input id="admin-organizations-location" value={form.location} onChange={(e) => set('location', e.target.value)} placeholder="Kampala, Uganda"
               className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors" />
           </div>
 
           <div>
-            <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Description</label>
-            <textarea value={form.description} onChange={(e) => set('description', e.target.value)} rows={2} placeholder="Brief description…"
+            <label htmlFor="admin-organizations-description" className="block text-[10px] text-slate-500 uppercase tracking-wide mb-1">Description</label>
+            <textarea id="admin-organizations-description" value={form.description} onChange={(e) => set('description', e.target.value)} rows={2} placeholder="Brief description…"
               className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors resize-none" />
           </div>
         </div>
@@ -124,7 +129,7 @@ function CreateOrgModal({ onClose, onCreate }: CreateOrgModalProps) {
           <button onClick={onClose} className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors">Cancel</button>
           <button onClick={handleSubmit} disabled={isSaving || !form.name.trim()}
             className={cn('flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-colors',
-              isSaving || !form.name.trim() ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-brand hover:bg-brand-dark text-white')}>
+              isSaving || !form.name.trim() ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-brand hover:bg-brand-dark text-white')}>
             {isSaving ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
             Create Organisation
           </button>
@@ -194,9 +199,9 @@ export default function AdminOrganizations() {
   )
 
   return (
-    <div className="p-6 max-w-[1300px] mx-auto">
+    <div className="p-4 sm:p-6 max-w-[1300px] mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <div>
           <h1 className="text-xl font-bold text-slate-900">Organisations</h1>
           <p className="text-xs text-slate-500 mt-0.5">{orgs.length} principal{orgs.length !== 1 ? 's' : ''} on the platform.</p>
@@ -214,7 +219,7 @@ export default function AdminOrganizations() {
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-12 text-center">
               <Building2 size={36} strokeWidth={1} className="mx-auto mb-3 text-slate-300" />
               <p className="text-sm font-medium text-slate-600">No organisations yet</p>
-              <p className="text-xs text-slate-400 mt-1">Create your first one to get started.</p>
+              <p className="text-xs text-slate-500 mt-1">Create your first one to get started.</p>
               <button onClick={() => setShowCreate(true)}
                 className="mt-4 px-4 py-2 rounded-xl text-xs font-semibold bg-brand text-white hover:bg-brand-dark transition-colors">
                 New Organisation
@@ -222,15 +227,16 @@ export default function AdminOrganizations() {
             </div>
           ) : (
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-50">
-                    <th className="text-left text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-5 py-3">Organisation</th>
-                    <th className="text-left text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-3 py-3 hidden lg:table-cell">Contact</th>
-                    <th className="text-center text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-3 py-3 hidden md:table-cell">Auctions</th>
-                    <th className="text-center text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-3 py-3">Status</th>
-                    <th className="text-right text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-3 py-3 hidden lg:table-cell">Created</th>
-                    <th className="text-right text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-5 py-3">Actions</th>
+                    <th className="text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-5 py-3">Organisation</th>
+                    <th className="text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-3 py-3 hidden lg:table-cell">Contact</th>
+                    <th className="text-center text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-3 py-3 hidden md:table-cell">Auctions</th>
+                    <th className="text-center text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-3 py-3">Status</th>
+                    <th className="text-right text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-3 py-3 hidden lg:table-cell">Created</th>
+                    <th className="text-right text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-5 py-3">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -247,7 +253,7 @@ export default function AdminOrganizations() {
                           <div className="min-w-0">
                             <p className="text-xs font-semibold text-slate-800 truncate max-w-[180px]">{org.name}</p>
                             {org.location && (
-                              <p className="text-[10px] text-slate-400 flex items-center gap-0.5">
+                              <p className="text-[10px] text-slate-500 flex items-center gap-0.5">
                                 <MapPin size={8} />{org.location}
                               </p>
                             )}
@@ -267,7 +273,7 @@ export default function AdminOrganizations() {
                               <Phone size={8} className="shrink-0" />{org.contact_phone}
                             </p>
                           )}
-                          {!org.contact_email && !org.contact_phone && <p className="text-[10px] text-slate-300">—</p>}
+                          {!org.contact_email && !org.contact_phone && <p className="text-[10px] text-slate-500">—</p>}
                         </div>
                       </td>
 
@@ -289,7 +295,7 @@ export default function AdminOrganizations() {
                       </td>
 
                       <td className="px-3 py-3.5 text-right hidden lg:table-cell">
-                        <span className="text-[10px] text-slate-400">{formatDate(org.created_at)}</span>
+                        <span className="text-[10px] text-slate-500">{formatDate(org.created_at)}</span>
                       </td>
 
                       <td className="px-5 py-3.5" onClick={(e) => e.stopPropagation()}>
@@ -318,7 +324,7 @@ export default function AdminOrganizations() {
                             </div>
                           ) : (
                             <button onClick={() => setConfirmDeleteId(org.id)}
-                              className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors">
+                              className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-50 text-slate-500 hover:text-red-500 transition-colors">
                               <Trash2 size={12} />
                             </button>
                           )}
@@ -328,6 +334,7 @@ export default function AdminOrganizations() {
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
           )}
         </div>
@@ -340,7 +347,7 @@ export default function AdminOrganizations() {
                 <div>
                   <p className="text-sm font-bold text-slate-800">{selectedData.org.name}</p>
                   {selectedData.org.location && (
-                    <p className="text-[10px] text-slate-400 flex items-center gap-0.5 mt-0.5">
+                    <p className="text-[10px] text-slate-500 flex items-center gap-0.5 mt-0.5">
                       <MapPin size={9} />{selectedData.org.location}
                     </p>
                   )}
@@ -353,12 +360,12 @@ export default function AdminOrganizations() {
               <div className="space-y-1.5 mb-4">
                 {selectedData.org.contact_email && (
                   <p className="text-[11px] text-slate-600 flex items-center gap-1.5">
-                    <Mail size={10} className="text-slate-400 shrink-0" />{selectedData.org.contact_email}
+                    <Mail size={10} className="text-slate-500 shrink-0" />{selectedData.org.contact_email}
                   </p>
                 )}
                 {selectedData.org.contact_phone && (
                   <p className="text-[11px] text-slate-600 flex items-center gap-1.5">
-                    <Phone size={10} className="text-slate-400 shrink-0" />{selectedData.org.contact_phone}
+                    <Phone size={10} className="text-slate-500 shrink-0" />{selectedData.org.contact_phone}
                   </p>
                 )}
                 {selectedData.org.description && (
@@ -369,7 +376,7 @@ export default function AdminOrganizations() {
               <div className="grid grid-cols-2 gap-2 mb-4">
                 {[
                   { label: 'Auctions', value: selectedData.orgAuctions.length, icon: <Gavel size={12} className="text-brand" /> },
-                  { label: 'Total Lots', value: selectedData.totalLots, icon: <ChevronRight size={12} className="text-slate-400" /> },
+                  { label: 'Total Lots', value: selectedData.totalLots, icon: <ChevronRight size={12} className="text-slate-500" /> },
                 ].map((s) => (
                   <div key={s.label} className="bg-slate-50 rounded-xl px-3 py-2">
                     <div className="mb-0.5">{s.icon}</div>
@@ -379,12 +386,12 @@ export default function AdminOrganizations() {
                 ))}
               </div>
 
-              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-2">Auctions</p>
+              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-2">Auctions</p>
               <div className="space-y-2 max-h-[360px] overflow-y-auto">
                 {selectedData.orgAuctions.length === 0 ? (
                   <div className="py-6 text-center">
                     <Gavel size={24} strokeWidth={1} className="mx-auto mb-2 text-slate-300" />
-                    <p className="text-xs text-slate-400">No auctions yet</p>
+                    <p className="text-xs text-slate-500">No auctions yet</p>
                   </div>
                 ) : (
                   selectedData.orgAuctions.map((a) => (
@@ -392,12 +399,12 @@ export default function AdminOrganizations() {
                       {a.image_url && <img src={a.image_url} alt={a.title} className="w-8 h-6 rounded-lg object-cover shrink-0" />}
                       <div className="flex-1 min-w-0">
                         <p className="text-[11px] font-semibold text-slate-700 truncate">{a.title}</p>
-                        <p className="text-[10px] text-slate-400 font-mono">{a.auction_ref}</p>
+                        <p className="text-[10px] text-slate-500 font-mono">{a.auction_ref}</p>
                       </div>
                       <span className={cn('text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0',
                         a.status === 'live' ? 'bg-amber-light text-amber-dark'
                         : a.status === 'scheduled' ? 'bg-brand-light text-brand'
-                        : 'bg-slate-100 text-slate-400')}>
+                        : 'bg-slate-100 text-slate-500')}>
                         {a.status}
                       </span>
                     </div>
@@ -409,7 +416,7 @@ export default function AdminOrganizations() {
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8 text-center sticky top-6">
               <Building2 size={32} strokeWidth={1} className="mx-auto mb-3 text-slate-300" />
               <p className="text-xs font-medium text-slate-500">Select an organisation</p>
-              <p className="text-[10px] text-slate-400 mt-1">to view details and auctions</p>
+              <p className="text-[10px] text-slate-500 mt-1">to view details and auctions</p>
             </div>
           )}
         </div>

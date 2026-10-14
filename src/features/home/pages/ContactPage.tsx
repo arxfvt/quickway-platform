@@ -45,7 +45,7 @@ export default function ContactPage() {
             onClick={() => trackLead('whatsapp', { placement: 'contact_page' })}
             className="flex items-center gap-4 p-4 rounded-xl border border-[#25D366]/40 bg-[#25D366]/5 hover:bg-[#25D366]/10 transition-colors group"
           >
-            <div className="w-9 h-9 rounded-xl bg-[#25D366] flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-[#0E7A40] flex items-center justify-center shrink-0">
               <MessageCircle size={16} className="text-white" />
             </div>
             <div>
@@ -99,10 +99,10 @@ export default function ContactPage() {
 
         {/* Office hours */}
         <div className="mt-6 pt-6 border-t border-slate-100">
-          <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-3">Office Hours</p>
+          <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-3">Office Hours</p>
           <div className="space-y-1.5 text-xs text-slate-600">
             {SITE.hours.map((h) => (
-              <div key={h.days} className={h.time === 'Closed' ? 'flex justify-between text-slate-400' : 'flex justify-between'}>
+              <div key={h.days} className={h.time === 'Closed' ? 'flex justify-between text-slate-500' : 'flex justify-between'}>
                 <span>{h.days}</span>
                 <span className={h.time === 'Closed' ? '' : 'font-medium'}>{h.time}</span>
               </div>

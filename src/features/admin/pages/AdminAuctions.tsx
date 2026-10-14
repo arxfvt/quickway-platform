@@ -15,7 +15,7 @@ const STATUS_CHIP: Record<string, string> = {
   live:       'bg-amber-light text-amber-dark',
   scheduled:  'bg-brand-light text-brand',
   draft:      'bg-slate-100 text-slate-500',
-  closed:     'bg-slate-100 text-slate-400',
+  closed:     'bg-slate-100 text-slate-500',
   cancelled:  'bg-red-50 text-red-400',
 }
 
@@ -73,8 +73,8 @@ export default function AdminAuctions() {
   )
 
   return (
-    <div className="p-6 max-w-[1300px] mx-auto">
-      <div className="flex items-center justify-between mb-5">
+    <div className="p-4 sm:p-6 max-w-[1300px] mx-auto">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <div>
           <h1 className="text-xl font-bold text-slate-900">All Auctions</h1>
           <p className="text-xs text-slate-500 mt-0.5">Global overview of every auction across all organisations.</p>
@@ -115,8 +115,8 @@ export default function AdminAuctions() {
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3 mb-5">
         <div className="relative flex-1 min-w-[200px] max-w-xs">
-          <Search size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-          <input
+          <Search size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+          <input aria-label="Search title or ref"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search title or ref…"
@@ -125,7 +125,7 @@ export default function AdminAuctions() {
         </div>
 
         <div className="relative">
-          <select
+          <select aria-label="Filter by organisation"
             value={orgFilter}
             onChange={(e) => setOrgFilter(e.target.value)}
             className="appearance-none pl-3 pr-8 py-2 text-xs rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors cursor-pointer"
@@ -135,7 +135,7 @@ export default function AdminAuctions() {
               <option key={o.id} value={o.id}>{o.name}</option>
             ))}
           </select>
-          <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+          <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
         </div>
       </div>
 
@@ -147,17 +147,18 @@ export default function AdminAuctions() {
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50">
-                <th className="text-left text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-5 py-3">Auction</th>
-                <th className="text-left text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-3 py-3 hidden lg:table-cell">Organisation</th>
-                <th className="text-center text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-3 py-3">Status</th>
-                <th className="text-center text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-3 py-3 hidden md:table-cell">Lots</th>
-                <th className="text-center text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-3 py-3 hidden md:table-cell">Bidders</th>
-                <th className="text-right text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-3 py-3 hidden md:table-cell">Entry Fee</th>
-                <th className="text-right text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-5 py-3 hidden lg:table-cell">Closes</th>
-                <th className="text-right text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-5 py-3">Actions</th>
+                <th className="text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-5 py-3">Auction</th>
+                <th className="text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-3 py-3 hidden lg:table-cell">Organisation</th>
+                <th className="text-center text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-3 py-3">Status</th>
+                <th className="text-center text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-3 py-3 hidden md:table-cell">Lots</th>
+                <th className="text-center text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-3 py-3 hidden md:table-cell">Bidders</th>
+                <th className="text-right text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-3 py-3 hidden md:table-cell">Entry Fee</th>
+                <th className="text-right text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-5 py-3 hidden lg:table-cell">Closes</th>
+                <th className="text-right text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-5 py-3">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -171,7 +172,7 @@ export default function AdminAuctions() {
                         <img src={a.image_url} alt={a.title} className="w-10 h-8 rounded-lg object-cover shrink-0" />
                         <div className="min-w-0">
                           <p className="text-xs font-semibold text-slate-800 truncate max-w-[200px]">{a.title}</p>
-                          <p className="text-[10px] text-slate-400 font-mono">{a.auction_ref}</p>
+                          <p className="text-[10px] text-slate-500 font-mono">{a.auction_ref}</p>
                         </div>
                       </div>
                     </td>
@@ -194,12 +195,12 @@ export default function AdminAuctions() {
                     </td>
                     <td className="px-3 py-3.5 text-center hidden md:table-cell">
                       <span className="flex items-center justify-center gap-1 text-xs text-slate-600">
-                        <Package size={11} className="text-slate-400" />{a.lot_count}
+                        <Package size={11} className="text-slate-500" />{a.lot_count}
                       </span>
                     </td>
                     <td className="px-3 py-3.5 text-center hidden md:table-cell">
                       <span className="flex items-center justify-center gap-1 text-xs text-slate-600">
-                        <Users size={11} className="text-slate-400" />{approvedBidders}
+                        <Users size={11} className="text-slate-500" />{approvedBidders}
                       </span>
                     </td>
                     <td className="px-3 py-3.5 text-right hidden md:table-cell">
@@ -208,7 +209,7 @@ export default function AdminAuctions() {
                       </span>
                     </td>
                     <td className="px-5 py-3.5 text-right hidden lg:table-cell">
-                      <span className="text-[10px] text-slate-400 flex items-center justify-end gap-1">
+                      <span className="text-[10px] text-slate-500 flex items-center justify-end gap-1">
                         <Clock size={9} />{formatDate(a.ends_at)}
                       </span>
                     </td>
@@ -225,6 +226,7 @@ export default function AdminAuctions() {
               })}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

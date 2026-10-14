@@ -32,7 +32,7 @@ const STATUS_CHIP: Record<string, string> = {
   pending:       'bg-amber-light text-amber-dark',
   approved:      'bg-green-50 text-green-700',
   rejected:      'bg-red-50 text-red-600',
-  not_submitted: 'bg-slate-100 text-slate-400',
+  not_submitted: 'bg-slate-100 text-slate-500',
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -146,9 +146,9 @@ export default function AdminKycQueue() {
   )
 
   return (
-    <div className="p-6 max-w-[1300px] mx-auto">
+    <div className="p-4 sm:p-6 max-w-[1300px] mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <div>
           <h1 className="text-xl font-bold text-slate-900">KYC Review Queue</h1>
           <p className="text-xs text-slate-500 mt-0.5">Review and approve identity verification for bidders.</p>
@@ -174,7 +174,7 @@ export default function AdminKycQueue() {
                   'flex-1 py-2.5 text-[10px] font-semibold uppercase tracking-wide transition-colors',
                   filter === f
                     ? 'text-brand border-b-2 border-brand'
-                    : 'text-slate-400 hover:text-slate-600'
+                    : 'text-slate-500 hover:text-slate-600'
                 )}
               >
                 {f === 'all' ? 'All' : f}
@@ -185,7 +185,7 @@ export default function AdminKycQueue() {
           {/* User list */}
           <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
             {filtered.length === 0 ? (
-              <div className="p-8 text-center text-slate-400">
+              <div className="p-8 text-center text-slate-500">
                 <ShieldCheck size={28} strokeWidth={1} className="mx-auto mb-2 opacity-40" />
                 <p className="text-xs">No users in this category</p>
               </div>
@@ -207,7 +207,7 @@ export default function AdminKycQueue() {
                       user.kyc_status === 'pending'  ? 'bg-amber-light text-amber-dark'
                         : user.kyc_status === 'approved' ? 'bg-green-50 text-green-700'
                         : user.kyc_status === 'rejected' ? 'bg-red-50 text-red-600'
-                        : 'bg-slate-100 text-slate-400'
+                        : 'bg-slate-100 text-slate-500'
                     )}>
                       {(user.full_name ?? user.email)[0].toUpperCase()}
                     </div>
@@ -216,7 +216,7 @@ export default function AdminKycQueue() {
                       <p className="text-xs font-semibold text-slate-800 truncate">
                         {user.full_name ?? user.email}
                       </p>
-                      <p className="text-[10px] text-slate-400 truncate">{user.email}</p>
+                      <p className="text-[10px] text-slate-500 truncate">{user.email}</p>
                     </div>
 
                     {/* Doc count badge */}
@@ -243,7 +243,7 @@ export default function AdminKycQueue() {
                     <p className="text-sm font-bold text-slate-800">
                       {selected.user.full_name ?? selected.user.email}
                     </p>
-                    <p className="text-xs text-slate-400">{selected.user.email}</p>
+                    <p className="text-xs text-slate-500">{selected.user.email}</p>
                   </div>
                   <span className={cn(
                     'text-[10px] font-semibold px-2.5 py-1 rounded-full',
@@ -257,11 +257,11 @@ export default function AdminKycQueue() {
                 </div>
                 <div className="grid grid-cols-2 gap-3 text-[11px] text-slate-500">
                   <div>
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Role</p>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-wide mb-0.5">Role</p>
                     <p className="font-medium text-slate-700 capitalize">{selected.user.role.replace('_', ' ')}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Joined</p>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-wide mb-0.5">Joined</p>
                     <p className="font-medium text-slate-700">{formatDate(selected.user.created_at)}</p>
                   </div>
                 </div>
@@ -270,15 +270,15 @@ export default function AdminKycQueue() {
               {/* Documents */}
               <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
                 <p className="text-xs font-semibold text-slate-600 mb-3 flex items-center gap-1.5">
-                  <FileText size={13} className="text-slate-400" />
+                  <FileText size={13} className="text-slate-500" />
                   Uploaded Documents
-                  <span className="ml-auto text-[10px] text-slate-400 font-normal">
+                  <span className="ml-auto text-[10px] text-slate-500 font-normal">
                     {selected.documents.length} file{selected.documents.length !== 1 ? 's' : ''}
                   </span>
                 </p>
 
                 {selected.documents.length === 0 ? (
-                  <div className="bg-slate-50 rounded-xl px-4 py-5 text-center text-slate-400">
+                  <div className="bg-slate-50 rounded-xl px-4 py-5 text-center text-slate-500">
                     <FileText size={24} strokeWidth={1} className="mx-auto mb-2 opacity-50" />
                     <p className="text-xs">No documents uploaded</p>
                     <p className="text-[10px] mt-0.5">You can still approve this user manually</p>
@@ -304,8 +304,8 @@ export default function AdminKycQueue() {
                           <p className="text-xs font-semibold text-slate-700">
                             {DOC_TYPE_LABEL[doc.document_type] ?? doc.document_type}
                           </p>
-                          <p className="text-[10px] text-slate-400 truncate">{doc.file_name}</p>
-                          <p className="text-[10px] text-slate-400">{formatDate(doc.created_at)}</p>
+                          <p className="text-[10px] text-slate-500 truncate">{doc.file_name}</p>
+                          <p className="text-[10px] text-slate-500">{formatDate(doc.created_at)}</p>
                         </div>
                         {docUrls[doc.id] && (
                           <a
@@ -334,7 +334,7 @@ export default function AdminKycQueue() {
                 <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 space-y-3">
                   <p className="text-xs font-semibold text-slate-700">Review Decision</p>
 
-                  <textarea
+                  <textarea aria-label="Rejection reason (required only if rejecting)"
                     placeholder="Rejection reason (required only if rejecting)…"
                     value={rejectionNote}
                     onChange={(e) => setRejectionNote(e.target.value)}
@@ -349,7 +349,7 @@ export default function AdminKycQueue() {
                       className={cn(
                         'flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold transition-colors',
                         isProcessing
-                          ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                          ? 'bg-slate-100 text-slate-500 cursor-not-allowed'
                           : 'bg-green-600 hover:bg-green-700 text-white'
                       )}
                     >
@@ -362,7 +362,7 @@ export default function AdminKycQueue() {
                       className={cn(
                         'flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold transition-colors',
                         isProcessing
-                          ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                          ? 'bg-slate-100 text-slate-500 cursor-not-allowed'
                           : 'bg-red-50 hover:bg-red-100 text-red-600'
                       )}
                     >

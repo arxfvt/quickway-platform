@@ -136,7 +136,7 @@ export default function HomePage() {
             <div className="flex flex-wrap items-center gap-3">
               <Link
                 to="/auctions"
-                className="flex items-center gap-2 bg-amber hover:bg-amber-dark text-white font-semibold px-5 py-3 rounded-xl transition-colors text-sm"
+                className="flex items-center gap-2 bg-amber hover:bg-[#F2BC45] text-slate-900 font-semibold px-5 py-3 rounded-xl transition-colors text-sm"
               >
                 Browse Catalogues
                 <ArrowRight size={16} />
@@ -146,7 +146,7 @@ export default function HomePage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackLead('whatsapp', { placement: 'hero' })}
-                className="flex items-center gap-2 bg-[#25D366] hover:bg-[#1ebe5b] text-white font-semibold px-5 py-3 rounded-xl transition-colors text-sm"
+                className="flex items-center gap-2 bg-[#0E7A40] hover:bg-[#0B6535] text-white font-semibold px-5 py-3 rounded-xl transition-colors text-sm"
               >
                 <MessageCircle size={16} />
                 WhatsApp Us
@@ -192,7 +192,7 @@ export default function HomePage() {
                 <Radio size={12} className="animate-pulse" />
                 <span className="text-xs font-semibold">Live Now</span>
               </div>
-              <span className="text-xs text-slate-400">{allLive.length} auction{allLive.length !== 1 ? 's' : ''} in progress</span>
+              <span className="text-xs text-slate-500">{allLive.length} auction{allLive.length !== 1 ? 's' : ''} in progress</span>
             </div>
             <Link to="/auctions" className="flex items-center gap-1 text-xs font-medium text-brand hover:underline">
               View all <ChevronRight size={13} />
@@ -232,7 +232,7 @@ export default function HomePage() {
                   <h3 className="font-semibold text-slate-900 text-sm leading-snug mb-1 group-hover:text-brand transition-colors">
                     {org.name}
                   </h3>
-                  <p className="text-[11px] text-slate-400 flex items-center gap-1 mb-3">
+                  <p className="text-[11px] text-slate-500 flex items-center gap-1 mb-3">
                     <MapPin size={10} />{org.location}
                   </p>
                   <div className="flex items-center justify-between text-[11px]">
@@ -285,7 +285,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {HOW_IT_WORKS.map((step) => (
               <div key={step.step} className="relative text-center p-6 rounded-2xl bg-slate-50 border border-slate-100">
-                <div className="absolute -top-3 left-6 text-[10px] font-bold text-slate-300 font-mono">{step.step}</div>
+                <div className="absolute -top-3 left-6 text-[10px] font-bold text-slate-500 font-mono">{step.step}</div>
                 <div className="w-12 h-12 bg-white rounded-xl border border-slate-100 shadow-sm flex items-center justify-center mx-auto mb-4">
                   {step.icon}
                 </div>
@@ -309,7 +309,7 @@ export default function HomePage() {
               <details key={f.q} className="group bg-white rounded-xl border border-slate-100 shadow-sm">
                 <summary className="flex items-center justify-between gap-3 cursor-pointer list-none px-4 py-3.5 text-sm font-semibold text-slate-800">
                   {f.q}
-                  <ChevronRight size={15} className="shrink-0 text-slate-400 transition-transform group-open:rotate-90" />
+                  <ChevronRight size={15} className="shrink-0 text-slate-500 transition-transform group-open:rotate-90" />
                 </summary>
                 <p className="px-4 pb-4 text-sm text-slate-600 leading-relaxed">{f.a}</p>
               </details>
@@ -323,14 +323,14 @@ export default function HomePage() {
       <section className="bg-brand py-12">
         <div className="max-w-[1200px] mx-auto px-6 text-center">
           <h2 className="text-xl font-bold text-white mb-2">Found a property you like?</h2>
-          <p className="text-white/70 text-sm mb-6">WhatsApp us to ask questions or book a site visit. Ready to buy? Create a free account to submit a sealed offer.</p>
+          <p className="text-white/85 text-sm mb-6">WhatsApp us to ask questions or book a site visit. Ready to buy? Create a free account to submit a sealed offer.</p>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <a
               href={whatsappLink(waMessages.general)}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => trackLead('whatsapp', { placement: 'home_cta' })}
-              className="flex items-center gap-2 bg-[#25D366] hover:bg-[#1ebe5b] text-white font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors"
+              className="flex items-center gap-2 bg-[#0E7A40] hover:bg-[#0B6535] text-white font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors"
             >
               <MessageCircle size={15} />
               WhatsApp Us
@@ -377,10 +377,10 @@ function FeaturedAuctionCard({ auction: a }: { auction: Auction }) {
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-1 mb-1">
           <StatusBadge status={a.status} />
-          <span className="text-[9px] text-slate-400 font-mono shrink-0">{a.auction_ref}</span>
+          <span className="text-[9px] text-slate-500 font-mono shrink-0">{a.auction_ref}</span>
         </div>
         <p className="text-xs font-semibold text-slate-900 leading-snug line-clamp-2 mb-1">{a.title}</p>
-        <p className="text-[10px] text-slate-400 flex items-center gap-0.5 mb-2">
+        <p className="text-[10px] text-slate-500 flex items-center gap-0.5 mb-2">
           <MapPin size={9} className="shrink-0" />
           {a.location || a.org_location || 'Uganda'}
         </p>
@@ -390,7 +390,7 @@ function FeaturedAuctionCard({ auction: a }: { auction: Auction }) {
             {entryLabel(a.participation_fee, formatCurrency(a.participation_fee, a.currency, 'en-UG'))}
           </span>
           {isLive ? (
-            <div className="text-right text-[9px] text-slate-400 italic">Sealed</div>
+            <div className="text-right text-[9px] text-slate-500 italic">Sealed</div>
           ) : isScheduled ? (
             <CountdownTimer endsAt={a.starts_at} size="compact" />
           ) : null}

@@ -85,7 +85,7 @@ export default function RegisterPage() {
               <p className={cn('text-xs font-semibold', role === r.value ? 'text-brand' : 'text-slate-800')}>
                 {r.label}
               </p>
-              <p className="text-[10px] text-slate-500 mt-0.5 leading-snug">{r.description}</p>
+              <p className="text-[10px] text-slate-600 mt-0.5 leading-snug">{r.description}</p>
             </button>
           ))}
         </div>
@@ -93,10 +93,10 @@ export default function RegisterPage() {
 
       {/* Email */}
       <div>
-        <label className="block text-xs font-medium text-slate-700 mb-1.5">Email address</label>
+        <label htmlFor="register-page-email-address" className="block text-xs font-medium text-slate-700 mb-1.5">Email address</label>
         <div className="relative">
-          <Mail size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-          <input
+          <Mail size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+          <input id="register-page-email-address"
             type="email"
             autoComplete="email"
             required
@@ -110,10 +110,10 @@ export default function RegisterPage() {
 
       {/* Password */}
       <div>
-        <label className="block text-xs font-medium text-slate-700 mb-1.5">Password</label>
+        <label htmlFor="register-page-password" className="block text-xs font-medium text-slate-700 mb-1.5">Password</label>
         <div className="relative">
-          <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-          <input
+          <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+          <input id="register-page-password"
             type={showPw ? 'text' : 'password'}
             autoComplete="new-password"
             required
@@ -125,7 +125,9 @@ export default function RegisterPage() {
           <button
             type="button"
             onClick={() => setShowPw((v) => !v)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+            aria-label={showPw ? 'Hide password' : 'Show password'}
+            aria-pressed={showPw}
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-lg text-slate-500 hover:text-slate-700"
           >
             {showPw ? <EyeOff size={14} /> : <Eye size={14} />}
           </button>
@@ -141,10 +143,10 @@ export default function RegisterPage() {
 
       {/* Confirm password */}
       <div>
-        <label className="block text-xs font-medium text-slate-700 mb-1.5">Confirm password</label>
+        <label htmlFor="register-page-confirm-password" className="block text-xs font-medium text-slate-700 mb-1.5">Confirm password</label>
         <div className="relative">
-          <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-          <input
+          <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+          <input id="register-page-confirm-password"
             type={showPw ? 'text' : 'password'}
             autoComplete="new-password"
             required
@@ -171,7 +173,7 @@ export default function RegisterPage() {
         className={cn(
           'w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-colors mt-1',
           isLoading || !email || !password || !confirm
-            ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+            ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
             : 'bg-brand hover:bg-brand-dark text-white'
         )}
       >

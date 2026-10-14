@@ -119,7 +119,7 @@ function OfferInput({
     return (
       <div className="bg-slate-50 rounded-xl p-4 text-center">
         <Gavel size={20} className="mx-auto mb-2 text-slate-300" strokeWidth={1.5} />
-        <p className="text-xs text-slate-400 font-medium">This auction is not currently accepting offers</p>
+        <p className="text-xs text-slate-500 font-medium">This auction is not currently accepting offers</p>
       </div>
     )
   }
@@ -318,10 +318,10 @@ function OfferInput({
 
       {/* Submitting-as row */}
       <div className="bg-slate-50 rounded-xl px-3 py-2.5 border border-slate-100">
-        <p className="text-[10px] text-slate-400 uppercase tracking-wide font-semibold mb-0.5">Submitting as</p>
+        <p className="text-[10px] text-slate-500 uppercase tracking-wide font-semibold mb-0.5">Submitting as</p>
         <p className="text-xs font-semibold text-slate-800">{user.full_name ?? user.email}</p>
         {user.phone && <p className="text-[11px] text-slate-500">{user.phone}</p>}
-        <p className="text-[11px] text-slate-400">{user.email}</p>
+        <p className="text-[11px] text-slate-500">{user.email}</p>
       </div>
 
       {/* Success confirmation (shown after submission) */}
@@ -345,16 +345,16 @@ function OfferInput({
       {/* Offer form */}
       <form onSubmit={handleOfferSubmit} className="space-y-3">
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+          <label htmlFor="auction-detail-page-your-offer-amount" className="block text-xs font-semibold text-slate-700 mb-1.5">
             Your Offer Amount ({currency})
           </label>
           {reservePrice > 0 && (
-            <p className="text-[11px] text-slate-400 mb-1.5">
+            <p className="text-[11px] text-slate-500 mb-1.5">
               Starting from{' '}
               <span className="font-semibold text-slate-600">{formatCurrency(reservePrice, currency, 'en-UG')}</span>
             </p>
           )}
-          <input
+          <input id="auction-detail-page-your-offer-amount"
             type="number"
             value={offerAmount}
             onChange={(e) => { setOfferAmount(e.target.value); setSubmitState('idle') }}
@@ -376,10 +376,10 @@ function OfferInput({
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-            Additional Notes <span className="text-slate-400 font-normal">(optional)</span>
+          <label htmlFor="auction-detail-page-additional-notes-optional" className="block text-xs font-semibold text-slate-700 mb-1.5">
+            Additional Notes <span className="text-slate-500 font-normal">(optional)</span>
           </label>
-          <textarea
+          <textarea id="auction-detail-page-additional-notes-optional"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="e.g. Subject to site inspection, proposed completion date, financing terms…"
@@ -415,7 +415,7 @@ function OfferInput({
           </label>
         </div>
 
-        <p className="text-[10px] text-slate-400 leading-relaxed">
+        <p className="text-[10px] text-slate-500 leading-relaxed">
           By submitting, you confirm this is a genuine and formal offer to purchase. Quickway Auctioneers will contact you to proceed.
         </p>
 
@@ -436,7 +436,7 @@ function OfferInput({
       {/* My submitted offers history */}
       {myOffers.length > 0 && (
         <div className="border-t border-slate-100 pt-3 mt-2">
-          <p className="text-[10px] text-slate-400 uppercase tracking-wide font-semibold mb-2">Your Submitted Offers</p>
+          <p className="text-[10px] text-slate-500 uppercase tracking-wide font-semibold mb-2">Your Submitted Offers</p>
           <div className="space-y-2">
             {myOffers.map((offer, i) => (
               <div
@@ -452,7 +452,7 @@ function OfferInput({
                     {formatCurrency(offer.amount, currency, 'en-UG')}
                   </span>
                 </div>
-                <p className="text-[10px] text-slate-400">{formatDate(offer.created_at)}</p>
+                <p className="text-[10px] text-slate-500">{formatDate(offer.created_at)}</p>
               </div>
             ))}
           </div>
@@ -628,7 +628,7 @@ export default function AuctionDetailPage() {
 
   if (loadState === 'loading') {
     return (
-      <div className="flex flex-col items-center justify-center py-24 text-slate-400">
+      <div className="flex flex-col items-center justify-center py-24 text-slate-500">
         <Loader2 size={24} className="animate-spin text-brand mb-3" />
         <p className="text-xs">Loading property…</p>
       </div>
@@ -723,7 +723,7 @@ export default function AuctionDetailPage() {
             const videoUrl = auction.video_url || lots.find((l) => l.video_url)?.video_url
             return videoUrl ? (
               <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 mb-4">
-                <p className="text-[10px] text-slate-400 uppercase tracking-wide font-semibold mb-3">Video</p>
+                <p className="text-[10px] text-slate-500 uppercase tracking-wide font-semibold mb-3">Video</p>
                 <VideoEmbed url={videoUrl} />
               </div>
             ) : null
@@ -735,7 +735,7 @@ export default function AuctionDetailPage() {
               <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-2">
                   <StatusBadge status={auction.status} />
-                  <span className="text-[10px] text-slate-400 font-mono">{auction.auction_ref}</span>
+                  <span className="text-[10px] text-slate-500 font-mono">{auction.auction_ref}</span>
                 </div>
                 <h1 className="text-base sm:text-lg font-bold text-slate-900 leading-snug break-words">{auction.title}</h1>
               </div>
@@ -754,13 +754,13 @@ export default function AuctionDetailPage() {
             {mainLot && mainLot.reserve_price > 0 && auction.status !== 'closed' && (
               <div className="md:hidden flex items-center justify-between gap-3 bg-brand-light rounded-xl px-3.5 py-2.5 mb-4">
                 <div>
-                  <p className="text-[10px] text-slate-500">Starting from</p>
+                  <p className="text-[10px] text-slate-600">Starting from</p>
                   <p className="text-base font-bold text-brand font-tabular">
                     {formatCurrency(mainLot.reserve_price, auction.currency, 'en-UG')}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[10px] text-slate-500">Closes</p>
+                  <p className="text-[10px] text-slate-600">Closes</p>
                   <p className="text-xs font-semibold text-slate-800">{formatDate(auction.ends_at)}</p>
                 </div>
               </div>
@@ -779,7 +779,7 @@ export default function AuctionDetailPage() {
               <h2 className="text-sm font-semibold text-slate-800 mb-4 flex items-center gap-2">
                 <Package size={14} className="text-brand" />
                 Lots in this Auction
-                <span className="ml-auto text-[10px] text-slate-400 font-normal">
+                <span className="ml-auto text-[10px] text-slate-500 font-normal">
                   {filteredLots.length} lot{filteredLots.length !== 1 ? 's' : ''}
                 </span>
                 {lots.length > 1 && (
@@ -792,7 +792,7 @@ export default function AuctionDetailPage() {
                 )}
               </h2>
               {filteredLots.length === 0 ? (
-                <p className="text-xs text-slate-400 text-center py-4">No lots in this category.</p>
+                <p className="text-xs text-slate-500 text-center py-4">No lots in this category.</p>
               ) : (
                 <div className="space-y-3">
                   {filteredLots.map((lot) => (
@@ -806,19 +806,19 @@ export default function AuctionDetailPage() {
                           Lot {lot.lot_number} — {lot.title}
                         </p>
                         {auction.status === 'closed' && (
-                          <p className="text-[10px] text-slate-400 mt-0.5">{lot.bid_count} offer{lot.bid_count !== 1 ? 's' : ''}</p>
+                          <p className="text-[10px] text-slate-500 mt-0.5">{lot.bid_count} offer{lot.bid_count !== 1 ? 's' : ''}</p>
                         )}
                       </div>
                       <div className="text-right shrink-0">
                         {auction.status === 'closed' ? (
                           <>
-                            <p className="text-[10px] text-slate-400">Final</p>
+                            <p className="text-[10px] text-slate-500">Final</p>
                             <p className="text-xs font-bold text-slate-800 font-tabular">
                               {formatCurrency(lot.current_bid, auction.currency, 'en-UG')}
                             </p>
                           </>
                         ) : (
-                          <p className="text-[10px] text-slate-400 italic">Sealed</p>
+                          <p className="text-[10px] text-slate-500 italic">Sealed</p>
                         )}
                       </div>
                     </div>
@@ -835,11 +835,11 @@ export default function AuctionDetailPage() {
               Offers Activity
             </h2>
             {auction.status === 'closed' && auction.bid_count > 0 ? (
-              <p className="text-[11px] text-slate-400 leading-relaxed">
+              <p className="text-[11px] text-slate-500 leading-relaxed">
                 <span className="font-semibold text-slate-600">{auction.bid_count}</span> offer{auction.bid_count !== 1 ? 's' : ''} were received for this property.
               </p>
             ) : (
-              <p className="text-[11px] text-slate-400 leading-relaxed">
+              <p className="text-[11px] text-slate-500 leading-relaxed">
                 Offers are sealed and confidential. All bids will be revealed once the auction closes.
               </p>
             )}
@@ -931,9 +931,9 @@ export default function AuctionDetailPage() {
 
           {/* Help note */}
           <div className="text-center">
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-slate-500">
               Questions?{' '}
-              <Link to="/contact" className="text-brand hover:underline">Contact Quickway</Link>
+              <Link to="/contact" className="text-brand underline underline-offset-2 hover:no-underline">Contact Quickway</Link>
             </p>
           </div>
         </div>

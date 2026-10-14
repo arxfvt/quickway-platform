@@ -73,7 +73,7 @@ export default function ImageUploadField({
   return (
     <div className={cn('space-y-1.5', className)}>
       {label && (
-        <p className="text-[10px] text-slate-400 uppercase tracking-wide font-semibold">{label}</p>
+        <p className="text-[10px] text-slate-500 uppercase tracking-wide font-semibold">{label}</p>
       )}
 
       {value ? (
@@ -134,11 +134,11 @@ export default function ImageUploadField({
           ) : (
             <>
               <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center">
-                <ImagePlus size={16} className="text-slate-400" />
+                <ImagePlus size={16} className="text-slate-500" />
               </div>
               <div className="text-center">
                 <p className="text-xs font-medium text-slate-600">Click to upload</p>
-                <p className="text-[10px] text-slate-400">or drag and drop · PNG, JPG, WEBP</p>
+                <p className="text-[10px] text-slate-500">or drag and drop · PNG, JPG, WEBP</p>
               </div>
             </>
           )}

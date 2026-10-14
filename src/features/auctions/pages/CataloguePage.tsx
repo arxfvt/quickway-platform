@@ -35,7 +35,7 @@ function LotCard({ lot, auction }: { lot: Lot; auction: Auction }) {
     Object.values(lot.specs).slice(0, 3).forEach((v) => specSummary.push(v))
   }
 
-  const statusColor = lot.status === 'sold' ? 'bg-green-50 text-green-700' : lot.status === 'unsold' ? 'bg-slate-100 text-slate-400' : 'bg-brand-light text-brand'
+  const statusColor = lot.status === 'sold' ? 'bg-green-50 text-green-700' : lot.status === 'unsold' ? 'bg-slate-100 text-slate-500' : 'bg-brand-light text-brand'
 
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden hover:border-brand/30 transition-colors flex flex-col">
@@ -71,14 +71,14 @@ function LotCard({ lot, auction }: { lot: Lot; auction: Auction }) {
           <div>
             {auction.status === 'closed' ? (
               <>
-                <p className="text-[10px] text-slate-400">{lot.current_bid > 0 ? 'Sold For' : 'Reserve'}</p>
+                <p className="text-[10px] text-slate-500">{lot.current_bid > 0 ? 'Sold For' : 'Reserve'}</p>
                 <p className="text-sm font-bold text-slate-900 font-tabular">
                   {formatCurrency(lot.current_bid > 0 ? lot.current_bid : lot.reserve_price, auction.currency, 'en-UG')}
                 </p>
               </>
             ) : (
               <>
-                <p className="text-[10px] text-slate-400">Starting From</p>
+                <p className="text-[10px] text-slate-500">Starting From</p>
                 <p className="text-sm font-bold text-slate-900 font-tabular">
                   {formatCurrency(lot.reserve_price, auction.currency, 'en-UG')}
                 </p>
@@ -157,7 +157,7 @@ export default function CataloguePage() {
 
   if (!auction) {
     return (
-      <div className="p-6 flex flex-col items-center justify-center py-20 text-slate-400">
+      <div className="p-6 flex flex-col items-center justify-center py-20 text-slate-500">
         <p className="text-sm font-medium">Auction not found</p>
         <Link to="/auctions" className="mt-2 text-xs text-brand hover:underline">← Back to Auctions</Link>
       </div>
@@ -181,7 +181,7 @@ export default function CataloguePage() {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
               <StatusBadge status={auction.status} />
-              <span className="text-[10px] text-slate-400 font-mono">{auction.auction_ref}</span>
+              <span className="text-[10px] text-slate-500 font-mono">{auction.auction_ref}</span>
             </div>
             <h1 className="text-lg font-bold text-slate-900 mb-2">{auction.title}</h1>
             <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
@@ -194,7 +194,7 @@ export default function CataloguePage() {
             </div>
           </div>
           <div className="text-right shrink-0">
-            <p className="text-[10px] text-slate-400 mb-0.5">Opens / Closes</p>
+            <p className="text-[10px] text-slate-500 mb-0.5">Opens / Closes</p>
             <p className="text-xs text-slate-600">{formatDate(auction.starts_at)} → {formatDate(auction.ends_at)}</p>
           </div>
         </div>
@@ -203,8 +203,8 @@ export default function CataloguePage() {
       {/* Filter bar */}
       <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-3 mb-5">
         <div className="relative w-full sm:flex-1 sm:min-w-[200px] sm:max-w-xs">
-          <Search size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-          <input
+          <Search size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+          <input aria-label="Search lots"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search lots…"
@@ -213,7 +213,7 @@ export default function CataloguePage() {
         </div>
 
         {uniqueFilter1.length > 0 && (
-          <select
+          <select aria-label={isVehicles ? "Filter by make" : "Filter by type"}
             value={filter1}
             onChange={(e) => setFilter1(e.target.value)}
             className="w-full sm:w-auto px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors"
@@ -224,7 +224,7 @@ export default function CataloguePage() {
         )}
 
         {uniqueFilter2.length > 0 && (
-          <select
+          <select aria-label={isVehicles ? "Filter by year" : "Filter by tenure"}
             value={filter2}
             onChange={(e) => setFilter2(e.target.value)}
             className="w-full sm:w-auto px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors"
@@ -235,7 +235,7 @@ export default function CataloguePage() {
         )}
 
         {isVehicles && uniqueFilter3.length > 0 && (
-          <select
+          <select aria-label="Filter by condition"
             value={filter3}
             onChange={(e) => setFilter3(e.target.value)}
             className="w-full sm:w-auto px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors"
@@ -248,7 +248,7 @@ export default function CataloguePage() {
         {(filter1 || filter2 || filter3 || search) && (
           <button
             onClick={() => { setFilter1(''); setFilter2(''); setFilter3(''); setSearch('') }}
-            className="text-xs text-slate-400 hover:text-slate-600 transition-colors"
+            className="text-xs text-slate-500 hover:text-slate-600 transition-colors"
           >
             Clear filters
           </button>

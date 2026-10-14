@@ -11,7 +11,7 @@ const CONFIG: Record<AuctionStatus, { label: string; classes: string }> = {
   scheduled: { label: 'Upcoming',  classes: 'bg-brand-light text-brand border border-brand' },
   closed:    { label: 'Closed',    classes: 'bg-slate-100 text-slate-500 border border-slate-200' },
   cancelled: { label: 'Cancelled', classes: 'bg-red-50 text-red-500 border border-red-200' },
-  draft:     { label: 'Draft',     classes: 'bg-slate-100 text-slate-400 border border-slate-200' },
+  draft:     { label: 'Draft',     classes: 'bg-slate-100 text-slate-500 border border-slate-200' },
 }
 
 export default function StatusBadge({ status, className }: StatusBadgeProps) {
