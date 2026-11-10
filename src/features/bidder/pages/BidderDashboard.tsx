@@ -62,7 +62,7 @@ export default function BidderDashboard() {
     : null
 
   return (
-    <div className="p-6 max-w-[1200px] mx-auto">
+    <div className="p-4 sm:p-6 max-w-[1200px] mx-auto">
 
       {/* ── Welcome hero (exclusive feel) ──────────────────── */}
       <div className="relative bg-brand rounded-2xl overflow-hidden mb-6 p-6">
@@ -94,7 +94,7 @@ export default function BidderDashboard() {
                 KYC Verified
               </div>
             ) : (
-              <Link to="/bidder/kyc" className="flex items-center gap-1.5 bg-amber/90 hover:bg-amber text-white text-[11px] font-semibold px-3 py-1.5 rounded-xl transition-colors">
+              <Link to="/bidder/kyc" className="flex items-center gap-1.5 bg-amber/90 hover:bg-amber text-slate-900 text-[11px] font-semibold px-3 py-1.5 rounded-xl transition-colors">
                 <AlertCircle size={12} />
                 Verify Identity
               </Link>
@@ -138,10 +138,10 @@ export default function BidderDashboard() {
             </div>
 
             {participations.length === 0 ? (
-              <div className="p-10 text-center text-slate-400">
+              <div className="p-10 text-center text-slate-500">
                 <Ticket size={36} strokeWidth={1} className="mx-auto mb-3 opacity-40" />
                 <p className="text-sm font-medium text-slate-600">No auctions registered yet</p>
-                <p className="text-xs mt-1 mb-4 max-w-xs mx-auto leading-relaxed text-slate-400">
+                <p className="text-xs mt-1 mb-4 max-w-xs mx-auto leading-relaxed text-slate-500">
                   Browse the catalogue, select an auction and pay the entry fee to unlock your private bidding access.
                 </p>
                 <Link to="/auctions" className="inline-flex items-center gap-1.5 bg-brand text-white text-xs font-semibold px-4 py-2 rounded-xl hover:bg-brand-dark transition-colors">
@@ -162,7 +162,7 @@ export default function BidderDashboard() {
                       <img src={auction.image_url} alt={auction.title} className="w-12 h-9 rounded-lg object-cover shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-semibold text-slate-800 truncate">{auction.title}</p>
-                        <p className="text-[10px] text-slate-400 mt-0.5">{auction.org_name}</p>
+                        <p className="text-[10px] text-slate-500 mt-0.5">{auction.org_name}</p>
                       </div>
                       <div className="shrink-0 hidden sm:block text-right">
                         {isLive ? (
@@ -170,7 +170,7 @@ export default function BidderDashboard() {
                             <Radio size={9} className="animate-pulse" />Live
                           </span>
                         ) : (
-                          <span className="text-[10px] text-slate-400 flex items-center gap-1">
+                          <span className="text-[10px] text-slate-500 flex items-center gap-1">
                             <Clock size={9} />{formatDate(auction.ends_at)}
                           </span>
                         )}
@@ -187,7 +187,7 @@ export default function BidderDashboard() {
                           Pay Fee
                         </Link>
                       ) : (
-                        <Link to={`/auctions/${auction.id}`} className="shrink-0 text-[10px] text-slate-400 hover:text-brand transition-colors">
+                        <Link to={`/auctions/${auction.id}`} className="shrink-0 text-[10px] text-slate-500 hover:text-brand transition-colors">
                           View
                         </Link>
                       )}
@@ -219,14 +219,14 @@ export default function BidderDashboard() {
                     <div key={bid.id} className="flex items-center justify-between px-5 py-3.5">
                       <div className="min-w-0">
                         <p className="text-xs font-medium text-slate-800 truncate">{lot?.title ?? 'Unknown Lot'}</p>
-                        <p className="text-[10px] text-slate-400">{auction?.title}</p>
+                        <p className="text-[10px] text-slate-500">{auction?.title}</p>
                       </div>
                       <div className="text-right shrink-0 ml-4">
                         <p className="text-xs font-bold font-tabular text-slate-800">
                           {formatCurrency(bid.amount, auction?.currency ?? 'UGX', 'en-UG')}
                         </p>
                         {auction?.status === 'closed' && (
-                          <span className={cn('text-[10px] font-semibold', isTop ? 'text-green-600' : 'text-slate-400')}>
+                          <span className={cn('text-[10px] font-semibold', isTop ? 'text-green-600' : 'text-slate-500')}>
                             {isTop ? '↑ Winning' : 'Outbid'}
                           </span>
                         )}
@@ -282,7 +282,7 @@ export default function BidderDashboard() {
                   return (
                     <div key={lot.id} className="bg-green-50 rounded-xl p-3">
                       <p className="text-[11px] font-semibold text-slate-800 line-clamp-1">{lot.title}</p>
-                      <p className="text-[10px] text-slate-400">{auction?.auction_ref}</p>
+                      <p className="text-[10px] text-slate-500">{auction?.auction_ref}</p>
                       <p className="text-xs font-bold text-green-700 mt-1 font-tabular">
                         {formatCurrency(lot.current_bid, auction?.currency ?? 'UGX', 'en-UG')}
                       </p>
@@ -303,7 +303,7 @@ export default function BidderDashboard() {
               { to: '/bidder/profile', label: 'My Profile',       icon: <Star size={12} /> },
             ].map((link) => (
               <Link key={link.to} to={link.to} className="flex items-center gap-2.5 py-2 text-xs text-slate-600 hover:text-brand transition-colors group">
-                <span className="text-slate-400 group-hover:text-brand transition-colors">{link.icon}</span>
+                <span className="text-slate-500 group-hover:text-brand transition-colors">{link.icon}</span>
                 {link.label}
                 <ChevronRight size={11} className="ml-auto text-slate-300 group-hover:text-brand" />
               </Link>

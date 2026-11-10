@@ -14,7 +14,7 @@ const KYC_CHIP: Record<string, string> = {
   approved:      'bg-green-50 text-green-700',
   pending:       'bg-amber-light text-amber-dark',
   rejected:      'bg-red-50 text-red-600',
-  not_submitted: 'bg-slate-100 text-slate-400',
+  not_submitted: 'bg-slate-100 text-slate-500',
 }
 
 const KYC_LABEL: Record<string, string> = {
@@ -100,8 +100,8 @@ export default function AdminUsers() {
   )
 
   return (
-    <div className="p-6 max-w-[1200px] mx-auto">
-      <div className="flex items-center justify-between mb-5">
+    <div className="p-4 sm:p-6 max-w-[1200px] mx-auto">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <div>
           <h1 className="text-xl font-bold text-slate-900">Users</h1>
           <p className="text-xs text-slate-500 mt-0.5">{users.length} registered users on the platform.</p>
@@ -128,8 +128,8 @@ export default function AdminUsers() {
       {/* Search & filters */}
       <div className="flex flex-wrap items-center gap-3 mb-5">
         <div className="relative flex-1 min-w-[200px] max-w-xs">
-          <Search size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-          <input
+          <Search size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+          <input aria-label="Search name or email"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search name or email…"
@@ -138,7 +138,7 @@ export default function AdminUsers() {
         </div>
 
         <div className="relative">
-          <select
+          <select aria-label="Filter by role"
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
             className="appearance-none pl-3 pr-8 py-2 text-xs rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors cursor-pointer"
@@ -148,11 +148,11 @@ export default function AdminUsers() {
             <option value="org_admin">Org Admin</option>
             <option value="admin">Admin</option>
           </select>
-          <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+          <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
         </div>
 
         <div className="relative">
-          <select
+          <select aria-label="Filter by KYC status"
             value={kycFilter}
             onChange={(e) => setKycFilter(e.target.value)}
             className="appearance-none pl-3 pr-8 py-2 text-xs rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors cursor-pointer"
@@ -163,7 +163,7 @@ export default function AdminUsers() {
             <option value="rejected">Rejected</option>
             <option value="not_submitted">Not Submitted</option>
           </select>
-          <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+          <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
         </div>
       </div>
 
@@ -175,13 +175,14 @@ export default function AdminUsers() {
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50">
-                <th className="text-left text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-5 py-3">User</th>
-                <th className="text-center text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-3 py-3">KYC Status</th>
-                <th className="text-right text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-5 py-3 hidden lg:table-cell">Joined</th>
-                <th className="text-left text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-5 py-3">Actions</th>
+                <th className="text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-5 py-3">User</th>
+                <th className="text-center text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-3 py-3">KYC Status</th>
+                <th className="text-right text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-5 py-3 hidden lg:table-cell">Joined</th>
+                <th className="text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-5 py-3">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -201,7 +202,7 @@ export default function AdminUsers() {
                           <p className="text-xs font-semibold text-slate-800 truncate max-w-[180px]">
                             {u.full_name ?? '—'}
                           </p>
-                          <p className="text-[10px] text-slate-400 truncate max-w-[180px]">{u.email}</p>
+                          <p className="text-[10px] text-slate-500 truncate max-w-[180px]">{u.email}</p>
                         </div>
                       </div>
                     </td>
@@ -220,7 +221,7 @@ export default function AdminUsers() {
 
                     {/* Joined */}
                     <td className="px-5 py-3.5 text-right hidden lg:table-cell">
-                      <span className="text-[10px] text-slate-400">{formatDate(u.created_at)}</span>
+                      <span className="text-[10px] text-slate-500">{formatDate(u.created_at)}</span>
                     </td>
 
                     {/* Actions */}
@@ -228,7 +229,7 @@ export default function AdminUsers() {
                       <div className="flex items-center gap-2 flex-wrap">
                         {/* Role select */}
                         <div className="relative">
-                          <select
+                          <select aria-label={`Role for ${u.email}`}
                             value={u.role}
                             disabled={isSelf}
                             onChange={(e) => handleRoleChange(u.id, e.target.value as UserRole)}
@@ -267,7 +268,7 @@ export default function AdminUsers() {
                         {/* Org assignment — only for org_admin */}
                         {u.role === 'org_admin' && (
                           <div className="relative">
-                            <select
+                            <select aria-label={`Organisation for ${u.email}`}
                               value={u.org_id ?? ''}
                               onChange={(e) => handleOrgChange(u.id, e.target.value)}
                               className="appearance-none text-[10px] pl-2 pr-6 py-1 rounded-full border border-slate-200 bg-white text-slate-600 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors cursor-pointer"
@@ -277,7 +278,7 @@ export default function AdminUsers() {
                                 <option key={o.id} value={o.id}>{o.name}</option>
                               ))}
                             </select>
-                            <ChevronDown size={10} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                            <ChevronDown size={10} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
                           </div>
                         )}
                       </div>
@@ -287,6 +288,7 @@ export default function AdminUsers() {
               })}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

@@ -89,13 +89,13 @@ export default function DevRoleSwitcher() {
     <div className="fixed bottom-4 right-4 z-[9999] flex flex-col items-end gap-2">
       {open && (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-3 flex flex-col gap-2 min-w-[160px]">
-          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest px-1 mb-0.5">
+          <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest px-1 mb-0.5">
             Dev Role Switcher
           </p>
           {user && (
             <div className="bg-slate-50 rounded-lg px-2.5 py-1.5 mb-1">
               <p className="text-[10px] font-semibold text-slate-600 truncate">{user.full_name ?? user.email}</p>
-              <p className="text-[9px] text-slate-400 capitalize">{user.role.replace('_', ' ')}</p>
+              <p className="text-[9px] text-slate-500 capitalize">{user.role.replace('_', ' ')}</p>
             </div>
           )}
           {Object.entries(MOCK_USERS).map(([key, entry]) => (

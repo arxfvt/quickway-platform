@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { X, Plus, Trash2, Video } from 'lucide-react'
 import { cn } from '../../../lib/utils'
 import ImageUploadField from './ImageUploadField'
+import { useEscapeKey } from '../../../hooks/useEscapeKey'
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -36,6 +37,7 @@ function newId() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function LotFormModal({ initial, nextLotNumber, auctionId, onSave, onClose }: LotFormModalProps) {
+  useEscapeKey(onClose)
   const [form, setForm] = useState<LotDraft>(() =>
     initial ?? {
       id: newId(),
@@ -130,6 +132,9 @@ export default function LotFormModal({ initial, nextLotNumber, auctionId, onSave
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={initial ? 'Edit lot' : 'Add lot'}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
@@ -141,7 +146,8 @@ export default function LotFormModal({ initial, nextLotNumber, auctionId, onSave
           </h3>
           <button
             onClick={onClose}
-            className="w-7 h-7 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400 transition-colors"
+            aria-label="Close"
+            className="w-9 h-9 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-500 transition-colors"
           >
             <X size={15} />
           </button>
@@ -152,8 +158,8 @@ export default function LotFormModal({ initial, nextLotNumber, auctionId, onSave
           {/* Lot number + title */}
           <div className="flex gap-3">
             <div className="w-20 shrink-0">
-              <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Lot #</label>
-              <input
+              <label htmlFor="lot-form-modal-lot" className="block text-[10px] text-slate-500 uppercase tracking-wide mb-1">Lot #</label>
+              <input id="lot-form-modal-lot"
                 type="number"
                 value={form.lot_number}
                 onChange={(e) => set('lot_number', parseInt(e.target.value) || 1)}
@@ -162,8 +168,8 @@ export default function LotFormModal({ initial, nextLotNumber, auctionId, onSave
               />
             </div>
             <div className="flex-1">
-              <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Title <span className="text-red-400">*</span></label>
-              <input
+              <label htmlFor="lot-form-modal-title" className="block text-[10px] text-slate-500 uppercase tracking-wide mb-1">Title <span className="text-red-400">*</span></label>
+              <input id="lot-form-modal-title"
                 type="text"
                 value={form.title}
                 onChange={(e) => set('title', e.target.value)}
@@ -175,8 +181,8 @@ export default function LotFormModal({ initial, nextLotNumber, auctionId, onSave
 
           {/* Description */}
           <div>
-            <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Description</label>
-            <textarea
+            <label htmlFor="lot-form-modal-description" className="block text-[10px] text-slate-500 uppercase tracking-wide mb-1">Description</label>
+            <textarea id="lot-form-modal-description"
               value={form.description}
               onChange={(e) => set('description', e.target.value)}
               rows={2}
@@ -186,10 +192,10 @@ export default function LotFormModal({ initial, nextLotNumber, auctionId, onSave
           </div>
 
           {/* Pricing */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Reserve Price</label>
-              <input
+              <label htmlFor="lot-form-modal-reserve-price" className="block text-[10px] text-slate-500 uppercase tracking-wide mb-1">Reserve Price</label>
+              <input id="lot-form-modal-reserve-price"
                 type="number"
                 value={form.reserve_price || ''}
                 onChange={(e) => set('reserve_price', parseInt(e.target.value) || 0)}
@@ -199,8 +205,8 @@ export default function LotFormModal({ initial, nextLotNumber, auctionId, onSave
               />
             </div>
             <div>
-              <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Starting Bid</label>
-              <input
+              <label htmlFor="lot-form-modal-starting-bid" className="block text-[10px] text-slate-500 uppercase tracking-wide mb-1">Starting Bid</label>
+              <input id="lot-form-modal-starting-bid"
                 type="number"
                 value={form.starting_bid || ''}
                 onChange={(e) => set('starting_bid', parseInt(e.target.value) || 0)}
@@ -213,7 +219,7 @@ export default function LotFormModal({ initial, nextLotNumber, auctionId, onSave
 
           {/* Bid increment */}
           <div>
-            <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-2">Bid Increment</label>
+            <label className="block text-[10px] text-slate-500 uppercase tracking-wide mb-2">Bid Increment</label>
             <div className="flex flex-wrap gap-1.5 mb-2">
               {INCREMENT_PRESETS.map((p) => (
                 <button
@@ -242,7 +248,7 @@ export default function LotFormModal({ initial, nextLotNumber, auctionId, onSave
               </button>
             </div>
             {useCustom && (
-              <input
+              <input aria-label="Enter custom increment"
                 type="text"
                 value={customIncrement}
                 onChange={(e) => handleCustomIncrement(e.target.value)}
@@ -255,8 +261,8 @@ export default function LotFormModal({ initial, nextLotNumber, auctionId, onSave
           {/* Photos */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-[10px] text-slate-400 uppercase tracking-wide font-semibold">
-                Photos <span className="normal-case text-slate-300">({displayedImages.length}/{MAX_IMAGES})</span>
+              <label className="text-[10px] text-slate-500 uppercase tracking-wide font-semibold">
+                Photos <span className="normal-case text-slate-500">({displayedImages.length}/{MAX_IMAGES})</span>
               </label>
               {form.images.length < MAX_IMAGES && (
                 <button
@@ -268,11 +274,11 @@ export default function LotFormModal({ initial, nextLotNumber, auctionId, onSave
                 </button>
               )}
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {displayedImages.map((url, i) => (
                 <div key={i}>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[9px] text-slate-400 uppercase tracking-wide font-semibold">
+                    <span className="text-[9px] text-slate-500 uppercase tracking-wide font-semibold">
                       {slotLabel(i)}
                     </span>
                     {(form.images.length > 1 || i > 0) && (
@@ -301,10 +307,10 @@ export default function LotFormModal({ initial, nextLotNumber, auctionId, onSave
 
           {/* Video URL */}
           <div>
-            <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1 flex items-center gap-1">
+            <label htmlFor="lot-form-modal-video-url-optional" className="block text-[10px] text-slate-500 uppercase tracking-wide mb-1 flex items-center gap-1">
               <Video size={10} />Video URL <span className="normal-case text-slate-300">(optional)</span>
             </label>
-            <input
+            <input id="lot-form-modal-video-url-optional"
               type="url"
               value={form.video_url}
               onChange={(e) => set('video_url', e.target.value)}
@@ -316,7 +322,7 @@ export default function LotFormModal({ initial, nextLotNumber, auctionId, onSave
           {/* Dynamic specs */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-[10px] text-slate-400 uppercase tracking-wide font-semibold">Specs</label>
+              <label className="text-[10px] text-slate-500 uppercase tracking-wide font-semibold">Specs</label>
               <button
                 type="button"
                 onClick={addSpec}
@@ -326,19 +332,19 @@ export default function LotFormModal({ initial, nextLotNumber, auctionId, onSave
               </button>
             </div>
             {form.specs.length === 0 ? (
-              <p className="text-[10px] text-slate-400 italic">No specs added.</p>
+              <p className="text-[10px] text-slate-500 italic">No specs added.</p>
             ) : (
               <div className="space-y-2">
                 {form.specs.map((spec, i) => (
                   <div key={i} className="flex gap-2 items-center">
-                    <input
+                    <input aria-label="Key (e.g. Year)"
                       type="text"
                       value={spec.key}
                       onChange={(e) => updateSpec(i, 'key', e.target.value)}
                       placeholder="Key (e.g. Year)"
                       className="flex-1 px-3 py-1.5 text-xs rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors"
                     />
-                    <input
+                    <input aria-label="Value (e.g. 2019)"
                       type="text"
                       value={spec.value}
                       onChange={(e) => updateSpec(i, 'value', e.target.value)}
@@ -376,7 +382,7 @@ export default function LotFormModal({ initial, nextLotNumber, auctionId, onSave
               'px-4 py-2 rounded-xl text-xs font-semibold transition-colors',
               form.title.trim()
                 ? 'bg-brand hover:bg-brand-dark text-white'
-                : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                : 'bg-slate-100 text-slate-500 cursor-not-allowed'
             )}
           >
             Save Lot

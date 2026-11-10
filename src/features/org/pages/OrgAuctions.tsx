@@ -24,7 +24,7 @@ const STATUS_CHIP: Record<string, string> = {
   live:       'bg-amber-light text-amber-dark',
   scheduled:  'bg-brand-light text-brand',
   draft:      'bg-slate-100 text-slate-500',
-  closed:     'bg-slate-100 text-slate-400',
+  closed:     'bg-slate-100 text-slate-500',
   cancelled:  'bg-red-50 text-red-400',
 }
 
@@ -65,8 +65,8 @@ export default function OrgAuctions() {
   )
 
   return (
-    <div className="p-6 max-w-[1200px] mx-auto">
-      <div className="flex items-center justify-between mb-5">
+    <div className="p-4 sm:p-6 max-w-[1200px] mx-auto">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <div>
           <h1 className="text-xl font-bold text-slate-900">My Auctions</h1>
           <p className="text-xs text-slate-500 mt-0.5">{orgAuctions.length} auction{orgAuctions.length !== 1 ? 's' : ''} in your catalogue</p>
@@ -99,21 +99,22 @@ export default function OrgAuctions() {
 
       {/* Table */}
       {filtered.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-12 text-center text-slate-400">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-12 text-center text-slate-500">
           <Gavel size={36} strokeWidth={1} className="mx-auto mb-3 opacity-40" />
           <p className="text-sm font-medium text-slate-600">No auctions in this category</p>
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50">
-                <th className="text-left text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-5 py-3">Auction</th>
-                <th className="text-center text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-3 py-3">Status</th>
-                <th className="text-center text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-3 py-3 hidden md:table-cell">Lots</th>
-                <th className="text-center text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-3 py-3 hidden md:table-cell">Bidders</th>
-                <th className="text-right text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-5 py-3 hidden lg:table-cell">Closes</th>
-                <th className="text-right text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-5 py-3">Actions</th>
+                <th className="text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-5 py-3">Auction</th>
+                <th className="text-center text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-3 py-3">Status</th>
+                <th className="text-center text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-3 py-3 hidden md:table-cell">Lots</th>
+                <th className="text-center text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-3 py-3 hidden md:table-cell">Bidders</th>
+                <th className="text-right text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-5 py-3 hidden lg:table-cell">Closes</th>
+                <th className="text-right text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-5 py-3">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -126,7 +127,7 @@ export default function OrgAuctions() {
                         <img src={a.image_url} alt={a.title} className="w-10 h-8 rounded-lg object-cover shrink-0" />
                         <div className="min-w-0">
                           <p className="text-xs font-semibold text-slate-800 truncate max-w-[220px]">{a.title}</p>
-                          <p className="text-[10px] text-slate-400 font-mono">{a.auction_ref}</p>
+                          <p className="text-[10px] text-slate-500 font-mono">{a.auction_ref}</p>
                         </div>
                       </div>
                     </td>
@@ -141,18 +142,18 @@ export default function OrgAuctions() {
                     </td>
                     <td className="px-3 py-3.5 text-center hidden md:table-cell">
                       <span className="flex items-center justify-center gap-1 text-xs text-slate-600">
-                        <Package size={11} className="text-slate-400" />
+                        <Package size={11} className="text-slate-500" />
                         {a.lot_count}
                       </span>
                     </td>
                     <td className="px-3 py-3.5 text-center hidden md:table-cell">
                       <span className="flex items-center justify-center gap-1 text-xs text-slate-600">
-                        <Users size={11} className="text-slate-400" />
+                        <Users size={11} className="text-slate-500" />
                         {participants}
                       </span>
                     </td>
                     <td className="px-5 py-3.5 text-right hidden lg:table-cell">
-                      <span className="text-[10px] text-slate-400 flex items-center justify-end gap-1">
+                      <span className="text-[10px] text-slate-500 flex items-center justify-end gap-1">
                         <Clock size={9} />{formatDate(a.ends_at)}
                       </span>
                     </td>
@@ -171,6 +172,7 @@ export default function OrgAuctions() {
               })}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

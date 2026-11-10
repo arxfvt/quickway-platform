@@ -1,7 +1,4 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// Cloudflare Pages Function — /sitemap.xml, built by the same code as on Netlify.
-// ─────────────────────────────────────────────────────────────────────────────
+// Cloudflare Pages Function for /sitemap.xml — the logic lives in server/sitemap.ts.
+import { buildSitemap } from '../server/sitemap.ts'
 
-import sitemap from '../netlify/edge-functions/sitemap.ts'
-
-export const onRequest = () => sitemap()
+export const onRequest = () => buildSitemap()

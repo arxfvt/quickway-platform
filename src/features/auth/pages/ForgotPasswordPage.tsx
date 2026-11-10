@@ -45,7 +45,7 @@ export default function ForgotPasswordPage() {
         >
           Back to Sign In
         </Link>
-        <p className="text-center text-[11px] text-slate-400">
+        <p className="text-center text-[11px] text-slate-500">
           Didn't receive it?{' '}
           <button
             onClick={() => setSubmitted(false)}
@@ -70,12 +70,12 @@ export default function ForgotPasswordPage() {
 
       {/* Email */}
       <div>
-        <label className="block text-xs font-medium text-slate-700 mb-1.5">
+        <label htmlFor="forgot-password-page-email-address" className="block text-xs font-medium text-slate-700 mb-1.5">
           Email address
         </label>
         <div className="relative">
-          <Mail size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-          <input
+          <Mail size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+          <input id="forgot-password-page-email-address"
             type="email"
             autoComplete="email"
             required
@@ -99,7 +99,7 @@ export default function ForgotPasswordPage() {
         className={cn(
           'w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-colors mt-1',
           isLoading || !email
-            ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+            ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
             : 'bg-brand hover:bg-brand-dark text-white'
         )}
       >

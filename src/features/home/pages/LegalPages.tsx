@@ -20,7 +20,7 @@ function LegalLayout({ title, intro, sections }: { title: string; intro: string;
       </Link>
       <article className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 sm:p-8">
         <h1 className="text-xl font-bold text-slate-900">{title}</h1>
-        <p className="text-xs text-slate-400 mt-1 mb-5">Last updated: {LAST_UPDATED}</p>
+        <p className="text-xs text-slate-500 mt-1 mb-5">Last updated: {LAST_UPDATED}</p>
         <p className="text-sm text-slate-600 leading-relaxed mb-6">{intro}</p>
         {sections.map((s) => (
           <section key={s.heading} className="mb-6">

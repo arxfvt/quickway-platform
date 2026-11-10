@@ -23,11 +23,11 @@ function InputField({
       <label className="block text-xs font-medium text-slate-700 mb-1.5">{label}</label>
       <div className="relative">
         {icon && (
-          <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+          <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">
             {icon}
           </div>
         )}
-        <input
+        <input aria-label={label}
           type={type}
           value={value}
           onChange={(e) => onChange?.(e.target.value)}
@@ -103,7 +103,7 @@ export default function BidderProfile() {
   }
 
   return (
-    <div className="p-6 max-w-[900px] mx-auto">
+    <div className="p-4 sm:p-6 max-w-[900px] mx-auto">
       <div className="mb-6">
         <h1 className="text-xl font-bold text-slate-900">My Profile</h1>
         <p className="text-xs text-slate-500 mt-0.5">Manage your personal details and account security.</p>
@@ -140,11 +140,11 @@ export default function BidderProfile() {
             placeholder="+256 7XX XXX XXX"
           />
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1.5">
+            <label htmlFor="bidder-profile-address" className="block text-xs font-medium text-slate-700 mb-1.5">
               <MapPin size={11} className="inline mr-1" />
               Address
             </label>
-            <textarea
+            <textarea id="bidder-profile-address"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               rows={3}
@@ -171,7 +171,7 @@ export default function BidderProfile() {
             disabled={profileSaving}
             className={cn(
               'w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-colors',
-              profileSaving ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-brand hover:bg-brand-dark text-white'
+              profileSaving ? 'bg-slate-200 text-slate-500 cursor-not-allowed' : 'bg-brand hover:bg-brand-dark text-white'
             )}
           >
             {profileSaving && <Loader2 size={14} className="animate-spin" />}
@@ -227,7 +227,7 @@ export default function BidderProfile() {
             className={cn(
               'w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-colors',
               pwSaving || !currentPw || !newPw || !confirmPw
-                ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
                 : 'bg-brand hover:bg-brand-dark text-white'
             )}
           >

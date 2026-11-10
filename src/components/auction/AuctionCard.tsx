@@ -105,7 +105,7 @@ export default function AuctionCard({
         <div className={cn(
           'inline-flex items-center gap-1 px-2 py-1 rounded-lg mb-3 text-[10px] font-medium',
           isClosed
-            ? 'bg-slate-50 text-slate-400'
+            ? 'bg-slate-50 text-slate-500'
             : 'bg-brand-light text-brand'
         )}>
           <Ticket size={10} />
@@ -130,25 +130,25 @@ export default function AuctionCard({
 
           <div className="text-right">
             {isLive ? (
-              <div className="flex items-center gap-1 text-slate-400">
+              <div className="flex items-center gap-1 text-slate-500">
                 <Lock size={11} />
                 <span className="text-[10px] font-medium">Sealed Bid</span>
               </div>
             ) : isScheduled ? (
               <div className="text-right">
-                <p className="text-[10px] text-slate-400 leading-none mb-0.5">Opens in</p>
+                <p className="text-[10px] text-slate-500 leading-none mb-0.5">Opens in</p>
                 <CountdownTimer endsAt={starts_at} size="compact" />
               </div>
             ) : (
               current_bid > 0 ? (
                 <div>
-                  <p className="text-[10px] text-slate-400 leading-none mb-0.5">Sold for</p>
+                  <p className="text-[10px] text-slate-500 leading-none mb-0.5">Sold for</p>
                   <p className="text-sm font-bold text-slate-500 font-tabular">
                     {formatCurrency(current_bid, currency, 'en-UG')}
                   </p>
                 </div>
               ) : (
-                <p className="text-[10px] font-medium text-slate-400">Closed</p>
+                <p className="text-[10px] font-medium text-slate-500">Closed</p>
               )
             )}
           </div>
@@ -162,7 +162,7 @@ export default function AuctionCard({
               ? 'bg-brand text-white hover:bg-brand-dark'
               : isScheduled
               ? 'bg-brand-light text-brand hover:bg-blue-100 border border-brand/30'
-              : 'bg-slate-100 text-slate-400 cursor-default'
+              : 'bg-slate-100 text-slate-500 cursor-default'
           )}
         >
           {isLive ? 'View & Make Offer' : isScheduled ? 'View Details' : 'View Results'}

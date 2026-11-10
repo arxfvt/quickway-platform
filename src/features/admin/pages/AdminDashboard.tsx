@@ -21,7 +21,7 @@ const STATUS_CHIP: Record<string, string> = {
   live:       'bg-amber-light text-amber-dark',
   scheduled:  'bg-brand-light text-brand',
   draft:      'bg-slate-100 text-slate-500',
-  closed:     'bg-slate-100 text-slate-400',
+  closed:     'bg-slate-100 text-slate-500',
   cancelled:  'bg-red-50 text-red-400',
 }
 
@@ -73,8 +73,8 @@ export default function AdminDashboard() {
   const pendingPayList = participations.filter((p) => p.payment_status === 'pending_review').slice(0, 4)
 
   return (
-    <div className="p-6 max-w-[1300px] mx-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-4 sm:p-6 max-w-[1300px] mx-auto">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
           <h1 className="text-xl font-bold text-slate-900">Admin Dashboard</h1>
           <p className="text-xs text-slate-500 mt-0.5">Platform-wide overview for Quickway Auctioneers.</p>
@@ -147,7 +147,7 @@ export default function AdminDashboard() {
                     <img src={a.image_url} alt={a.title} className="w-10 h-8 rounded-lg object-cover shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold text-slate-800 truncate">{a.title}</p>
-                      <p className="text-[10px] text-slate-400">{org?.name ?? a.org_id} · {a.lot_count} lots · {participants} bidders</p>
+                      <p className="text-[10px] text-slate-500">{org?.name ?? a.org_id} · {a.lot_count} lots · {participants} bidders</p>
                     </div>
                     <span className={cn('shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full', STATUS_CHIP[a.status])}>
                       {a.status === 'live' ? (
@@ -157,7 +157,7 @@ export default function AdminDashboard() {
                       ) : a.status}
                     </span>
                     <div className="text-right shrink-0 hidden sm:block">
-                      <p className="text-[10px] text-slate-400 flex items-center justify-end gap-1">
+                      <p className="text-[10px] text-slate-500 flex items-center justify-end gap-1">
                         <Clock size={9} />{formatDate(a.ends_at)}
                       </p>
                     </div>
@@ -179,7 +179,7 @@ export default function AdminDashboard() {
               <Link to="/admin/kyc" className="text-xs text-brand hover:underline">Review all</Link>
             </div>
             {pendingKycUsers.length === 0 ? (
-              <p className="text-xs text-slate-400 text-center py-3">No pending KYC</p>
+              <p className="text-xs text-slate-500 text-center py-3">No pending KYC</p>
             ) : (
               <div className="space-y-2">
                 {pendingKycUsers.map((u) => (
@@ -204,7 +204,7 @@ export default function AdminDashboard() {
               <Link to="/admin/payments" className="text-xs text-brand hover:underline">Review all</Link>
             </div>
             {pendingPayList.length === 0 ? (
-              <p className="text-xs text-slate-400 text-center py-3">No pending payments</p>
+              <p className="text-xs text-slate-500 text-center py-3">No pending payments</p>
             ) : (
               <div className="space-y-2">
                 {pendingPayList.map((p) => {
@@ -236,7 +236,7 @@ export default function AdminDashboard() {
               { to: '/admin/auctions',      label: 'Auctions',        icon: <Gavel size={12} /> },
             ].map((link) => (
               <Link key={link.to} to={link.to} className="flex items-center gap-2.5 py-2 text-xs text-slate-600 hover:text-brand transition-colors group">
-                <span className="text-slate-400 group-hover:text-brand">{link.icon}</span>
+                <span className="text-slate-500 group-hover:text-brand">{link.icon}</span>
                 {link.label}
                 <ChevronRight size={11} className="ml-auto text-slate-300 group-hover:text-brand" />
               </Link>

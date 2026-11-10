@@ -1,4 +1,5 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useEscapeKey } from '../../hooks/useEscapeKey'
 import { useState, useEffect, useRef } from 'react'
 import { Bell, Menu, ShieldCheck, Ticket, X } from 'lucide-react'
 import AppSidebar from './AppSidebar'
@@ -151,7 +152,7 @@ function TopBar() {
         />
         <div>
           <p className="text-sm font-semibold text-slate-800">{pageLabel}</p>
-          <p className="text-[10px] text-slate-400 hidden sm:block">Quickway Auctioneers & Court Bailiffs</p>
+          <p className="text-[10px] text-slate-500 hidden sm:block">Quickway Auctioneers & Court Bailiffs</p>
         </div>
       </div>
 
@@ -167,7 +168,7 @@ function TopBar() {
           >
             <Bell size={18} />
             {notifs.length > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-amber text-white text-[9px] font-bold rounded-full flex items-center justify-center px-1">
+              <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-amber text-slate-900 text-[9px] font-bold rounded-full flex items-center justify-center px-1">
                 {notifs.length > 9 ? '9+' : notifs.length}
               </span>
             )}
@@ -178,7 +179,7 @@ function TopBar() {
               {/* Header */}
               <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
                 <p className="text-xs font-semibold text-slate-800">Notifications</p>
-                <button onClick={() => setNotifOpen(false)} className="p-1 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
+                <button onClick={() => setNotifOpen(false)} className="p-1 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors">
                   <X size={13} />
                 </button>
               </div>
@@ -186,7 +187,7 @@ function TopBar() {
               {/* List */}
               <div className="max-h-80 overflow-y-auto divide-y divide-slate-100">
                 {notifs.length === 0 ? (
-                  <div className="px-4 py-8 text-center text-slate-400">
+                  <div className="px-4 py-8 text-center text-slate-500">
                     <Bell size={24} strokeWidth={1} className="mx-auto mb-2 opacity-40" />
                     <p className="text-xs">No notifications</p>
                   </div>
@@ -209,7 +210,7 @@ function TopBar() {
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium text-slate-700 leading-snug">{n.message}</p>
                         {n.timestamp && (
-                          <p className="text-[10px] text-slate-400 mt-0.5">{formatDate(n.timestamp)}</p>
+                          <p className="text-[10px] text-slate-500 mt-0.5">{formatDate(n.timestamp)}</p>
                         )}
                       </div>
                     </button>
@@ -249,11 +250,14 @@ const PUBLIC_PREFIXES = ['/auctions', '/contact', '/terms', '/privacy']
 
 export default function AppShell() {
   const { sidebarOpen, setSidebarOpen } = useUiStore()
+  // Phones: Escape closes the open menu drawer
+  useEscapeKey(() => setSidebarOpen(false), sidebarOpen && window.innerWidth < 768)
   const { pathname } = useLocation()
   const isPublicPage = PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + '/'))
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-white focus:text-brand focus:px-4 focus:py-2 focus:rounded-lg focus:shadow-lg text-sm font-semibold">Skip to content</a>
       {/* Mobile backdrop — tap to close sidebar */}
       {sidebarOpen && (
         <div
@@ -273,7 +277,7 @@ export default function AppShell() {
         )}
       >
         <TopBar />
-        <main className="flex-1 overflow-y-auto overflow-x-hidden">
+        <main id="main" tabIndex={-1} className="flex-1 overflow-y-auto overflow-x-hidden focus:outline-none">
           <Outlet />
           {isPublicPage && <div className="mt-10"><SiteFooter /></div>}
         </main>

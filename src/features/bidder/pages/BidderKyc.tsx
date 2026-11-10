@@ -97,7 +97,7 @@ export default function BidderKyc() {
   // ── STATE 3: Approved ─────────────────────────────────────────────────
   if (kycStatus === 'approved') {
     return (
-      <div className="p-6 max-w-[700px] mx-auto">
+      <div className="p-4 sm:p-6 max-w-[700px] mx-auto">
         <h1 className="text-xl font-bold text-slate-900 mb-1">Identity Verification</h1>
         <p className="text-xs text-slate-500 mb-6">Your documents have been reviewed and approved.</p>
 
@@ -123,7 +123,7 @@ export default function BidderKyc() {
                   <p className="text-xs font-medium text-slate-800">
                     {DOC_TYPES.find((t) => t.value === doc.document_type)?.label ?? doc.document_type}
                   </p>
-                  <p className="text-[10px] text-slate-400">{doc.file_name}</p>
+                  <p className="text-[10px] text-slate-500">{doc.file_name}</p>
                 </div>
                 <span className="text-[10px] text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full font-semibold flex items-center gap-1">
                   <CheckCircle2 size={9} />Approved
@@ -132,7 +132,7 @@ export default function BidderKyc() {
             ))}
           </div>
           {docs[0]?.reviewed_at && (
-            <p className="text-[10px] text-slate-400 mt-3">Reviewed on {formatDate(docs[0].reviewed_at)}</p>
+            <p className="text-[10px] text-slate-500 mt-3">Reviewed on {formatDate(docs[0].reviewed_at)}</p>
           )}
         </div>
       </div>
@@ -142,7 +142,7 @@ export default function BidderKyc() {
   // ── STATE 2: Submitted / pending (no rejection) ────────────────────────
   if (hasDocs && !rejectedDoc && kycStatus === 'pending' && !uploaded) {
     return (
-      <div className="p-6 max-w-[700px] mx-auto">
+      <div className="p-4 sm:p-6 max-w-[700px] mx-auto">
         <h1 className="text-xl font-bold text-slate-900 mb-1">Identity Verification</h1>
         <p className="text-xs text-slate-500 mb-6">Your documents are being reviewed.</p>
 
@@ -163,12 +163,12 @@ export default function BidderKyc() {
           <div className="space-y-3">
             {docs.map((doc) => (
               <div key={doc.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                <FileText size={16} className="text-slate-400 shrink-0" />
+                <FileText size={16} className="text-slate-500 shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-slate-800">
                     {DOC_TYPES.find((t) => t.value === doc.document_type)?.label ?? doc.document_type}
                   </p>
-                  <p className="text-[10px] text-slate-400">{doc.file_name} · Submitted {formatDate(doc.created_at)}</p>
+                  <p className="text-[10px] text-slate-500">{doc.file_name} · Submitted {formatDate(doc.created_at)}</p>
                 </div>
                 <span className="text-[10px] text-amber-dark bg-amber-light border border-amber/20 px-2 py-0.5 rounded-full font-semibold">
                   Pending
@@ -183,7 +183,7 @@ export default function BidderKyc() {
 
   // ── STATE 1 / 4: Upload form (not submitted OR rejected) ───────────────
   return (
-    <div className="p-6 max-w-[700px] mx-auto">
+    <div className="p-4 sm:p-6 max-w-[700px] mx-auto">
       <h1 className="text-xl font-bold text-slate-900 mb-1">Identity Verification</h1>
       <p className="text-xs text-slate-500 mb-6">
         Upload a government-issued ID to unlock auction participation.
@@ -228,8 +228,8 @@ export default function BidderKyc() {
       <form onSubmit={handleUpload} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 space-y-4">
         {/* Document type */}
         <div>
-          <label className="block text-xs font-medium text-slate-700 mb-1.5">Document Type</label>
-          <select
+          <label htmlFor="bidder-kyc-document-type" className="block text-xs font-medium text-slate-700 mb-1.5">Document Type</label>
+          <select id="bidder-kyc-document-type"
             value={docType}
             onChange={(e) => setDocType(e.target.value as KycDocumentType)}
             className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-slate-200 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors"
@@ -259,7 +259,8 @@ export default function BidderKyc() {
               <button
                 type="button"
                 onClick={clearFile}
-                className="absolute top-2 right-2 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-red-50 transition-colors"
+                aria-label="Remove file"
+                className="absolute top-2 right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-red-50 transition-colors"
               >
                 <X size={12} className="text-slate-500" />
               </button>
@@ -271,7 +272,7 @@ export default function BidderKyc() {
             >
               <Upload size={24} className="text-slate-300 mb-2" />
               <p className="text-xs font-medium text-slate-500">Click to upload or drag & drop</p>
-              <p className="text-[10px] text-slate-400 mt-0.5">JPG, PNG or PDF · Max 5 MB</p>
+              <p className="text-[10px] text-slate-500 mt-0.5">JPG, PNG or PDF · Max 5 MB</p>
             </label>
           )}
           <input
@@ -284,7 +285,7 @@ export default function BidderKyc() {
           />
         </div>
 
-        <p className="text-[10px] text-slate-400 bg-slate-50 rounded-xl px-3 py-2.5 leading-relaxed">
+        <p className="text-[10px] text-slate-500 bg-slate-50 rounded-xl px-3 py-2.5 leading-relaxed">
           Your document is encrypted and stored securely. It is only accessed by Quickway's compliance team for identity verification and is never shared with third parties.
         </p>
 
@@ -294,7 +295,7 @@ export default function BidderKyc() {
           className={cn(
             'w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-colors',
             !file || compressing || uploading || uploaded
-              ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+              ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
               : 'bg-brand hover:bg-brand-dark text-white'
           )}
         >

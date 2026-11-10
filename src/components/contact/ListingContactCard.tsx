@@ -27,7 +27,7 @@ export default function ListingContactCard({ title, refCode, closed = false }: {
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => track('whatsapp')}
-          className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5b] text-white font-semibold text-sm py-3 rounded-xl transition-colors"
+          className="w-full flex items-center justify-center gap-2 bg-[#0E7A40] hover:bg-[#0B6535] text-white font-semibold text-sm py-3 rounded-xl transition-colors"
         >
           <MessageCircle size={17} />
           WhatsApp about this property

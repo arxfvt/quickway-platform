@@ -38,13 +38,13 @@ export default function CountdownTimer({ endsAt, size = 'compact', className }: 
       <div className={cn('flex flex-col items-start', className)}>
         <p className="text-xs text-slate-500 mb-1">Time Left</p>
         {ended ? (
-          <span className="text-sm font-semibold text-slate-400">Ended</span>
+          <span className="text-sm font-semibold text-slate-500">Ended</span>
         ) : (
           <div className="flex items-baseline gap-1">
             {parts.map((p, i) => (
               <span key={i} className={cn('font-bold font-tabular', urgent ? 'text-amber' : 'text-slate-800', size === 'large' ? 'text-2xl' : 'text-base')}>
                 {p.value}
-                <span className="text-xs font-normal text-slate-400 ml-0.5">{p.label}</span>
+                <span className="text-xs font-normal text-slate-500 ml-0.5">{p.label}</span>
               </span>
             ))}
           </div>
@@ -57,7 +57,7 @@ export default function CountdownTimer({ endsAt, size = 'compact', className }: 
     <span
       className={cn(
         'inline-flex items-center gap-1 text-xs font-medium font-tabular',
-        ended ? 'text-slate-400' : urgent ? 'text-amber-dark' : 'text-slate-600',
+        ended ? 'text-slate-500' : urgent ? 'text-amber-dark' : 'text-slate-600',
         className
       )}
     >
@@ -66,7 +66,7 @@ export default function CountdownTimer({ endsAt, size = 'compact', className }: 
         ? 'Ended'
         : parts.map((p, i) => (
             <span key={i}>
-              {p.value}<span className="text-slate-400">{p.label}</span>
+              {p.value}<span className="text-slate-500">{p.label}</span>
               {i < parts.length - 1 && ' '}
             </span>
           ))

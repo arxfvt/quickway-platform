@@ -1,9 +1,6 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// Cloudflare Pages Function — runs the listing-meta logic for /auctions/* so
-// shared links and search results show the property, same as on Netlify.
-// ─────────────────────────────────────────────────────────────────────────────
+// Cloudflare Pages Function for /auctions/* — the logic lives in server/listingMeta.ts.
+// context.next() returns the app's index.html; the listing's details are added to it.
+import { renderListingPage } from '../../server/listingMeta.ts'
 
-import listingMeta from '../../netlify/edge-functions/listing-meta.ts'
-
-export const onRequest = (ctx: { request: Request; next: () => Promise<Response> }) =>
-  listingMeta(ctx.request, { next: () => ctx.next() } as never)
+export const onRequest = async (context: { request: Request; next: () => Promise<Response> }) =>
+  renderListingPage(context.request, await context.next())

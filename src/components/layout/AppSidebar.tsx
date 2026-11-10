@@ -122,7 +122,7 @@ function NavGroup({
   return (
     <div className="mb-2">
       {!collapsed && (
-        <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 select-none">
+        <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-slate-500 select-none">
           {section.heading}
         </p>
       )}
@@ -222,7 +222,7 @@ export default function AppSidebar() {
         {!collapsed && (
           <div className="leading-tight">
             <p className="text-sm font-bold text-brand tracking-wide">QUICKWAY</p>
-            <p className="text-[9px] text-slate-400 leading-none">Auctioneers & Court Bailiffs</p>
+            <p className="text-[9px] text-slate-500 leading-none">Auctioneers & Court Bailiffs</p>
           </div>
         )}
       </div>
@@ -271,7 +271,7 @@ export default function AppSidebar() {
               <p className="text-xs font-semibold text-slate-800 truncate">
                 {user.full_name ?? user.email}
               </p>
-              <p className="text-[10px] text-slate-400 capitalize">{user.role.replace('_', ' ')}</p>
+              <p className="text-[10px] text-slate-500 capitalize">{user.role.replace('_', ' ')}</p>
             </div>
           </div>
           <button
@@ -288,7 +288,7 @@ export default function AppSidebar() {
           <button
             onClick={handleSignOut}
             title="Sign Out"
-            className="w-full flex items-center justify-center py-2.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+            className="w-full flex items-center justify-center py-2.5 rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors"
           >
             <LogOut size={16} />
           </button>

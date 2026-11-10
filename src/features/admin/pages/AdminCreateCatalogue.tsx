@@ -182,7 +182,7 @@ export default function AdminCreateCatalogue() {
   // ─────────────────────────────────────────────────────────────────────
 
   return (
-    <div className="p-6 max-w-[800px] mx-auto">
+    <div className="p-4 sm:p-6 max-w-[800px] mx-auto">
       <h1 className="text-xl font-bold text-slate-900 mb-1">Create Catalogue</h1>
       <p className="text-xs text-slate-500 mb-6">Complete all steps to publish an asset catalogue for an organisation.</p>
 
@@ -194,7 +194,7 @@ export default function AdminCreateCatalogue() {
               onClick={() => i < step && setStep(i)}
               className={cn(
                 'flex items-center gap-1.5 text-xs font-semibold transition-colors',
-                i === step ? 'text-brand' : i < step ? 'text-green-600 cursor-pointer hover:underline' : 'text-slate-400 cursor-default'
+                i === step ? 'text-brand' : i < step ? 'text-green-600 cursor-pointer hover:underline' : 'text-slate-500 cursor-default'
               )}
             >
               <div className={cn(
@@ -217,8 +217,8 @@ export default function AdminCreateCatalogue() {
 
           {/* Org selector */}
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1.5">Organisation *</label>
-            <select
+            <label htmlFor="admin-create-catalogue-organisation" className="block text-xs font-medium text-slate-700 mb-1.5">Organisation *</label>
+            <select id="admin-create-catalogue-organisation"
               value={draft.org_id}
               onChange={(e) => set('org_id', e.target.value)}
               className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-slate-200 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors"
@@ -232,8 +232,8 @@ export default function AdminCreateCatalogue() {
           <Field label="Catalogue Title *" value={draft.title} onChange={(v) => set('title', v)} placeholder="e.g. UN Mission Vehicle Fleet — 50 Vehicles" maxLen={100} />
 
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1.5">Description</label>
-            <textarea
+            <label htmlFor="admin-create-catalogue-description" className="block text-xs font-medium text-slate-700 mb-1.5">Description</label>
+            <textarea id="admin-create-catalogue-description"
               rows={4}
               value={draft.description}
               onChange={(e) => set('description', e.target.value)}
@@ -244,8 +244,8 @@ export default function AdminCreateCatalogue() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1.5">Category</label>
-              <select
+              <label htmlFor="admin-create-catalogue-category" className="block text-xs font-medium text-slate-700 mb-1.5">Category</label>
+              <select id="admin-create-catalogue-category"
                 value={draft.category}
                 onChange={(e) => set('category', e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-slate-200 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors"
@@ -306,8 +306,8 @@ export default function AdminCreateCatalogue() {
                   type="number"
                 />
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1.5">Bid Increment (UGX)</label>
-                  <select
+                  <label htmlFor="admin-create-catalogue-bid-increment-ugx" className="block text-xs font-medium text-slate-700 mb-1.5">Bid Increment (UGX)</label>
+                  <select id="admin-create-catalogue-bid-increment-ugx"
                     value={lot.bid_increment}
                     onChange={(e) => setLotField(lot.id, 'bid_increment', e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors"
@@ -319,7 +319,7 @@ export default function AdminCreateCatalogue() {
 
               <div className="mb-4">
                 <label className="block text-xs font-medium text-slate-700 mb-1.5">Description</label>
-                <textarea
+                <textarea aria-label="Condition, key details"
                   rows={2}
                   value={lot.description}
                   onChange={(e) => setLotField(lot.id, 'description', e.target.value)}
@@ -331,13 +331,13 @@ export default function AdminCreateCatalogue() {
               {/* Category-specific spec fields */}
               {isVehicles && (
                 <div>
-                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-2">Vehicle Specs</p>
+                  <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-2">Vehicle Specs</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {VEHICLE_SPEC_FIELDS.map((f) =>
                       f.type === 'select' ? (
                         <div key={f.key}>
                           <label className="block text-xs font-medium text-slate-700 mb-1.5">{f.label}</label>
-                          <select
+                          <select aria-label={f.label}
                             value={lot.specs[f.key] ?? ''}
                             onChange={(e) => setLotSpec(lot.id, f.key, e.target.value)}
                             className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors"
@@ -363,7 +363,7 @@ export default function AdminCreateCatalogue() {
 
               {isProperty && (
                 <div>
-                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-2">Property Details</p>
+                  <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-2">Property Details</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {PROPERTY_SPEC_FIELDS.map((f) => {
                       const propType = lot.specs['Property Type'] ?? ''
@@ -372,7 +372,7 @@ export default function AdminCreateCatalogue() {
                       return f.type === 'select' ? (
                         <div key={f.key}>
                           <label className="block text-xs font-medium text-slate-700 mb-1.5">{f.label}</label>
-                          <select
+                          <select aria-label={f.label}
                             value={lot.specs[f.key] ?? ''}
                             onChange={(e) => setLotSpec(lot.id, f.key, e.target.value)}
                             className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors"
@@ -399,7 +399,7 @@ export default function AdminCreateCatalogue() {
               {/* Generic spec rows for other categories */}
               {!isVehicles && !isProperty && (
                 <div>
-                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-2">Specifications</p>
+                  <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-2">Specifications</p>
                   <GenericSpecRows specs={lot.specs} onUpdate={(specs) => setDraft((d) => ({ ...d, lots: d.lots.map((l) => l.id === lot.id ? { ...l, specs } : l) }))} />
                 </div>
               )}
@@ -423,8 +423,8 @@ export default function AdminCreateCatalogue() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Participation Fee *" value={draft.participation_fee} onChange={(v) => set('participation_fee', v)} placeholder="e.g. 100000" type="number" />
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1.5">Currency</label>
-              <select value={draft.currency} onChange={(e) => set('currency', e.target.value)}
+              <label htmlFor="admin-create-catalogue-currency" className="block text-xs font-medium text-slate-700 mb-1.5">Currency</label>
+              <select id="admin-create-catalogue-currency" value={draft.currency} onChange={(e) => set('currency', e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors">
                 {['UGX', 'USD'].map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -433,10 +433,10 @@ export default function AdminCreateCatalogue() {
             <Field label="End Date & Time *" value={draft.ends_at} onChange={(v) => set('ends_at', v)} type="datetime-local" />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1.5">Bank Transfer Instructions</label>
-            <textarea rows={3} value={draft.bank_details} onChange={(e) => set('bank_details', e.target.value)}
+            <label htmlFor="admin-create-catalogue-bank-transfer-instructions" className="block text-xs font-medium text-slate-700 mb-1.5">Bank Transfer Instructions</label>
+            <textarea id="admin-create-catalogue-bank-transfer-instructions" rows={3} value={draft.bank_details} onChange={(e) => set('bank_details', e.target.value)}
               className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors resize-none" />
-            <p className="text-[10px] text-slate-400 mt-1">Shown to bidders when they pay the entry fee.</p>
+            <p className="text-[10px] text-slate-500 mt-1">Shown to bidders when they pay the entry fee.</p>
           </div>
           {draft.starts_at && draft.ends_at && draft.starts_at >= draft.ends_at && (
             <p className="text-xs text-red-500">End date must be after the start date.</p>
@@ -504,7 +504,7 @@ export default function AdminCreateCatalogue() {
             disabled={!canNext}
             className={cn(
               'flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors',
-              !canNext ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-brand hover:bg-brand-dark text-white'
+              !canNext ? 'bg-slate-200 text-slate-500 cursor-not-allowed' : 'bg-brand hover:bg-brand-dark text-white'
             )}
           >
             Next <ChevronRight size={14} />
@@ -526,7 +526,7 @@ function Field({ label, value, onChange, placeholder, type = 'text', maxLen }: {
   return (
     <div>
       <label className="block text-xs font-medium text-slate-700 mb-1.5">{label}</label>
-      <input
+      <input aria-label={label}
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -534,7 +534,7 @@ function Field({ label, value, onChange, placeholder, type = 'text', maxLen }: {
         maxLength={maxLen}
         className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-slate-200 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors"
       />
-      {maxLen && <p className="text-[10px] text-slate-400 text-right mt-0.5">{value.length}/{maxLen}</p>}
+      {maxLen && <p className="text-[10px] text-slate-500 text-right mt-0.5">{value.length}/{maxLen}</p>}
     </div>
   )
 }
@@ -546,7 +546,7 @@ function SpecField({ label, value, onChange, placeholder, type = 'text' }: {
   return (
     <div>
       <label className="block text-xs font-medium text-slate-700 mb-1.5">{label}</label>
-      <input
+      <input aria-label={label}
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -563,7 +563,7 @@ function GenericSpecRows({ specs, onUpdate }: { specs: Record<string, string>; o
     <div className="space-y-2">
       {entries.map(([k, v], i) => (
         <div key={i} className="grid grid-cols-2 gap-2">
-          <input
+          <input aria-label="Field name"
             placeholder="Field name"
             value={k}
             onChange={(e) => {
@@ -573,7 +573,7 @@ function GenericSpecRows({ specs, onUpdate }: { specs: Record<string, string>; o
             }}
             className="px-3 py-2 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
           />
-          <input
+          <input aria-label="Value"
             placeholder="Value"
             value={v}
             onChange={(e) => {

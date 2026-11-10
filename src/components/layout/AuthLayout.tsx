@@ -50,29 +50,31 @@ export default function AuthLayout({ children, title, subtitle }: AuthLayoutProp
       {/* ── Right panel (form) ─────────────────────────── */}
       <div className="flex-1 flex flex-col justify-center items-center px-6 py-12">
         {/* Mobile logo */}
+        <header>
         <Link to="/" className="flex items-center gap-2.5 mb-8">
           <img src={quickwayLogo} alt="Quickway" className="h-8 w-8 object-contain" />
           <div>
             <p className="text-brand font-bold tracking-wide text-xs">QUICKWAY</p>
-            <p className="text-slate-400 text-[9px]">Auctioneers & Court Bailiffs</p>
+            <p className="text-slate-500 text-[9px]">Auctioneers & Court Bailiffs</p>
           </div>
         </Link>
+        </header>
 
-        <div className="w-full max-w-[400px]">
+        <main id="main" className="w-full max-w-[400px]">
           <div className="mb-7">
             <h1 className="text-2xl font-bold text-slate-900 mb-1.5">{title}</h1>
             {subtitle && <p className="text-sm text-slate-500">{subtitle}</p>}
           </div>
 
           {children}
-        </div>
+        </main>
 
-        <p className="mt-8 text-[11px] text-slate-400 text-center max-w-xs">
+        <footer className="mt-8 text-[11px] text-slate-500 text-center max-w-xs">
           By using Quickway you agree to our{' '}
-          <Link to="/terms" className="text-brand hover:underline">Terms of Service</Link>{' '}
+          <Link to="/terms" className="text-brand underline underline-offset-2 hover:no-underline">Terms of Service</Link>{' '}
           and{' '}
-          <Link to="/privacy" className="text-brand hover:underline">Privacy Policy</Link>.
-        </p>
+          <Link to="/privacy" className="text-brand underline underline-offset-2 hover:no-underline">Privacy Policy</Link>.
+        </footer>
       </div>
     </div>
   )

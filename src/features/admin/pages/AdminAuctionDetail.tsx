@@ -35,20 +35,20 @@ const STATUS_CHIP: Record<AuctionStatus, string> = {
   draft:     'bg-slate-100 text-slate-500',
   scheduled: 'bg-brand-light text-brand',
   live:      'bg-amber-light text-amber-dark',
-  closed:    'bg-slate-100 text-slate-400',
+  closed:    'bg-slate-100 text-slate-500',
   cancelled: 'bg-red-50 text-red-400',
 }
 
 const STATUS_TRANSITIONS: Record<AuctionStatus, { label: string; next: AuctionStatus; style: string }[]> = {
   draft:     [{ label: 'Publish to Scheduled', next: 'scheduled', style: 'bg-brand hover:bg-brand-dark text-white' }],
   scheduled: [
-    { label: 'Go Live',       next: 'live',  style: 'bg-amber hover:bg-amber-dark text-white' },
+    { label: 'Go Live',       next: 'live',  style: 'bg-amber hover:bg-[#F2BC45] text-slate-900' },
     { label: 'Back to Draft', next: 'draft', style: 'bg-slate-100 hover:bg-slate-200 text-slate-600' },
   ],
   live:      [{ label: 'Close Auction', next: 'closed', style: 'bg-red-50 hover:bg-red-100 text-red-600' }],
   // Closed auctions (closed by an admin or automatically at the end time) can
   // be reopened with a new end time.
-  closed:    [{ label: 'Reopen with new end time', next: 'live', style: 'bg-amber hover:bg-amber-dark text-white' }],
+  closed:    [{ label: 'Reopen with new end time', next: 'live', style: 'bg-amber hover:bg-[#F2BC45] text-slate-900' }],
   cancelled: [],
 }
 
@@ -565,22 +565,22 @@ export default function AdminAuctionDetail() {
   const endTimePassed = !!endsIso && new Date(endsIso).getTime() <= Date.now()
 
   return (
-    <div className="p-6 max-w-[1300px] mx-auto [&_input]:scroll-mt-24 [&_textarea]:scroll-mt-24 [&_select]:scroll-mt-24 [&_button]:scroll-mt-24">
+    <div className="p-4 sm:p-6 max-w-[1300px] mx-auto [&_input]:scroll-mt-24 [&_textarea]:scroll-mt-24 [&_select]:scroll-mt-24 [&_button]:scroll-mt-24">
 
       {/* Header — stays on screen while scrolling so Save is always reachable */}
-      <div className="sticky top-0 z-20 -mx-6 px-6 py-3 mb-5 bg-background/95 backdrop-blur border-b border-slate-100 flex items-start justify-between gap-4">
+      <div className="sticky top-0 z-20 -mx-4 px-4 sm:-mx-6 sm:px-6 py-3 mb-5 bg-background/95 backdrop-blur border-b border-slate-100 flex items-start justify-between gap-4">
         <div className="flex items-start gap-3 min-w-0">
-          <Link to="/admin/auctions" className="mt-0.5 shrink-0 text-slate-400 hover:text-brand transition-colors">
+          <Link to="/admin/auctions" className="mt-0.5 shrink-0 text-slate-500 hover:text-brand transition-colors">
             <ChevronLeft size={18} />
           </Link>
           <div className="min-w-0">
-            <input
+            <input aria-label="Auction title"
               value={form.title}
               onChange={(e) => field('title', e.target.value)}
               placeholder="New Auction"
-              className="text-xl font-bold text-slate-900 bg-transparent border-0 outline-none hover:bg-slate-50 focus:bg-slate-50 rounded-lg px-1 -ml-1 w-full max-w-3xl transition-colors placeholder:text-slate-300"
+              className="text-xl font-bold text-slate-900 bg-transparent border-0 outline-none hover:bg-slate-50 focus:bg-slate-50 rounded-lg px-1 -ml-1 w-full max-w-3xl transition-colors placeholder:text-slate-400"
             />
-            <p className="text-[10px] text-slate-400 font-mono mt-0.5 ml-1">{form.auction_ref}</p>
+            <p className="text-[10px] text-slate-500 font-mono mt-0.5 ml-1">{form.auction_ref}</p>
           </div>
         </div>
 
@@ -598,7 +598,7 @@ export default function AdminAuctionDetail() {
           <button onClick={handleSave} disabled={isSaving} title="Save (Ctrl+S)"
             className={cn('flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-colors',
               saved ? 'bg-green-50 text-green-700'
-              : isSaving ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+              : isSaving ? 'bg-slate-100 text-slate-500 cursor-not-allowed'
               : 'bg-brand hover:bg-brand-dark text-white')}>
             {isSaving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
             {saved ? 'Saved!' : isNew ? 'Create Auction' : 'Save'}
@@ -617,7 +617,7 @@ export default function AdminAuctionDetail() {
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm px-5 py-4 mb-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <div className="flex-1">
             <p className="text-xs font-semibold text-slate-700">Lifecycle</p>
-            <p className="text-[10px] text-slate-400 mt-0.5">Current: <span className="font-semibold capitalize text-slate-600">{form.status}</span></p>
+            <p className="text-[10px] text-slate-500 mt-0.5">Current: <span className="font-semibold capitalize text-slate-600">{form.status}</span></p>
             {form.status === 'closed' && (
               <p className="text-[10px] text-slate-500 mt-1">
                 To extend this auction, set a new <strong>Ends At</strong> below, then click <strong>Reopen with new end time</strong>.
@@ -658,37 +658,37 @@ export default function AdminAuctionDetail() {
             <div className="space-y-3">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Category</label>
-                  <select value={form.category} onChange={(e) => field('category', e.target.value)}
+                  <label htmlFor="admin-auction-detail-category" className="block text-[10px] text-slate-500 uppercase tracking-wide mb-1">Category</label>
+                  <select id="admin-auction-detail-category" value={form.category} onChange={(e) => field('category', e.target.value)}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors">
                     {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Location</label>
-                  <input value={form.location} onChange={(e) => field('location', e.target.value)} placeholder="City, Country"
+                  <label className="block text-[10px] text-slate-500 uppercase tracking-wide mb-1">Location</label>
+                  <input aria-label="City, Country" value={form.location} onChange={(e) => field('location', e.target.value)} placeholder="City, Country"
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Description</label>
-                <textarea value={form.description} onChange={(e) => field('description', e.target.value)} rows={10}
+                <label htmlFor="admin-auction-detail-description" className="block text-[10px] text-slate-500 uppercase tracking-wide mb-1">Description</label>
+                <textarea id="admin-auction-detail-description" value={form.description} onChange={(e) => field('description', e.target.value)} rows={10}
                   placeholder="Describe this auction…"
                   className="w-full px-3 py-2 text-xs leading-relaxed rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors resize-y" />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Organisation</label>
-                  <select value={form.org_id} onChange={(e) => field('org_id', e.target.value)}
+                  <label htmlFor="admin-auction-detail-organisation" className="block text-[10px] text-slate-500 uppercase tracking-wide mb-1">Organisation</label>
+                  <select id="admin-auction-detail-organisation" value={form.org_id} onChange={(e) => field('org_id', e.target.value)}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors">
                     <option value="">Platform Auction (no org)</option>
                     {orgs.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Visibility</label>
+                  <label className="block text-[10px] text-slate-500 uppercase tracking-wide mb-1">Visibility</label>
                   <div className="flex gap-2 mt-1">
                     {(['public', 'org_only'] as const).map((v) => (
                       <button key={v} type="button" onClick={() => field('visibility', v)}
@@ -703,18 +703,18 @@ export default function AdminAuctionDetail() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Starts At</label>
-                  <input type="datetime-local" value={form.starts_at} onChange={(e) => field('starts_at', e.target.value)}
+                  <label htmlFor="admin-auction-detail-starts-at" className="block text-[10px] text-slate-500 uppercase tracking-wide mb-1">Starts At</label>
+                  <input id="admin-auction-detail-starts-at" type="datetime-local" value={form.starts_at} onChange={(e) => field('starts_at', e.target.value)}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors" />
                   {form.starts_at && <p className="text-[10px] text-slate-500 mt-1">{readableDate(form.starts_at)}</p>}
                 </div>
                 <div>
-                  <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Ends At</label>
-                  <input type="datetime-local" value={form.ends_at} onChange={(e) => field('ends_at', e.target.value)}
+                  <label htmlFor="admin-auction-detail-ends-at" className="block text-[10px] text-slate-500 uppercase tracking-wide mb-1">Ends At</label>
+                  <input id="admin-auction-detail-ends-at" type="datetime-local" value={form.ends_at} onChange={(e) => field('ends_at', e.target.value)}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors" />
                   {form.ends_at && <p className="text-[10px] text-slate-500 mt-1">{readableDate(form.ends_at)}</p>}
                   <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                    <span className="text-[10px] text-slate-400">Extend:</span>
+                    <span className="text-[10px] text-slate-500">Extend:</span>
                     {[{ label: '+1 day', days: 1 }, { label: '+1 week', days: 7 }, { label: '+30 days', days: 30 }].map((x) => (
                       <button key={x.days} type="button" onClick={() => extendEnds(x.days)}
                         className="px-2 py-1 rounded-lg text-[10px] font-semibold bg-slate-100 hover:bg-brand-light hover:text-brand text-slate-600 transition-colors">
@@ -726,8 +726,8 @@ export default function AdminAuctionDetail() {
               </div>
 
               <div>
-                <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Bank Details</label>
-                <textarea value={form.bank_details} onChange={(e) => field('bank_details', e.target.value)} rows={3}
+                <label htmlFor="admin-auction-detail-bank-details" className="block text-[10px] text-slate-500 uppercase tracking-wide mb-1">Bank Details</label>
+                <textarea id="admin-auction-detail-bank-details" value={form.bank_details} onChange={(e) => field('bank_details', e.target.value)} rows={3}
                   placeholder="Bank name, account number, branch…"
                   className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors resize-none font-mono" />
               </div>
@@ -756,12 +756,12 @@ export default function AdminAuctionDetail() {
               <div className="mb-4 p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-4">
                 <div>
                   <p className="text-xs font-semibold text-slate-700 mb-0.5">Set the starting bid for this property</p>
-                  <p className="text-[10px] text-slate-400">Then click <strong>Save</strong> above. For multi-item auctions (cars, furniture) use <strong>Add Lot</strong> instead.</p>
+                  <p className="text-[10px] text-slate-500">Then click <strong>Save</strong> above. For multi-item auctions (cars, furniture) use <strong>Add Lot</strong> instead.</p>
                 </div>
 
                 {/* Starting Bid */}
                 <div>
-                  <label className="block text-[10px] text-slate-400 uppercase tracking-wide font-semibold mb-2">Starting Bid ({form.currency})</label>
+                  <label className="block text-[10px] text-slate-500 uppercase tracking-wide font-semibold mb-2">Starting Bid ({form.currency})</label>
                   <div className="flex flex-wrap gap-1.5 mb-2">
                     {STARTING_BID_PRESETS.map((p) => (
                       <button key={p} type="button"
@@ -781,7 +781,7 @@ export default function AdminAuctionDetail() {
                     </button>
                   </div>
                   {customStartingBid && (
-                    <input type="number" min="0" step="1000000"
+                    <input aria-label="Enter amount e.g. 320000000" type="number" min="0" step="1000000"
                       value={form.starting_bid || ''}
                       onChange={(e) => field('starting_bid', Number(e.target.value))}
                       placeholder="Enter amount e.g. 320000000"
@@ -797,7 +797,7 @@ export default function AdminAuctionDetail() {
 
                 {/* Bid Increment */}
                 <div>
-                  <label className="block text-[10px] text-slate-400 uppercase tracking-wide font-semibold mb-2">Bid Increment ({form.currency})</label>
+                  <label className="block text-[10px] text-slate-500 uppercase tracking-wide font-semibold mb-2">Bid Increment ({form.currency})</label>
                   <div className="flex flex-wrap gap-1.5 mb-2">
                     {BID_INCREMENT_PRESETS.map((p) => (
                       <button key={p} type="button"
@@ -817,7 +817,7 @@ export default function AdminAuctionDetail() {
                     </button>
                   </div>
                   {customBidIncrement && (
-                    <input type="number" min="0" step="100000"
+                    <input aria-label="Enter increment e.g. 2000000" type="number" min="0" step="100000"
                       value={form.bid_increment || ''}
                       onChange={(e) => field('bid_increment', Number(e.target.value))}
                       placeholder="Enter increment e.g. 2000000"
@@ -836,18 +836,18 @@ export default function AdminAuctionDetail() {
             {lots.length === 0 ? (
               <div className="py-6 text-center text-slate-300">
                 <Package size={28} strokeWidth={1} className="mx-auto mb-2" />
-                <p className="text-xs text-slate-400">{isNew ? 'Save the auction first to create the lot.' : 'Set a Starting Bid above and save, or Add Lot for multi-item.'}</p>
+                <p className="text-xs text-slate-500">{isNew ? 'Save the auction first to create the lot.' : 'Set a Starting Bid above and save, or Add Lot for multi-item.'}</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-slate-100">
-                      <th className="text-left text-[10px] font-semibold text-slate-400 uppercase tracking-wide pb-2 pr-3 w-8">#</th>
-                      <th className="text-left text-[10px] font-semibold text-slate-400 uppercase tracking-wide pb-2 pr-3">Title</th>
-                      <th className="text-right text-[10px] font-semibold text-slate-400 uppercase tracking-wide pb-2 pr-3 hidden md:table-cell">Reserve</th>
-                      <th className="text-right text-[10px] font-semibold text-slate-400 uppercase tracking-wide pb-2 pr-3 hidden lg:table-cell">Increment</th>
-                      <th className="text-right text-[10px] font-semibold text-slate-400 uppercase tracking-wide pb-2">Actions</th>
+                      <th className="text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide pb-2 pr-3 w-8">#</th>
+                      <th className="text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide pb-2 pr-3">Title</th>
+                      <th className="text-right text-[10px] font-semibold text-slate-500 uppercase tracking-wide pb-2 pr-3 hidden md:table-cell">Reserve</th>
+                      <th className="text-right text-[10px] font-semibold text-slate-500 uppercase tracking-wide pb-2 pr-3 hidden lg:table-cell">Increment</th>
+                      <th className="text-right text-[10px] font-semibold text-slate-500 uppercase tracking-wide pb-2">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
@@ -856,7 +856,7 @@ export default function AdminAuctionDetail() {
                       .sort((a, b) => a.lot_number - b.lot_number)
                       .map((lot) => (
                         <tr key={lot.id} className="hover:bg-slate-50/50 transition-colors">
-                          <td className="py-3 pr-3 text-xs font-mono text-slate-400">{lot.lot_number}</td>
+                          <td className="py-3 pr-3 text-xs font-mono text-slate-500">{lot.lot_number}</td>
                           <td className="py-3 pr-3">
                             <div className="flex items-center gap-2.5">
                               {lot.image_url ? (
@@ -878,11 +878,11 @@ export default function AdminAuctionDetail() {
                           <td className="py-3">
                             <div className="flex items-center justify-end gap-1">
                               <button onClick={() => setLotModal({ open: true, editing: lotToLotDraft(lot) })}
-                                className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-brand-light text-slate-400 hover:text-brand transition-colors">
+                                className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-brand-light text-slate-500 hover:text-brand transition-colors">
                                 <Pencil size={11} />
                               </button>
                               <button onClick={() => handleDeleteLot(lot)}
-                                className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors">
+                                className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-red-50 text-slate-500 hover:text-red-500 transition-colors">
                                 <Trash2 size={11} />
                               </button>
                             </div>
@@ -905,8 +905,8 @@ export default function AdminAuctionDetail() {
             {/* Multi-image grid */}
             <div className="mb-4">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-[10px] text-slate-400 uppercase tracking-wide font-semibold">
-                  Photos <span className="normal-case text-slate-300">({displayedAuctionImages.length}/{MAX_AUCTION_IMAGES})</span>
+                <p className="text-[10px] text-slate-500 uppercase tracking-wide font-semibold">
+                  Photos <span className="normal-case text-slate-500">({displayedAuctionImages.length}/{MAX_AUCTION_IMAGES})</span>
                 </p>
                 <div className="flex items-center gap-3">
                   {form.images.filter(Boolean).length < MAX_AUCTION_IMAGES && (
@@ -947,7 +947,7 @@ export default function AdminAuctionDetail() {
                 {displayedAuctionImages.map((url, i) => (
                   <div key={i}>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-[9px] text-slate-400 uppercase tracking-wide font-semibold">
+                      <span className="text-[9px] text-slate-500 uppercase tracking-wide font-semibold">
                         {auctionSlotLabel(i)}
                       </span>
                       <div className="flex items-center gap-2">
@@ -984,10 +984,10 @@ export default function AdminAuctionDetail() {
 
             {/* Video URL */}
             <div>
-              <label className="text-[10px] text-slate-400 uppercase tracking-wide font-semibold mb-1.5 flex items-center gap-1">
+              <label htmlFor="admin-auction-detail-video-url-optional" className="text-[10px] text-slate-500 uppercase tracking-wide font-semibold mb-1.5 flex items-center gap-1">
                 <Video size={10} />Video URL <span className="normal-case text-slate-300">(optional)</span>
               </label>
-              <input
+              <input id="admin-auction-detail-video-url-optional"
                 type="url"
                 value={form.video_url}
                 onChange={(e) => field('video_url', e.target.value)}
@@ -1002,20 +1002,20 @@ export default function AdminAuctionDetail() {
             <h2 className="text-sm font-semibold text-slate-800 mb-4">Fee & Settings</h2>
             <div className="space-y-3">
               <div>
-                <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Auction Ref</label>
-                <input value={form.auction_ref} readOnly
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-100 bg-slate-50 text-slate-400 font-mono cursor-default" />
+                <label htmlFor="admin-auction-detail-auction-ref" className="block text-[10px] text-slate-500 uppercase tracking-wide mb-1">Auction Ref</label>
+                <input id="admin-auction-detail-auction-ref" value={form.auction_ref} readOnly
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-100 bg-slate-50 text-slate-500 font-mono cursor-default" />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Entry Fee</label>
-                  <input type="number" value={form.participation_fee || ''} placeholder="0" min={0}
+                  <label htmlFor="admin-auction-detail-entry-fee" className="block text-[10px] text-slate-500 uppercase tracking-wide mb-1">Entry Fee</label>
+                  <input id="admin-auction-detail-entry-fee" type="number" value={form.participation_fee || ''} placeholder="0" min={0}
                     onChange={(e) => field('participation_fee', parseInt(e.target.value) || 0)}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors" />
                 </div>
                 <div>
-                  <label className="block text-[10px] text-slate-400 uppercase tracking-wide mb-1">Currency</label>
-                  <select value={form.currency} onChange={(e) => field('currency', e.target.value)}
+                  <label htmlFor="admin-auction-detail-currency" className="block text-[10px] text-slate-500 uppercase tracking-wide mb-1">Currency</label>
+                  <select id="admin-auction-detail-currency" value={form.currency} onChange={(e) => field('currency', e.target.value)}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors">
                     {CURRENCIES.map((c) => <option key={c}>{c}</option>)}
                   </select>

@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Shared by the Netlify edge functions (listing-meta, sitemap).
+// Shared by the listing-page and sitemap handlers (Netlify and Cloudflare).
 // Public (anon) credentials — the same ones already shipped in the website's
 // JavaScript and netlify.toml. Row-level security decides what they can read.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -10,7 +10,7 @@ export const SUPABASE_ANON_KEY =
 export const SITE_URL = 'https://quickwayauctioneersandcourtbailiffs.com'
 
 /** GET a Supabase REST path (e.g. "auctions?select=id"). Returns null on any failure. */
-export async function supabaseGet<T>(path: string, timeoutMs = 1500): Promise<T | null> {
+export async function supabaseGet<T>(path: string, timeoutMs = 3000): Promise<T | null> {
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
       headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },

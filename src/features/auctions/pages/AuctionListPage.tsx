@@ -95,7 +95,7 @@ export default function AuctionListPage() {
             </div>
             <div>
               <p className="text-sm font-bold text-white leading-tight">Quickway Auctioneers & Court Bailiffs</p>
-              <p className="text-xs text-white/70 mt-0.5">Browse our property and asset catalogue. Sign in to register and submit offers.</p>
+              <p className="text-xs text-white/85 mt-0.5">Browse our property and asset catalogue. Sign in to register and submit offers.</p>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
@@ -197,8 +197,8 @@ export default function AuctionListPage() {
 
       {/* ── Search ──────────────────────────────────────────── */}
       <div className="relative mb-4">
-        <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-        <input
+        <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+        <input aria-label="Search by title, auctioneer, location"
           type="text"
           placeholder="Search by title, auctioneer, location…"
           value={search}
@@ -218,9 +218,9 @@ export default function AuctionListPage() {
           <div className="flex items-center gap-2 mb-3">
             <div className="flex items-center gap-1.5 bg-amber-light text-amber-dark px-2.5 py-1 rounded-full">
               <Radio size={12} className="animate-pulse" />
-              <span className="text-xs font-semibold">Live Now</span>
+              <h2 className="text-xs font-semibold">Live Now</h2>
             </div>
-            <span className="text-xs text-slate-400">
+            <span className="text-xs text-slate-500">
               {liveAuctions.length} auction{liveAuctions.length !== 1 ? 's' : ''} in progress
             </span>
           </div>
@@ -249,7 +249,7 @@ export default function AuctionListPage() {
         </section>
       ) : (
         liveAuctions.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+          <div className="flex flex-col items-center justify-center py-20 text-slate-500">
             <Search size={40} strokeWidth={1} className="mb-3 opacity-50" />
             <p className="text-sm font-medium">No auctions found</p>
             <p className="text-xs mt-1">Try adjusting your search or filter</p>

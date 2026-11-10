@@ -17,6 +17,7 @@ export default function HomeLayout() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] overflow-x-hidden">
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-white focus:text-brand focus:px-4 focus:py-2 focus:rounded-lg focus:shadow-lg text-sm font-semibold">Skip to content</a>
       {/* ── Top nav ──────────────────────────────────────────── */}
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-sm">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-2">
@@ -25,7 +26,7 @@ export default function HomeLayout() {
             <img src={quickwayLogo} alt="Quickway" className="h-8 w-8 object-contain" />
             <div>
               <p className="text-brand font-bold tracking-wide text-xs leading-none">QUICKWAY</p>
-              <p className="text-slate-400 text-[9px] leading-tight">Auctioneers & Court Bailiffs</p>
+              <p className="text-slate-500 text-[9px] leading-tight">Auctioneers & Court Bailiffs</p>
             </div>
           </Link>
 
@@ -77,7 +78,9 @@ export default function HomeLayout() {
       </header>
 
       {/* ── Page content ─────────────────────────────────────── */}
-      <Outlet />
+      <main id="main" tabIndex={-1} className="focus:outline-none">
+        <Outlet />
+      </main>
       <WhatsAppFloat />
     </div>
   )
