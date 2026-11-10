@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Shared by the Netlify edge functions (listing-meta, sitemap).
+// Shared by the listing-page and sitemap handlers (Netlify and Cloudflare).
 // Public (anon) credentials — the same ones already shipped in the website's
 // JavaScript and netlify.toml. Row-level security decides what they can read.
 // ─────────────────────────────────────────────────────────────────────────────

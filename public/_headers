@@ -1,0 +1,5 @@
+# Cloudflare Pages response headers
+
+# Built files have content hashes in their names, so they never change — cache for a year
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
